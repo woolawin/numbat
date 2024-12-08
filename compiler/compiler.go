@@ -347,7 +347,7 @@ func (proc *Proc) String() string {
 		}
 
 		if stmt.assignment != nil {
-			str.WriteString("\t SET")
+			str.WriteString("\t ASN")
 			for _, varName := range stmt.assignment.vars {
 				str.WriteString(" ")
 				str.WriteString(varName)
