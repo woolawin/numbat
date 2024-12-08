@@ -1,0 +1,21 @@
+version: '3'
+tasks:
+  install-antlr:
+    dir: parser
+    cmds:
+      - curl -o antlr4.jar https://www.antlr.org/download/antlr-4.13.2-complete.jar
+
+  antlr:
+    dir: parser
+    cmds:
+      - java -jar antlr4.jar -Dlanguage=Go Numbat.g4
+
+  build:
+    deps: [antlr]
+    cmds:
+      - go build
+
+  run:
+    deps: [build]
+    cmds:
+      - ./numbat

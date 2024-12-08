@@ -1,0 +1,4 @@
+
+program do
+    (log: "Hello World")
+end

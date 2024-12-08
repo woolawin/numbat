@@ -1,0 +1,11 @@
+
+program do
+    (log: "yes") // end of line
+    // (log: "nope")
+end
+
+/*
+proc nope do
+
+end
+*/
