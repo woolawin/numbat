@@ -6,7 +6,10 @@ proc foo do
     let c Int32
     let d Int32 = (baz)
     let e Int64 = 1e+22
+    let g Int64 = #kg 12
     let f = a
     let h = 0x3F
+    let i = 1.2
+    let j Float32 = -3.8
 end
 

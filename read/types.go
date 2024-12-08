@@ -27,6 +27,7 @@ type VarName struct {
 }
 
 type Expr struct {
+	unit    string
 	varName *VarName
 	boolean *string
 	number  *string

@@ -27,6 +27,12 @@ func (s *BaseNumbatListener) EnterProg(ctx *ProgContext) {}
 // ExitProg is called when production prog is exited.
 func (s *BaseNumbatListener) ExitProg(ctx *ProgContext) {}
 
+// EnterUnit is called when production unit is entered.
+func (s *BaseNumbatListener) EnterUnit(ctx *UnitContext) {}
+
+// ExitUnit is called when production unit is exited.
+func (s *BaseNumbatListener) ExitUnit(ctx *UnitContext) {}
+
 // EnterExpr_bool is called when production expr_bool is entered.
 func (s *BaseNumbatListener) EnterExpr_bool(ctx *Expr_boolContext) {}
 

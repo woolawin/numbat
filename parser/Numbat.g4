@@ -2,9 +2,10 @@ grammar Numbat;
 
 prog: (WS | NEWLINE | object)*;
 
+unit: '#'NON_TYPE_NAME;
 
 expr_bool: ('true' | 'false');
-expr_num: NUMBER;
+expr_num: unit? NUMBER;
 expr_hex: HEX;
 expr_str: STRING;
 expr_null: 'null';

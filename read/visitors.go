@@ -1,6 +1,8 @@
 package read
 
-import "numbat/parser"
+import (
+	"numbat/parser"
+)
 
 // ============================================================================================================
 // PROGRAM
@@ -209,22 +211,26 @@ func (source *Source) ExitAssignment_expr(ctx *parser.Assignment_exprContext) {
 
 func (source *Source) EnterExpr_bool(ctx *parser.Expr_boolContext) {
 	str := ctx.GetText()
-	*source.exprs = append(*source.exprs, Expr{boolean: &str})
+	*source.exprs = append(*source.exprs, Expr{boolean: &str, unit: "bool"})
 }
 
 func (source *Source) EnterExpr_num(ctx *parser.Expr_numContext) {
-	value := ctx.GetText()
-	*source.exprs = append(*source.exprs, Expr{number: &value})
+	value := ctx.NUMBER().GetText()
+	unit := "num"
+	if ctx.Unit() != nil {
+		unit = ctx.Unit().NON_TYPE_NAME().GetText()
+	}
+	*source.exprs = append(*source.exprs, Expr{number: &value, unit: unit})
 }
 
 func (source *Source) EnterExpr_hex(ctx *parser.Expr_hexContext) {
 	value := ctx.GetText()
-	*source.exprs = append(*source.exprs, Expr{hex: &value})
+	*source.exprs = append(*source.exprs, Expr{hex: &value, unit: "hex"})
 }
 
 func (source *Source) EnterExpr_str(ctx *parser.Expr_strContext) {
 	value := ctx.GetText()
-	*source.exprs = append(*source.exprs, Expr{str: &value})
+	*source.exprs = append(*source.exprs, Expr{str: &value, unit: "str"})
 }
 
 func (source *Source) EnterExpr_null(ctx *parser.Expr_nullContext) {
@@ -241,4 +247,3 @@ func (source *Source) EnterExpr_call(ctx *parser.Expr_callContext) {
 	*source.exprs = append(*source.exprs, Expr{call: call})
 	source.call = call
 }
-

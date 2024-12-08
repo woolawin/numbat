@@ -200,14 +200,19 @@ func (typ *Type) String() string {
 }
 
 func (exp *Expr) String() string {
+	var str strings.Builder
+	str.WriteString("#")
+	str.WriteString(exp.unit)
+	str.WriteString(" ")
+
 	if exp.boolean != nil {
-		return "#bool " + *exp.boolean
+		str.WriteString(*exp.boolean)
 	} else if exp.number != nil {
-		return "#num " + *exp.number
+		str.WriteString(*exp.number)
 	} else if exp.hex != nil {
-		return "#hex " + *exp.hex
+		str.WriteString(*exp.hex)
 	} else if exp.str != nil {
-		return "#str " + *exp.str
+		str.WriteString(*exp.str)
 	} else if exp.null {
 		return "null"
 	} else if exp.varName != nil {
@@ -215,5 +220,6 @@ func (exp *Expr) String() string {
 	} else if exp.call != nil {
 		return "&(" + exp.call.String() + ")"
 	}
-	return "!!error!!"
+
+	return str.String()
 }

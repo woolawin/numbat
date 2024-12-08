@@ -75,8 +75,11 @@ PROC foo
 	LET c Int32
 	LET d Int32 &(baz)
 	LET e Int64 #num 1e+22
+	LET g Int64 #kg 12
 	LET f $a
 	LET h #hex 0x3F
+	LET i #num 1.2
+	LET j Float32 #num -3.8
 `
 	assert(t, src, expected)
 }
