@@ -1,4 +1,4 @@
-package compiler
+package read
 
 type TypeOut struct {
 	name string

@@ -1,0 +1,12 @@
+
+
+proc foo do
+    let a = 0
+    let b Int32 = 1
+    let c Int32
+    let d Int32 = (baz)
+    let e Int64 = 1e+22
+    let f = a
+    let h = 0x3F
+end
+

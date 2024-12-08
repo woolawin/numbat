@@ -1,9 +1,8 @@
 package main
 
 import (
-	"github.com/antlr4-go/antlr/v4"
-	"numbat/compiler"
-	"numbat/parser"
+	"fmt"
+	"numbat/read"
 )
 
 func main() {
@@ -48,17 +47,6 @@ proc plus(num Int) do
 end
 `
 
-	input := antlr.NewInputStream(code)
-	lexer := parser.NewNumbatLexer(input)
-	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
-	p := parser.NewNumbatParser(stream)
-
-	errorListener := &compiler.ErrorListener{}
-	p.AddErrorListener(errorListener)
-
-	tree := p.Prog()
-
-	c := compiler.NewCompiler()
-	antlr.ParseTreeWalkerDefault.Walk(c, tree)
-	c.Print()
+	src := read.Read(code)
+	fmt.Println(src.String())
 }

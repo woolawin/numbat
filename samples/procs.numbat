@@ -1,0 +1,24 @@
+
+proc foo do
+
+end
+
+proc bar Int do
+    return 1
+end
+
+proc inc1(num Int) Int do
+    return num
+end
+
+proc swap(a Int, b Int) Int do
+
+end
+
+proc baz(msg Str, caps Bool, times Int = 1) do
+
+end
+
+proc map(arr Array, fn (a Int) Int) Array do
+
+end

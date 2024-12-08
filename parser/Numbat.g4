@@ -60,7 +60,7 @@ NUMBER          : '-'? [0-9]+ ('.' [0-9]+)? ([e] [+-]? [0-9]+)?;
 HEX             : '-'? '0' [x] [0-9A-F]+;
 STRING          : '"' (~["\\] | '\\' .)* '"';
 TYPE_NAME       : [A-Z][a-zA-Z_0-9]+;
-NON_TYPE_NAME   : [a-z][a-z_0-9]+;
+NON_TYPE_NAME   : [a-z][a-z_0-9]*;
 WS              : [ \t]+ -> skip;
 COMMENT         : '/*' .*? '*/' -> skip;
 LINE_COMMENT    : '//' ~[\r\n]* -> skip;
