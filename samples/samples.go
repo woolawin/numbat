@@ -15,3 +15,6 @@ var Procs string
 
 //go:embed vars.numbat
 var Vars string
+
+//go:embed calls.numbat
+var Calls string

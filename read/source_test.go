@@ -81,6 +81,22 @@ PROC foo
 	assert(t, src, expected)
 }
 
+func TestCalls(t *testing.T) {
+	src := Read(samples.Calls).String()
+	expected := `
+PROC main
+	DO
+	CALL foo
+	CALL foo.bar
+	CALL foo #str "baz"
+	CALL foo.bar #str "baz"
+	CALL alot #num 1 #bool true #bool false #num -45 #str "msg" #hex 0xFFF #num 3e+14
+	LET a &(foo)
+	LET b &(foo #str "baz" #bool true)
+`
+	assert(t, src, expected)
+}
+
 func assert(t *testing.T, a, b string) {
 	diff := cmp.Diff(strings.TrimSpace(a), strings.TrimSpace(b))
 	if diff != "" {
