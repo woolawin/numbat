@@ -74,12 +74,12 @@ func (listener *Listener) ExitProc(ctx *parser.ProcContext) {
 }
 
 func (listener *Listener) EnterProc_name(ctx *parser.Proc_nameContext) {
-	listener.proc.name = ctx.NON_TYPE_NAME().GetText()
+	listener.proc.Name = ctx.NON_TYPE_NAME().GetText()
 }
 
 func (listener *Listener) EnterProc_type(ctx *parser.Proc_typeContext) {
-	listener.proc.returnType = &Type{}
-	listener.SetType(listener.proc.returnType)
+	listener.proc.ReturnType = &Type{}
+	listener.SetType(listener.proc.ReturnType)
 }
 
 // ============================================================================================================
@@ -91,7 +91,7 @@ func (listener *Listener) ExitType(ctx *parser.TypeContext) {
 }
 
 func (listener *Listener) EnterType_out(ctx *parser.Type_outContext) {
-	listener.typ.out.name = ctx.TYPE_NAME().GetText()
+	listener.typ.Out.Name = ctx.TYPE_NAME().GetText()
 }
 
 // ============================================================================================================
@@ -99,19 +99,19 @@ func (listener *Listener) EnterType_out(ctx *parser.Type_outContext) {
 // ============================================================================================================
 
 func (listener *Listener) EnterParam(ctx *parser.ParamContext) {
-	listener.typ.in = append(listener.typ.in, Param{
-		name: ctx.NON_TYPE_NAME().GetText(),
+	listener.typ.In = append(listener.typ.In, Param{
+		Name: ctx.NON_TYPE_NAME().GetText(),
 	})
-	listener.typ.param = &listener.typ.in[len(listener.typ.in)-1]
+	listener.typ.Param = &listener.typ.In[len(listener.typ.In)-1]
 }
 
 func (listener *Listener) ExitParam(ctx *parser.ParamContext) {
-	listener.typ.param = nil
+	listener.typ.Param = nil
 }
 
 func (listener *Listener) EnterParam_expr(ctx *parser.Param_exprContext) {
-	listener.typ.param.expr = make([]Expr, 0)
-	listener.exprs = &listener.typ.param.expr
+	listener.typ.Param.Expr = make([]Expr, 0)
+	listener.exprs = &listener.typ.Param.Expr
 }
 
 func (listener *Listener) ExitParam_expr(ctx *parser.Param_exprContext) {
@@ -119,8 +119,8 @@ func (listener *Listener) ExitParam_expr(ctx *parser.Param_exprContext) {
 }
 
 func (listener *Listener) EnterParam_type(ctx *parser.Param_typeContext) {
-	listener.typ.param.typ = &Type{}
-	listener.SetType(listener.typ.param.typ)
+	listener.typ.Param.Typ = &Type{}
+	listener.SetType(listener.typ.Param.Typ)
 }
 
 // ============================================================================================================
@@ -128,11 +128,11 @@ func (listener *Listener) EnterParam_type(ctx *parser.Param_typeContext) {
 // ============================================================================================================
 
 func (listener *Listener) EnterLet(ctx *parser.LetContext) {
-	listener.proc.statements = append(listener.proc.statements, Statement{
-		let: &Let{},
+	listener.proc.Statements = append(listener.proc.Statements, Statement{
+		Let: &Let{},
 	})
-	listener.statement = &listener.proc.statements[len(listener.proc.statements)-1]
-	listener.let = listener.statement.let
+	listener.statement = &listener.proc.Statements[len(listener.proc.Statements)-1]
+	listener.let = listener.statement.Let
 }
 
 func (listener *Listener) ExitLet(ctx *parser.LetContext) {
@@ -140,8 +140,8 @@ func (listener *Listener) ExitLet(ctx *parser.LetContext) {
 }
 
 func (listener *Listener) EnterLet_expr(ctx *parser.Let_exprContext) {
-	listener.let.exprs = make([]Expr, 0)
-	listener.exprs = &listener.let.exprs
+	listener.let.Exprs = make([]Expr, 0)
+	listener.exprs = &listener.let.Exprs
 }
 
 func (listener *Listener) ExitLet_expr(ctx *parser.Let_exprContext) {
@@ -149,12 +149,12 @@ func (listener *Listener) ExitLet_expr(ctx *parser.Let_exprContext) {
 }
 
 func (listener *Listener) EnterLet_var_name(ctx *parser.Let_var_nameContext) {
-	listener.let.varName = ctx.NON_TYPE_NAME().GetText()
+	listener.let.VarName = ctx.NON_TYPE_NAME().GetText()
 }
 
 func (listener *Listener) EnterLet_var_type(ctx *parser.Let_var_typeContext) {
-	listener.let.varType = &Type{}
-	listener.SetType(listener.let.varType)
+	listener.let.VarType = &Type{}
+	listener.SetType(listener.let.VarType)
 }
 
 // ============================================================================================================
@@ -162,11 +162,11 @@ func (listener *Listener) EnterLet_var_type(ctx *parser.Let_var_typeContext) {
 // ============================================================================================================
 
 func (listener *Listener) EnterCall_stmt(ctx *parser.Call_stmtContext) {
-	listener.proc.statements = append(listener.proc.statements, Statement{
-		call: &Call{},
+	listener.proc.Statements = append(listener.proc.Statements, Statement{
+		Call: &Call{},
 	})
-	listener.statement = &listener.proc.statements[len(listener.proc.statements)-1]
-	listener.call = listener.statement.call
+	listener.statement = &listener.proc.Statements[len(listener.proc.Statements)-1]
+	listener.call = listener.statement.Call
 }
 
 func (listener *Listener) ExitCall_stmt(ctx *parser.Call_stmtContext) {
@@ -180,16 +180,16 @@ func (listener *Listener) EnterCall_primary(ctx *parser.Call_primaryContext) {
 	} else if ctx.TYPE_NAME() != nil {
 		primary = ctx.TYPE_NAME().GetText()
 	}
-	listener.call.primary = primary
+	listener.call.Primary = primary
 }
 
 func (listener *Listener) EnterCall_secondary(ctx *parser.Call_secondaryContext) {
-	listener.statement.call.secondary = ctx.NON_TYPE_NAME().GetText()
+	listener.statement.Call.Secondary = ctx.NON_TYPE_NAME().GetText()
 }
 
 func (listener *Listener) EnterCall_expr(ctx *parser.Call_exprContext) {
-	listener.call.exprs = make([]Expr, 0)
-	listener.exprs = &listener.call.exprs
+	listener.call.Exprs = make([]Expr, 0)
+	listener.exprs = &listener.call.Exprs
 }
 
 func (listener *Listener) ExitCall_expr(ctx *parser.Call_exprContext) {
@@ -201,10 +201,10 @@ func (listener *Listener) ExitCall_expr(ctx *parser.Call_exprContext) {
 // ============================================================================================================
 
 func (listener *Listener) EnterReturn_stmt(ctx *parser.Return_stmtContext) {
-	listener.proc.statements = append(listener.proc.statements, Statement{
-		ret: &Return{},
+	listener.proc.Statements = append(listener.proc.Statements, Statement{
+		Ret: &Return{},
 	})
-	listener.statement = &listener.proc.statements[len(listener.proc.statements)-1]
+	listener.statement = &listener.proc.Statements[len(listener.proc.Statements)-1]
 }
 
 func (listener *Listener) ExitReturn_stmt(ctx *parser.Return_stmtContext) {
@@ -212,8 +212,8 @@ func (listener *Listener) ExitReturn_stmt(ctx *parser.Return_stmtContext) {
 }
 
 func (listener *Listener) EnterReturn_expr(ctx *parser.Return_exprContext) {
-	listener.statement.ret.exprs = make([]Expr, 0)
-	listener.exprs = &listener.statement.ret.exprs
+	listener.statement.Ret.Exprs = make([]Expr, 0)
+	listener.exprs = &listener.statement.Ret.Exprs
 }
 
 func (listener *Listener) ExitReturn_expr(ctx *parser.Return_exprContext) {
@@ -225,10 +225,10 @@ func (listener *Listener) ExitReturn_expr(ctx *parser.Return_exprContext) {
 // ============================================================================================================
 
 func (listener *Listener) EnterAssignment(ctx *parser.AssignmentContext) {
-	listener.proc.statements = append(listener.proc.statements, Statement{
-		assignment: &Assignment{},
+	listener.proc.Statements = append(listener.proc.Statements, Statement{
+		Assignment: &Assignment{},
 	})
-	listener.statement = &listener.proc.statements[len(listener.proc.statements)-1]
+	listener.statement = &listener.proc.Statements[len(listener.proc.Statements)-1]
 }
 
 func (listener *Listener) ExitAssignment(ctx *parser.AssignmentContext) {
@@ -236,12 +236,12 @@ func (listener *Listener) ExitAssignment(ctx *parser.AssignmentContext) {
 }
 
 func (listener *Listener) EnterAssignment_var(ctx *parser.Assignment_varContext) {
-	listener.statement.assignment.vars = append(listener.statement.assignment.vars, ctx.NON_TYPE_NAME().GetText())
+	listener.statement.Assignment.Vars = append(listener.statement.Assignment.Vars, ctx.NON_TYPE_NAME().GetText())
 }
 
 func (listener *Listener) EnterAssignment_expr(ctx *parser.Assignment_exprContext) {
-	listener.statement.assignment.exprs = make([]Expr, 0)
-	listener.exprs = &listener.statement.assignment.exprs
+	listener.statement.Assignment.Exprs = make([]Expr, 0)
+	listener.exprs = &listener.statement.Assignment.Exprs
 }
 
 func (listener *Listener) ExitAssignment_expr(ctx *parser.Assignment_exprContext) {
@@ -254,7 +254,7 @@ func (listener *Listener) ExitAssignment_expr(ctx *parser.Assignment_exprContext
 
 func (listener *Listener) EnterExpr_bool(ctx *parser.Expr_boolContext) {
 	str := ctx.GetText()
-	*listener.exprs = append(*listener.exprs, Expr{boolean: &str, unit: "bool"})
+	*listener.exprs = append(*listener.exprs, Expr{Boolean: &str, Unit: "bool"})
 }
 
 func (listener *Listener) EnterExpr_num(ctx *parser.Expr_numContext) {
@@ -263,30 +263,30 @@ func (listener *Listener) EnterExpr_num(ctx *parser.Expr_numContext) {
 	if ctx.Unit() != nil {
 		unit = ctx.Unit().NON_TYPE_NAME().GetText()
 	}
-	*listener.exprs = append(*listener.exprs, Expr{number: &value, unit: unit})
+	*listener.exprs = append(*listener.exprs, Expr{Number: &value, Unit: unit})
 }
 
 func (listener *Listener) EnterExpr_hex(ctx *parser.Expr_hexContext) {
 	value := ctx.GetText()
-	*listener.exprs = append(*listener.exprs, Expr{hex: &value, unit: "hex"})
+	*listener.exprs = append(*listener.exprs, Expr{Hex: &value, Unit: "hex"})
 }
 
 func (listener *Listener) EnterExpr_str(ctx *parser.Expr_strContext) {
 	value := ctx.GetText()
-	*listener.exprs = append(*listener.exprs, Expr{str: &value, unit: "str"})
+	*listener.exprs = append(*listener.exprs, Expr{Str: &value, Unit: "str"})
 }
 
 func (listener *Listener) EnterExpr_null(ctx *parser.Expr_nullContext) {
-	*listener.exprs = append(*listener.exprs, Expr{null: true})
+	*listener.exprs = append(*listener.exprs, Expr{Null: true})
 }
 
 func (listener *Listener) EnterExpr_var(ctx *parser.Expr_varContext) {
 	value := ctx.GetText()
-	*listener.exprs = append(*listener.exprs, Expr{varName: &VarName{value}})
+	*listener.exprs = append(*listener.exprs, Expr{VarName: &VarName{value}})
 }
 
 func (listener *Listener) EnterExpr_call(ctx *parser.Expr_callContext) {
 	call := &Call{}
-	*listener.exprs = append(*listener.exprs, Expr{call: call})
+	*listener.exprs = append(*listener.exprs, Expr{Call: call})
 	listener.call = call
 }

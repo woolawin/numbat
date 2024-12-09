@@ -16,8 +16,8 @@ func (listener *ErrorListener) SyntaxError(recognizer antlr.Recognizer, offendin
 }
 
 type Source struct {
-	program *Proc
-	procs   []Proc
+	Program *Proc
+	Procs   []Proc
 }
 
 func Read(code string) *Source {
@@ -39,19 +39,19 @@ func Read(code string) *Source {
 
 func (listener *Listener) Source() *Source {
 	src := &Source{
-		program: listener.program,
-		procs:   listener.procs,
+		Program: listener.program,
+		Procs:   listener.procs,
 	}
 	return src
 }
 
 func (src *Source) String() string {
 	var str strings.Builder
-	if src.program != nil {
+	if src.Program != nil {
 		str.WriteString("PROGRAM")
-		str.WriteString(src.program.String())
+		str.WriteString(src.Program.String())
 	}
-	for _, proc := range src.procs {
+	for _, proc := range src.Procs {
 		str.WriteString("PROC ")
 		str.WriteString(proc.String())
 	}
@@ -60,66 +60,66 @@ func (src *Source) String() string {
 
 func (proc *Proc) String() string {
 	var str strings.Builder
-	str.WriteString(proc.name)
+	str.WriteString(proc.Name)
 	str.WriteString("\n")
-	if proc.returnType != nil {
-		for _, in := range proc.returnType.in {
+	if proc.ReturnType != nil {
+		for _, in := range proc.ReturnType.In {
 			str.WriteString("\tIN ")
-			str.WriteString(in.name)
+			str.WriteString(in.Name)
 			str.WriteString(" ")
-			str.WriteString(in.typ.String())
+			str.WriteString(in.Typ.String())
 
-			for _, expr := range in.expr {
+			for _, expr := range in.Expr {
 				str.WriteString(" ")
 				str.WriteString(expr.String())
 			}
 			str.WriteString("\n")
 		}
-		if proc.returnType.out.name != "" {
+		if proc.ReturnType.Out.Name != "" {
 			str.WriteString("\tOUT ")
-			str.WriteString(proc.returnType.out.name)
+			str.WriteString(proc.ReturnType.Out.Name)
 			str.WriteString("\n")
 		}
 	}
 	str.WriteString("\tDO\n")
-	for _, stmt := range proc.statements {
+	for _, stmt := range proc.Statements {
 
-		if stmt.call != nil {
+		if stmt.Call != nil {
 			str.WriteString("\tCALL ")
-			str.WriteString(stmt.call.String())
+			str.WriteString(stmt.Call.String())
 			str.WriteString("\n")
 		}
 
-		if stmt.let != nil {
+		if stmt.Let != nil {
 			str.WriteString("\tLET ")
-			str.WriteString(stmt.let.varName)
-			if stmt.let.varType != nil {
+			str.WriteString(stmt.Let.VarName)
+			if stmt.Let.VarType != nil {
 				str.WriteString(" ")
-				str.WriteString(stmt.let.varType.String())
+				str.WriteString(stmt.Let.VarType.String())
 			}
-			for _, exp := range stmt.let.exprs {
+			for _, exp := range stmt.Let.Exprs {
 				str.WriteString(" ")
 				str.WriteString(exp.String())
 			}
 			str.WriteString("\n")
 		}
 
-		if stmt.ret != nil {
+		if stmt.Ret != nil {
 			str.WriteString("\tRET")
-			for _, exp := range stmt.ret.exprs {
+			for _, exp := range stmt.Ret.Exprs {
 				str.WriteString(" ")
 				str.WriteString(exp.String())
 			}
 			str.WriteString("\n")
 		}
 
-		if stmt.assignment != nil {
+		if stmt.Assignment != nil {
 			str.WriteString("\tASN")
-			for _, varName := range stmt.assignment.vars {
+			for _, varName := range stmt.Assignment.Vars {
 				str.WriteString(" ")
 				str.WriteString(varName)
 			}
-			for _, exp := range stmt.assignment.exprs {
+			for _, exp := range stmt.Assignment.Exprs {
 				str.WriteString(" ")
 				str.WriteString(exp.String())
 			}
@@ -132,12 +132,12 @@ func (proc *Proc) String() string {
 
 func (call *Call) String() string {
 	var str strings.Builder
-	str.WriteString(call.primary)
-	if call.secondary != "" {
+	str.WriteString(call.Primary)
+	if call.Secondary != "" {
 		str.WriteString(".")
-		str.WriteString(call.secondary)
+		str.WriteString(call.Secondary)
 	}
-	for _, exp := range call.exprs {
+	for _, exp := range call.Exprs {
 		str.WriteString(" ")
 		str.WriteString(exp.String())
 	}
@@ -146,50 +146,50 @@ func (call *Call) String() string {
 
 func (typ *Type) String() string {
 	var str strings.Builder
-	if len(typ.in) != 0 {
+	if len(typ.In) != 0 {
 		str.WriteString("(")
-		for idx, param := range typ.in {
-			str.WriteString(param.name)
-			if param.typ != nil {
+		for idx, param := range typ.In {
+			str.WriteString(param.Name)
+			if param.Typ != nil {
 				str.WriteString(" ")
-				str.WriteString(param.typ.String())
+				str.WriteString(param.Typ.String())
 			}
 
-			for _, expr := range param.expr {
+			for _, expr := range param.Expr {
 				str.WriteString(" ")
 				str.WriteString(expr.String())
 			}
 
-			if idx != len(typ.in)-1 {
+			if idx != len(typ.In)-1 {
 				str.WriteString(", ")
 			}
 		}
 		str.WriteString(") ")
 	}
-	str.WriteString(typ.out.name)
+	str.WriteString(typ.Out.Name)
 	return str.String()
 }
 
 func (exp *Expr) String() string {
 	var str strings.Builder
 	str.WriteString("#")
-	str.WriteString(exp.unit)
+	str.WriteString(exp.Unit)
 	str.WriteString(" ")
 
-	if exp.boolean != nil {
-		str.WriteString(*exp.boolean)
-	} else if exp.number != nil {
-		str.WriteString(*exp.number)
-	} else if exp.hex != nil {
-		str.WriteString(*exp.hex)
-	} else if exp.str != nil {
-		str.WriteString(*exp.str)
-	} else if exp.null {
+	if exp.Boolean != nil {
+		str.WriteString(*exp.Boolean)
+	} else if exp.Number != nil {
+		str.WriteString(*exp.Number)
+	} else if exp.Hex != nil {
+		str.WriteString(*exp.Hex)
+	} else if exp.Str != nil {
+		str.WriteString(*exp.Str)
+	} else if exp.Null {
 		return "null"
-	} else if exp.varName != nil {
-		return "$" + exp.varName.name
-	} else if exp.call != nil {
-		return "&(" + exp.call.String() + ")"
+	} else if exp.VarName != nil {
+		return "$" + exp.VarName.Name
+	} else if exp.Call != nil {
+		return "&(" + exp.Call.String() + ")"
 	}
 
 	return str.String()

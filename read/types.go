@@ -1,72 +1,72 @@
 package read
 
 type TypeOut struct {
-	name string
+	Name string
 }
 
 type ParamDefaultValue struct {
-	varName *VarName
-	str     *string
+	VarName *VarName
+	Str     *string
 }
 
 type Param struct {
-	name string
-	typ  *Type
-	expr []Expr
+	Name string
+	Typ  *Type
+	Expr []Expr
 }
 
 type Type struct {
-	out TypeOut
-	in  []Param
+	Out TypeOut
+	In  []Param
 
-	param *Param
+	Param *Param
 }
 
 type VarName struct {
-	name string
+	Name string
 }
 
 type Expr struct {
-	unit    string
-	varName *VarName
-	boolean *string
-	number  *string
-	hex     *string
-	str     *string
-	null    bool
-	call    *Call
+	Unit    string
+	VarName *VarName
+	Boolean *string
+	Number  *string
+	Hex     *string
+	Str     *string
+	Null    bool
+	Call    *Call
 }
 
 type Call struct {
-	primary   string
-	secondary string
-	exprs     []Expr
+	Primary   string
+	Secondary string
+	Exprs     []Expr
 }
 
 type Let struct {
-	varName string
-	varType *Type
-	exprs   []Expr
+	VarName string
+	VarType *Type
+	Exprs   []Expr
 }
 
 type Return struct {
-	exprs []Expr
+	Exprs []Expr
 }
 
 type Assignment struct {
-	vars  []string
-	exprs []Expr
+	Vars  []string
+	Exprs []Expr
 }
 
 type Statement struct {
-	call       *Call
-	let        *Let
-	ret        *Return
-	assignment *Assignment
+	Call       *Call
+	Let        *Let
+	Ret        *Return
+	Assignment *Assignment
 }
 
 type Proc struct {
-	name       string
-	returnType *Type
-	statements []Statement
+	Name       string
+	ReturnType *Type
+	Statements []Statement
 }
