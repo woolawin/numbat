@@ -34,7 +34,7 @@ func numbatParserInit() {
 	staticData := &NumbatParserStaticData
 	staticData.LiteralNames = []string{
 		"", "'#'", "'true'", "'false'", "'null'", "'='", "'('", "','", "')'",
-		"'do'", "'end'", "'proc'", "':'", "'let'", "'return'", "'program'",
+		"'do'", "'end'", "'proc'", "':'", "'var'", "'return'", "'program'",
 	}
 	staticData.SymbolicNames = []string{
 		"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "NEWLINE",
@@ -46,7 +46,7 @@ func numbatParserInit() {
 		"expr_constant", "expr_var", "expr_call", "expr_all", "param_expr",
 		"param_type", "param", "type_out", "type_in", "type", "proc_body", "proc_name",
 		"proc_type", "proc_def", "proc", "call_expr", "call_secondary", "call_primary",
-		"call", "call_stmt", "let_expr", "let_var_type", "let_var_name", "let",
+		"call", "call_stmt", "var_expr", "var_type", "var_name", "var_stmt",
 		"assignment_expr", "assignment_var", "assignment", "return_expr", "return",
 		"return_stmt", "program", "statement", "object",
 	}
@@ -250,10 +250,10 @@ const (
 	NumbatParserRULE_call_primary    = 24
 	NumbatParserRULE_call            = 25
 	NumbatParserRULE_call_stmt       = 26
-	NumbatParserRULE_let_expr        = 27
-	NumbatParserRULE_let_var_type    = 28
-	NumbatParserRULE_let_var_name    = 29
-	NumbatParserRULE_let             = 30
+	NumbatParserRULE_var_expr        = 27
+	NumbatParserRULE_var_type        = 28
+	NumbatParserRULE_var_name        = 29
+	NumbatParserRULE_var_stmt        = 30
 	NumbatParserRULE_assignment_expr = 31
 	NumbatParserRULE_assignment_var  = 32
 	NumbatParserRULE_assignment      = 33
@@ -3854,8 +3854,8 @@ errorExit:
 	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
-// ILet_exprContext is an interface to support dynamic dispatch.
-type ILet_exprContext interface {
+// IVar_exprContext is an interface to support dynamic dispatch.
+type IVar_exprContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -3864,43 +3864,43 @@ type ILet_exprContext interface {
 	// Getter signatures
 	Expr_all() IExpr_allContext
 
-	// IsLet_exprContext differentiates from other interfaces.
-	IsLet_exprContext()
+	// IsVar_exprContext differentiates from other interfaces.
+	IsVar_exprContext()
 }
 
-type Let_exprContext struct {
+type Var_exprContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyLet_exprContext() *Let_exprContext {
-	var p = new(Let_exprContext)
+func NewEmptyVar_exprContext() *Var_exprContext {
+	var p = new(Var_exprContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = NumbatParserRULE_let_expr
+	p.RuleIndex = NumbatParserRULE_var_expr
 	return p
 }
 
-func InitEmptyLet_exprContext(p *Let_exprContext) {
+func InitEmptyVar_exprContext(p *Var_exprContext) {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = NumbatParserRULE_let_expr
+	p.RuleIndex = NumbatParserRULE_var_expr
 }
 
-func (*Let_exprContext) IsLet_exprContext() {}
+func (*Var_exprContext) IsVar_exprContext() {}
 
-func NewLet_exprContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Let_exprContext {
-	var p = new(Let_exprContext)
+func NewVar_exprContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Var_exprContext {
+	var p = new(Var_exprContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = NumbatParserRULE_let_expr
+	p.RuleIndex = NumbatParserRULE_var_expr
 
 	return p
 }
 
-func (s *Let_exprContext) GetParser() antlr.Parser { return s.parser }
+func (s *Var_exprContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *Let_exprContext) Expr_all() IExpr_allContext {
+func (s *Var_exprContext) Expr_all() IExpr_allContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IExpr_allContext); ok {
@@ -3916,29 +3916,29 @@ func (s *Let_exprContext) Expr_all() IExpr_allContext {
 	return t.(IExpr_allContext)
 }
 
-func (s *Let_exprContext) GetRuleContext() antlr.RuleContext {
+func (s *Var_exprContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *Let_exprContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *Var_exprContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *Let_exprContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *Var_exprContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(NumbatListener); ok {
-		listenerT.EnterLet_expr(s)
+		listenerT.EnterVar_expr(s)
 	}
 }
 
-func (s *Let_exprContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *Var_exprContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(NumbatListener); ok {
-		listenerT.ExitLet_expr(s)
+		listenerT.ExitVar_expr(s)
 	}
 }
 
-func (p *NumbatParser) Let_expr() (localctx ILet_exprContext) {
-	localctx = NewLet_exprContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 54, NumbatParserRULE_let_expr)
+func (p *NumbatParser) Var_expr() (localctx IVar_exprContext) {
+	localctx = NewVar_exprContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 54, NumbatParserRULE_var_expr)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(201)
@@ -3966,8 +3966,8 @@ errorExit:
 	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
-// ILet_var_typeContext is an interface to support dynamic dispatch.
-type ILet_var_typeContext interface {
+// IVar_typeContext is an interface to support dynamic dispatch.
+type IVar_typeContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -3976,43 +3976,43 @@ type ILet_var_typeContext interface {
 	// Getter signatures
 	Type_() ITypeContext
 
-	// IsLet_var_typeContext differentiates from other interfaces.
-	IsLet_var_typeContext()
+	// IsVar_typeContext differentiates from other interfaces.
+	IsVar_typeContext()
 }
 
-type Let_var_typeContext struct {
+type Var_typeContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyLet_var_typeContext() *Let_var_typeContext {
-	var p = new(Let_var_typeContext)
+func NewEmptyVar_typeContext() *Var_typeContext {
+	var p = new(Var_typeContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = NumbatParserRULE_let_var_type
+	p.RuleIndex = NumbatParserRULE_var_type
 	return p
 }
 
-func InitEmptyLet_var_typeContext(p *Let_var_typeContext) {
+func InitEmptyVar_typeContext(p *Var_typeContext) {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = NumbatParserRULE_let_var_type
+	p.RuleIndex = NumbatParserRULE_var_type
 }
 
-func (*Let_var_typeContext) IsLet_var_typeContext() {}
+func (*Var_typeContext) IsVar_typeContext() {}
 
-func NewLet_var_typeContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Let_var_typeContext {
-	var p = new(Let_var_typeContext)
+func NewVar_typeContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Var_typeContext {
+	var p = new(Var_typeContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = NumbatParserRULE_let_var_type
+	p.RuleIndex = NumbatParserRULE_var_type
 
 	return p
 }
 
-func (s *Let_var_typeContext) GetParser() antlr.Parser { return s.parser }
+func (s *Var_typeContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *Let_var_typeContext) Type_() ITypeContext {
+func (s *Var_typeContext) Type_() ITypeContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(ITypeContext); ok {
@@ -4028,29 +4028,29 @@ func (s *Let_var_typeContext) Type_() ITypeContext {
 	return t.(ITypeContext)
 }
 
-func (s *Let_var_typeContext) GetRuleContext() antlr.RuleContext {
+func (s *Var_typeContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *Let_var_typeContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *Var_typeContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *Let_var_typeContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *Var_typeContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(NumbatListener); ok {
-		listenerT.EnterLet_var_type(s)
+		listenerT.EnterVar_type(s)
 	}
 }
 
-func (s *Let_var_typeContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *Var_typeContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(NumbatListener); ok {
-		listenerT.ExitLet_var_type(s)
+		listenerT.ExitVar_type(s)
 	}
 }
 
-func (p *NumbatParser) Let_var_type() (localctx ILet_var_typeContext) {
-	localctx = NewLet_var_typeContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 56, NumbatParserRULE_let_var_type)
+func (p *NumbatParser) Var_type() (localctx IVar_typeContext) {
+	localctx = NewVar_typeContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 56, NumbatParserRULE_var_type)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(204)
@@ -4070,8 +4070,8 @@ errorExit:
 	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
-// ILet_var_nameContext is an interface to support dynamic dispatch.
-type ILet_var_nameContext interface {
+// IVar_nameContext is an interface to support dynamic dispatch.
+type IVar_nameContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -4080,69 +4080,69 @@ type ILet_var_nameContext interface {
 	// Getter signatures
 	NON_TYPE_NAME() antlr.TerminalNode
 
-	// IsLet_var_nameContext differentiates from other interfaces.
-	IsLet_var_nameContext()
+	// IsVar_nameContext differentiates from other interfaces.
+	IsVar_nameContext()
 }
 
-type Let_var_nameContext struct {
+type Var_nameContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyLet_var_nameContext() *Let_var_nameContext {
-	var p = new(Let_var_nameContext)
+func NewEmptyVar_nameContext() *Var_nameContext {
+	var p = new(Var_nameContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = NumbatParserRULE_let_var_name
+	p.RuleIndex = NumbatParserRULE_var_name
 	return p
 }
 
-func InitEmptyLet_var_nameContext(p *Let_var_nameContext) {
+func InitEmptyVar_nameContext(p *Var_nameContext) {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = NumbatParserRULE_let_var_name
+	p.RuleIndex = NumbatParserRULE_var_name
 }
 
-func (*Let_var_nameContext) IsLet_var_nameContext() {}
+func (*Var_nameContext) IsVar_nameContext() {}
 
-func NewLet_var_nameContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Let_var_nameContext {
-	var p = new(Let_var_nameContext)
+func NewVar_nameContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Var_nameContext {
+	var p = new(Var_nameContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = NumbatParserRULE_let_var_name
+	p.RuleIndex = NumbatParserRULE_var_name
 
 	return p
 }
 
-func (s *Let_var_nameContext) GetParser() antlr.Parser { return s.parser }
+func (s *Var_nameContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *Let_var_nameContext) NON_TYPE_NAME() antlr.TerminalNode {
+func (s *Var_nameContext) NON_TYPE_NAME() antlr.TerminalNode {
 	return s.GetToken(NumbatParserNON_TYPE_NAME, 0)
 }
 
-func (s *Let_var_nameContext) GetRuleContext() antlr.RuleContext {
+func (s *Var_nameContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *Let_var_nameContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *Var_nameContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *Let_var_nameContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *Var_nameContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(NumbatListener); ok {
-		listenerT.EnterLet_var_name(s)
+		listenerT.EnterVar_name(s)
 	}
 }
 
-func (s *Let_var_nameContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *Var_nameContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(NumbatListener); ok {
-		listenerT.ExitLet_var_name(s)
+		listenerT.ExitVar_name(s)
 	}
 }
 
-func (p *NumbatParser) Let_var_name() (localctx ILet_var_nameContext) {
-	localctx = NewLet_var_nameContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 58, NumbatParserRULE_let_var_name)
+func (p *NumbatParser) Var_name() (localctx IVar_nameContext) {
+	localctx = NewVar_nameContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 58, NumbatParserRULE_var_name)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(206)
@@ -4166,58 +4166,58 @@ errorExit:
 	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
-// ILetContext is an interface to support dynamic dispatch.
-type ILetContext interface {
+// IVar_stmtContext is an interface to support dynamic dispatch.
+type IVar_stmtContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
 	// Getter signatures
-	Let_var_name() ILet_var_nameContext
-	Let_var_type() ILet_var_typeContext
-	Let_expr() ILet_exprContext
+	Var_name() IVar_nameContext
+	Var_type() IVar_typeContext
+	Var_expr() IVar_exprContext
 
-	// IsLetContext differentiates from other interfaces.
-	IsLetContext()
+	// IsVar_stmtContext differentiates from other interfaces.
+	IsVar_stmtContext()
 }
 
-type LetContext struct {
+type Var_stmtContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyLetContext() *LetContext {
-	var p = new(LetContext)
+func NewEmptyVar_stmtContext() *Var_stmtContext {
+	var p = new(Var_stmtContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = NumbatParserRULE_let
+	p.RuleIndex = NumbatParserRULE_var_stmt
 	return p
 }
 
-func InitEmptyLetContext(p *LetContext) {
+func InitEmptyVar_stmtContext(p *Var_stmtContext) {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = NumbatParserRULE_let
+	p.RuleIndex = NumbatParserRULE_var_stmt
 }
 
-func (*LetContext) IsLetContext() {}
+func (*Var_stmtContext) IsVar_stmtContext() {}
 
-func NewLetContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *LetContext {
-	var p = new(LetContext)
+func NewVar_stmtContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Var_stmtContext {
+	var p = new(Var_stmtContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = NumbatParserRULE_let
+	p.RuleIndex = NumbatParserRULE_var_stmt
 
 	return p
 }
 
-func (s *LetContext) GetParser() antlr.Parser { return s.parser }
+func (s *Var_stmtContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *LetContext) Let_var_name() ILet_var_nameContext {
+func (s *Var_stmtContext) Var_name() IVar_nameContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(ILet_var_nameContext); ok {
+		if _, ok := ctx.(IVar_nameContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -4227,13 +4227,13 @@ func (s *LetContext) Let_var_name() ILet_var_nameContext {
 		return nil
 	}
 
-	return t.(ILet_var_nameContext)
+	return t.(IVar_nameContext)
 }
 
-func (s *LetContext) Let_var_type() ILet_var_typeContext {
+func (s *Var_stmtContext) Var_type() IVar_typeContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(ILet_var_typeContext); ok {
+		if _, ok := ctx.(IVar_typeContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -4243,13 +4243,13 @@ func (s *LetContext) Let_var_type() ILet_var_typeContext {
 		return nil
 	}
 
-	return t.(ILet_var_typeContext)
+	return t.(IVar_typeContext)
 }
 
-func (s *LetContext) Let_expr() ILet_exprContext {
+func (s *Var_stmtContext) Var_expr() IVar_exprContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(ILet_exprContext); ok {
+		if _, ok := ctx.(IVar_exprContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -4259,32 +4259,32 @@ func (s *LetContext) Let_expr() ILet_exprContext {
 		return nil
 	}
 
-	return t.(ILet_exprContext)
+	return t.(IVar_exprContext)
 }
 
-func (s *LetContext) GetRuleContext() antlr.RuleContext {
+func (s *Var_stmtContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *LetContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *Var_stmtContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *LetContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *Var_stmtContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(NumbatListener); ok {
-		listenerT.EnterLet(s)
+		listenerT.EnterVar_stmt(s)
 	}
 }
 
-func (s *LetContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *Var_stmtContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(NumbatListener); ok {
-		listenerT.ExitLet(s)
+		listenerT.ExitVar_stmt(s)
 	}
 }
 
-func (p *NumbatParser) Let() (localctx ILetContext) {
-	localctx = NewLetContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 60, NumbatParserRULE_let)
+func (p *NumbatParser) Var_stmt() (localctx IVar_stmtContext) {
+	localctx = NewVar_stmtContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 60, NumbatParserRULE_var_stmt)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
@@ -4298,7 +4298,7 @@ func (p *NumbatParser) Let() (localctx ILetContext) {
 	}
 	{
 		p.SetState(209)
-		p.Let_var_name()
+		p.Var_name()
 	}
 	p.SetState(211)
 	p.GetErrorHandler().Sync(p)
@@ -4306,7 +4306,7 @@ func (p *NumbatParser) Let() (localctx ILetContext) {
 	if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 18, p.GetParserRuleContext()) == 1 {
 		{
 			p.SetState(210)
-			p.Let_var_type()
+			p.Var_type()
 		}
 
 	} else if p.HasError() { // JIM
@@ -4322,7 +4322,7 @@ func (p *NumbatParser) Let() (localctx ILetContext) {
 	if _la == NumbatParserT__4 {
 		{
 			p.SetState(213)
-			p.Let_expr()
+			p.Var_expr()
 		}
 
 	}
@@ -5222,7 +5222,7 @@ type IStatementContext interface {
 
 	// Getter signatures
 	Call_stmt() ICall_stmtContext
-	Let() ILetContext
+	Var_stmt() IVar_stmtContext
 	Return_stmt() IReturn_stmtContext
 	Assignment() IAssignmentContext
 
@@ -5278,10 +5278,10 @@ func (s *StatementContext) Call_stmt() ICall_stmtContext {
 	return t.(ICall_stmtContext)
 }
 
-func (s *StatementContext) Let() ILetContext {
+func (s *StatementContext) Var_stmt() IVar_stmtContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(ILetContext); ok {
+		if _, ok := ctx.(IVar_stmtContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -5291,7 +5291,7 @@ func (s *StatementContext) Let() ILetContext {
 		return nil
 	}
 
-	return t.(ILetContext)
+	return t.(IVar_stmtContext)
 }
 
 func (s *StatementContext) Return_stmt() IReturn_stmtContext {
@@ -5366,7 +5366,7 @@ func (p *NumbatParser) Statement() (localctx IStatementContext) {
 	case NumbatParserT__12:
 		{
 			p.SetState(243)
-			p.Let()
+			p.Var_stmt()
 		}
 
 	case NumbatParserT__13:

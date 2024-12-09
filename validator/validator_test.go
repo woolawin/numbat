@@ -11,26 +11,26 @@ func TestTypes(t *testing.T) {
 		Program: &read.Proc{
 			Statements: []read.Statement{
 				{
-					Let: &read.Let{
-						VarName: "a",
+					Var: &read.Var{
+						Name:    "a",
 						VarType: &read.Type{Out: read.TypeOut{Name: "Int32"}},
 					},
 				},
 				{
-					Let: &read.Let{
-						VarName: "b",
+					Var: &read.Var{
+						Name:    "b",
 						VarType: &read.Type{Out: read.TypeOut{Name: "Str"}},
 					},
 				},
 				{
-					Let: &read.Let{
-						VarName: "c",
+					Var: &read.Var{
+						Name:    "c",
 						VarType: &read.Type{Out: read.TypeOut{Name: "FooBar"}},
 					},
 				},
 				{
-					Let: &read.Let{
-						VarName: "d",
+					Var: &read.Var{
+						Name:    "d",
 						VarType: &read.Type{Out: read.TypeOut{Name: ""}},
 					},
 				},

@@ -39,14 +39,14 @@ func checkProc(validation *Validation, proc read.Proc) {
 }
 
 func checkStatement(validation *Validation, statement read.Statement) {
-	if statement.Let != nil {
-		checkLet(validation, *statement.Let)
+	if statement.Var != nil {
+		checkVar(validation, *statement.Var)
 	}
 }
 
-func checkLet(validation *Validation, let read.Let) {
-	if let.VarType != nil {
-		checkType(validation, *let.VarType)
+func checkVar(validation *Validation, varStmt read.Var) {
+	if varStmt.VarType != nil {
+		checkType(validation, *varStmt.VarType)
 	}
 }
 

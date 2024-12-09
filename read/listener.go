@@ -15,7 +15,7 @@ type Listener struct {
 	statement *Statement
 	call      *Call
 	exprs     *[]Expr
-	let       *Let
+	varStmt   *Var
 
 	typ       *Type
 	typeChain []*Type
@@ -124,37 +124,37 @@ func (listener *Listener) EnterParam_type(ctx *parser.Param_typeContext) {
 }
 
 // ============================================================================================================
-// LET
+// VAR
 // ============================================================================================================
 
-func (listener *Listener) EnterLet(ctx *parser.LetContext) {
+func (listener *Listener) EnterVar_stmt(ctx *parser.Var_stmtContext) {
 	listener.proc.Statements = append(listener.proc.Statements, Statement{
-		Let: &Let{},
+		Var: &Var{},
 	})
 	listener.statement = &listener.proc.Statements[len(listener.proc.Statements)-1]
-	listener.let = listener.statement.Let
+	listener.varStmt = listener.statement.Var
 }
 
-func (listener *Listener) ExitLet(ctx *parser.LetContext) {
-	listener.let = nil
+func (listener *Listener) ExitVar_stmt(ctx *parser.Var_stmtContext) {
+	listener.varStmt = nil
 }
 
-func (listener *Listener) EnterLet_expr(ctx *parser.Let_exprContext) {
-	listener.let.Exprs = make([]Expr, 0)
-	listener.exprs = &listener.let.Exprs
+func (listener *Listener) EnterVar_expr(ctx *parser.Var_exprContext) {
+	listener.varStmt.Exprs = make([]Expr, 0)
+	listener.exprs = &listener.varStmt.Exprs
 }
 
-func (listener *Listener) ExitLet_expr(ctx *parser.Let_exprContext) {
+func (listener *Listener) ExitVar_expr(ctx *parser.Var_exprContext) {
 	listener.exprs = nil
 }
 
-func (listener *Listener) EnterLet_var_name(ctx *parser.Let_var_nameContext) {
-	listener.let.VarName = ctx.NON_TYPE_NAME().GetText()
+func (listener *Listener) EnterVar_name(ctx *parser.Var_nameContext) {
+	listener.varStmt.Name = ctx.NON_TYPE_NAME().GetText()
 }
 
-func (listener *Listener) EnterLet_var_type(ctx *parser.Let_var_typeContext) {
-	listener.let.VarType = &Type{}
-	listener.SetType(listener.let.VarType)
+func (listener *Listener) EnterVar_type(ctx *parser.Var_typeContext) {
+	listener.varStmt.VarType = &Type{}
+	listener.SetType(listener.varStmt.VarType)
 }
 
 // ============================================================================================================

@@ -90,14 +90,14 @@ func (proc *Proc) String() string {
 			str.WriteString("\n")
 		}
 
-		if stmt.Let != nil {
-			str.WriteString("\tLET ")
-			str.WriteString(stmt.Let.VarName)
-			if stmt.Let.VarType != nil {
+		if stmt.Var != nil {
+			str.WriteString("\tVAR ")
+			str.WriteString(stmt.Var.Name)
+			if stmt.Var.VarType != nil {
 				str.WriteString(" ")
-				str.WriteString(stmt.Let.VarType.String())
+				str.WriteString(stmt.Var.VarType.String())
 			}
-			for _, exp := range stmt.Let.Exprs {
+			for _, exp := range stmt.Var.Exprs {
 				str.WriteString(" ")
 				str.WriteString(exp.String())
 			}

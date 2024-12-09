@@ -34,6 +34,6 @@ LINE_COMMENT=24
 'end'=10
 'proc'=11
 ':'=12
-'let'=13
+'var'=13
 'return'=14
 'program'=15

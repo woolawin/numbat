@@ -37,10 +37,10 @@ call_primary: (TYPE_NAME | NON_TYPE_NAME);
 call: '(' call_primary call_secondary? call_expr?')';
 call_stmt: call;
 
-let_expr: '=' expr_all;
-let_var_type: type;
-let_var_name: NON_TYPE_NAME;
-let: 'let' let_var_name let_var_type? let_expr?;
+var_expr: '=' expr_all;
+var_type: type;
+var_name: NON_TYPE_NAME;
+var_stmt: 'var' var_name var_type? var_expr?;
 
 assignment_expr: '=' expr_all (',' expr_all)?;
 assignment_var: NON_TYPE_NAME;
@@ -52,7 +52,7 @@ return_stmt: return;
 
 program: 'program' proc_body;
 
-statement: (call_stmt | let | return_stmt | assignment);
+statement: (call_stmt | var_stmt | return_stmt | assignment);
 object: (program | proc);
 
 

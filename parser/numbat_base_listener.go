@@ -183,29 +183,29 @@ func (s *BaseNumbatListener) EnterCall_stmt(ctx *Call_stmtContext) {}
 // ExitCall_stmt is called when production call_stmt is exited.
 func (s *BaseNumbatListener) ExitCall_stmt(ctx *Call_stmtContext) {}
 
-// EnterLet_expr is called when production let_expr is entered.
-func (s *BaseNumbatListener) EnterLet_expr(ctx *Let_exprContext) {}
+// EnterVar_expr is called when production var_expr is entered.
+func (s *BaseNumbatListener) EnterVar_expr(ctx *Var_exprContext) {}
 
-// ExitLet_expr is called when production let_expr is exited.
-func (s *BaseNumbatListener) ExitLet_expr(ctx *Let_exprContext) {}
+// ExitVar_expr is called when production var_expr is exited.
+func (s *BaseNumbatListener) ExitVar_expr(ctx *Var_exprContext) {}
 
-// EnterLet_var_type is called when production let_var_type is entered.
-func (s *BaseNumbatListener) EnterLet_var_type(ctx *Let_var_typeContext) {}
+// EnterVar_type is called when production var_type is entered.
+func (s *BaseNumbatListener) EnterVar_type(ctx *Var_typeContext) {}
 
-// ExitLet_var_type is called when production let_var_type is exited.
-func (s *BaseNumbatListener) ExitLet_var_type(ctx *Let_var_typeContext) {}
+// ExitVar_type is called when production var_type is exited.
+func (s *BaseNumbatListener) ExitVar_type(ctx *Var_typeContext) {}
 
-// EnterLet_var_name is called when production let_var_name is entered.
-func (s *BaseNumbatListener) EnterLet_var_name(ctx *Let_var_nameContext) {}
+// EnterVar_name is called when production var_name is entered.
+func (s *BaseNumbatListener) EnterVar_name(ctx *Var_nameContext) {}
 
-// ExitLet_var_name is called when production let_var_name is exited.
-func (s *BaseNumbatListener) ExitLet_var_name(ctx *Let_var_nameContext) {}
+// ExitVar_name is called when production var_name is exited.
+func (s *BaseNumbatListener) ExitVar_name(ctx *Var_nameContext) {}
 
-// EnterLet is called when production let is entered.
-func (s *BaseNumbatListener) EnterLet(ctx *LetContext) {}
+// EnterVar_stmt is called when production var_stmt is entered.
+func (s *BaseNumbatListener) EnterVar_stmt(ctx *Var_stmtContext) {}
 
-// ExitLet is called when production let is exited.
-func (s *BaseNumbatListener) ExitLet(ctx *LetContext) {}
+// ExitVar_stmt is called when production var_stmt is exited.
+func (s *BaseNumbatListener) ExitVar_stmt(ctx *Var_stmtContext) {}
 
 // EnterAssignment_expr is called when production assignment_expr is entered.
 func (s *BaseNumbatListener) EnterAssignment_expr(ctx *Assignment_exprContext) {}

@@ -89,17 +89,17 @@ type NumbatListener interface {
 	// EnterCall_stmt is called when entering the call_stmt production.
 	EnterCall_stmt(c *Call_stmtContext)
 
-	// EnterLet_expr is called when entering the let_expr production.
-	EnterLet_expr(c *Let_exprContext)
+	// EnterVar_expr is called when entering the var_expr production.
+	EnterVar_expr(c *Var_exprContext)
 
-	// EnterLet_var_type is called when entering the let_var_type production.
-	EnterLet_var_type(c *Let_var_typeContext)
+	// EnterVar_type is called when entering the var_type production.
+	EnterVar_type(c *Var_typeContext)
 
-	// EnterLet_var_name is called when entering the let_var_name production.
-	EnterLet_var_name(c *Let_var_nameContext)
+	// EnterVar_name is called when entering the var_name production.
+	EnterVar_name(c *Var_nameContext)
 
-	// EnterLet is called when entering the let production.
-	EnterLet(c *LetContext)
+	// EnterVar_stmt is called when entering the var_stmt production.
+	EnterVar_stmt(c *Var_stmtContext)
 
 	// EnterAssignment_expr is called when entering the assignment_expr production.
 	EnterAssignment_expr(c *Assignment_exprContext)
@@ -209,17 +209,17 @@ type NumbatListener interface {
 	// ExitCall_stmt is called when exiting the call_stmt production.
 	ExitCall_stmt(c *Call_stmtContext)
 
-	// ExitLet_expr is called when exiting the let_expr production.
-	ExitLet_expr(c *Let_exprContext)
+	// ExitVar_expr is called when exiting the var_expr production.
+	ExitVar_expr(c *Var_exprContext)
 
-	// ExitLet_var_type is called when exiting the let_var_type production.
-	ExitLet_var_type(c *Let_var_typeContext)
+	// ExitVar_type is called when exiting the var_type production.
+	ExitVar_type(c *Var_typeContext)
 
-	// ExitLet_var_name is called when exiting the let_var_name production.
-	ExitLet_var_name(c *Let_var_nameContext)
+	// ExitVar_name is called when exiting the var_name production.
+	ExitVar_name(c *Var_nameContext)
 
-	// ExitLet is called when exiting the let production.
-	ExitLet(c *LetContext)
+	// ExitVar_stmt is called when exiting the var_stmt production.
+	ExitVar_stmt(c *Var_stmtContext)
 
 	// ExitAssignment_expr is called when exiting the assignment_expr production.
 	ExitAssignment_expr(c *Assignment_exprContext)

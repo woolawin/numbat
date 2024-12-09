@@ -43,8 +43,8 @@ type Call struct {
 	Exprs     []Expr
 }
 
-type Let struct {
-	VarName string
+type Var struct {
+	Name    string
 	VarType *Type
 	Exprs   []Expr
 }
@@ -60,7 +60,7 @@ type Assignment struct {
 
 type Statement struct {
 	Call       *Call
-	Let        *Let
+	Var        *Var
 	Ret        *Return
 	Assignment *Assignment
 }

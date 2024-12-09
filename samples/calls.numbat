@@ -6,8 +6,8 @@ proc main do
     (foo bar: "baz")
     (alot: 1 true false -45 "msg" 0xFFF 3e+14)
 
-    let a = (foo)
-    let b = (foo: "baz" true)
+    var a = (foo)
+    var b = (foo: "baz" true)
 end
 
 

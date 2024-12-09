@@ -70,16 +70,16 @@ func TestVars(t *testing.T) {
 	expected := `
 PROC foo
 	DO
-	LET a #num 0
-	LET b Int32 #num 1
-	LET c Int32
-	LET d Int32 &(baz)
-	LET e Int64 #num 1e+22
-	LET g Int64 #kg 12
-	LET f $a
-	LET h #hex 0x3F
-	LET i #num 1.2
-	LET j Float32 #num -3.8
+	VAR a #num 0
+	VAR b Int32 #num 1
+	VAR c Int32
+	VAR d Int32 &(baz)
+	VAR e Int64 #num 1e+22
+	VAR g Int64 #kg 12
+	VAR f $a
+	VAR h #hex 0x3F
+	VAR i #num 1.2
+	VAR j Float32 #num -3.8
 `
 	assert(t, src, expected)
 }
@@ -94,8 +94,8 @@ PROC main
 	CALL foo #str "baz"
 	CALL foo.bar #str "baz"
 	CALL alot #num 1 #bool true #bool false #num -45 #str "msg" #hex 0xFFF #num 3e+14
-	LET a &(foo)
-	LET b &(foo #str "baz" #bool true)
+	VAR a &(foo)
+	VAR b &(foo #str "baz" #bool true)
 `
 	assert(t, src, expected)
 }
