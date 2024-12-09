@@ -15,6 +15,11 @@ func (listener *ErrorListener) SyntaxError(recognizer antlr.Recognizer, offendin
 	fmt.Println("ERROR")
 }
 
+type Source struct {
+	program *Proc
+	procs   []Proc
+}
+
 func Read(code string) *Source {
 	input := antlr.NewInputStream(code)
 	lexer := parser.NewNumbatLexer(input)
@@ -26,61 +31,27 @@ func Read(code string) *Source {
 
 	tree := p.Prog()
 
-	src := NewSource()
-	antlr.ParseTreeWalkerDefault.Walk(src, tree)
+	listener := NewListener()
+	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
+	src := listener.Source()
 	return src
 }
 
-type Source struct {
-	*parser.BaseNumbatListener
-
-	program *Proc
-
-	procs []Proc
-
-	proc      *Proc
-	statement *Statement
-	call      *Call
-	exprs     *[]Expr
-	let       *Let
-
-	typ       *Type
-	typeChain []*Type
-}
-
-func NewSource() *Source {
-	return &Source{
-		BaseNumbatListener: new(parser.BaseNumbatListener),
+func (listener *Listener) Source() *Source {
+	src := &Source{
+		program: listener.program,
+		procs:   listener.procs,
 	}
+	return src
 }
 
-func (source *Source) SetType(t *Type) {
-	source.typeChain = append(source.typeChain, t)
-	source.typ = t
-}
-
-func (source *Source) UnsetType() {
-	if len(source.typeChain) == 0 {
-		return
-	}
-
-	if len(source.typeChain) == 1 {
-		source.typ = source.typeChain[0]
-		source.typeChain = nil
-		return
-	}
-
-	source.typeChain = source.typeChain[:len(source.typeChain)-1]
-	source.typ = source.typeChain[len(source.typeChain)-1]
-}
-
-func (source *Source) String() string {
+func (src *Source) String() string {
 	var str strings.Builder
-	if source.program != nil {
+	if src.program != nil {
 		str.WriteString("PROGRAM")
-		str.WriteString(source.program.String())
+		str.WriteString(src.program.String())
 	}
-	for _, proc := range source.procs {
+	for _, proc := range src.procs {
 		str.WriteString("PROC ")
 		str.WriteString(proc.String())
 	}
