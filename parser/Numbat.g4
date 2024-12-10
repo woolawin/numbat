@@ -15,7 +15,7 @@ expr_all: (expr_var | expr_constant | expr_call);
 
 param_expr: '=' expr_constant;
 param_type: type;
-param: NON_TYPE_NAME param_type? param_expr?;
+param: NON_TYPE_NAME param_type param_expr?;
 
 
 type_out: TYPE_NAME;
@@ -53,7 +53,7 @@ program: 'program' proc_body;
 statement: (call_stmt | var_stmt | return_stmt | assignment);
 object: (program | proc);
 
-fragment UNIT_NAME: [a-zA-Z]+;
+fragment UNIT_NAME: [a-zA-Z]+[a-zA-Z0-9]*;
 fragment UNIT_POWER: '^'[23];
 
 UNIT            : '#'UNIT_NAME(UNIT_POWER('/'UNIT_NAME)? | '/'UNIT_NAME(UNIT_POWER)?)?;

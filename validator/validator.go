@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"numbat/common"
 	"numbat/read"
 )
 
@@ -68,14 +69,15 @@ func isUnknownType(name string) bool {
 
 func isBuiltInType(typeName string) bool {
 	var types = [...]string{
-		"Int16",
-		"Int32",
-		"Int64",
-		"Float32",
-		"Float64",
-		"Bool",
-		"Str",
-		"Byte",
+		common.TypeInt32,
+		common.TypeInt64,
+		common.TypeUint32,
+		common.TypeUint64,
+		common.TypeFloat32,
+		common.TypeFloat64,
+		common.TypeBool,
+		common.TypeStr,
+		common.TypeStr,
 	}
 
 	for _, t := range types {

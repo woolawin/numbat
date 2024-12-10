@@ -3,7 +3,9 @@ package read
 import (
 	"fmt"
 	"github.com/antlr4-go/antlr/v4"
+	"numbat/common"
 	"strings"
+	"unicode"
 )
 
 type ErrorListener struct {
@@ -34,8 +36,114 @@ func (listener *Listener) Source() *Source {
 	return src
 }
 
-func (src *Source) InferTypes() bool {
-	return false
+func (src *Source) InferTypes() {
+	src.Program.InferTypes()
+	for idx := range src.Procs {
+		proc := &src.Procs[idx]
+		proc.InferTypes()
+	}
+}
+
+func (proc *Proc) InferTypes() {
+	for idx := range proc.Statements {
+		stmt := &proc.Statements[idx]
+		if stmt.Var == nil {
+			continue
+		}
+		if stmt.Var.VarType != nil {
+			continue
+		}
+		if len(stmt.Var.Exprs) == 0 {
+			// return error
+			continue
+		}
+		exp := stmt.Var.Exprs[0]
+
+		if exp.Unit == common.UnitFloat64 {
+			stmt.Var.VarType = TypeOf(common.TypeFloat64)
+			continue
+		}
+
+		if exp.Unit == common.UnitFloat32 {
+			stmt.Var.VarType = TypeOf(common.TypeFloat32)
+			continue
+		}
+
+		if exp.Unit == common.UnitInt32 {
+			stmt.Var.VarType = TypeOf(common.TypeInt32)
+			continue
+		}
+
+		if exp.Unit == common.UnitInt64 {
+			stmt.Var.VarType = TypeOf(common.TypeInt64)
+			continue
+		}
+
+		if exp.Unit == common.UnitUint32 {
+			stmt.Var.VarType = TypeOf(common.TypeUint32)
+			continue
+		}
+
+		if exp.Unit == common.UnitUint64 {
+			stmt.Var.VarType = TypeOf(common.TypeUint64)
+			continue
+		}
+
+		if exp.Null {
+			// return error
+			continue
+		}
+
+		if exp.VarName != nil {
+			// return error
+			continue
+		}
+
+		if exp.Hex != nil {
+			stmt.Var.VarType = TypeOf(common.TypeByte)
+			continue
+		}
+
+		if exp.Str != nil {
+			stmt.Var.VarType = TypeOf(common.TypeStr)
+			continue
+		}
+
+		if exp.Boolean != nil {
+			stmt.Var.VarType = TypeOf(common.TypeBool)
+			continue
+		}
+
+		if exp.Call != nil {
+			if unicode.IsUpper([]rune(exp.Call.Primary)[0]) && strings.TrimSpace(exp.Call.Secondary) == "" {
+				stmt.Var.VarType = TypeOf(exp.Call.Primary)
+				continue
+			}
+			// error
+			continue
+		}
+
+		if exp.Number == nil {
+			// return error
+			continue
+		}
+
+		if strings.Contains(*exp.Number, "e+") {
+			stmt.Var.VarType = TypeOf(common.TypeFloat64)
+			continue
+		}
+
+		if strings.Contains(*exp.Number, ".") {
+			stmt.Var.VarType = TypeOf(common.TypeFloat64)
+			continue
+		}
+		stmt.Var.VarType = TypeOf(common.TypeInt32)
+		continue
+	}
+}
+
+func TypeOf(name string) *Type {
+	return &Type{Out: TypeOut{Name: name}}
 }
 
 func (src *Source) String() string {
