@@ -260,8 +260,8 @@ func (listener *Listener) EnterExpr_bool(ctx *parser.Expr_boolContext) {
 func (listener *Listener) EnterExpr_num(ctx *parser.Expr_numContext) {
 	value := ctx.NUMBER().GetText()
 	unit := "num"
-	if ctx.Unit() != nil {
-		unit = ctx.Unit().NON_TYPE_NAME().GetText()
+	if ctx.UNIT() != nil {
+		unit = ctx.UNIT().GetText()[1:]
 	}
 	*listener.exprs = append(*listener.exprs, Expr{Number: &value, Unit: unit})
 }

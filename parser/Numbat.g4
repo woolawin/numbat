@@ -2,10 +2,8 @@ grammar Numbat;
 
 prog: (WS | NEWLINE | object)*;
 
-unit: '#'NON_TYPE_NAME;
-
 expr_bool: ('true' | 'false');
-expr_num: unit? NUMBER;
+expr_num: UNIT? NUMBER;
 expr_hex: HEX;
 expr_str: STRING;
 expr_null: 'null';
@@ -55,12 +53,15 @@ program: 'program' proc_body;
 statement: (call_stmt | var_stmt | return_stmt | assignment);
 object: (program | proc);
 
+fragment UNIT_NAME: [a-zA-Z]+;
+fragment UNIT_POWER: '^'[23];
 
+UNIT            : '#'UNIT_NAME(UNIT_POWER('/'UNIT_NAME)? | '/'UNIT_NAME(UNIT_POWER)?)?;
 NEWLINE         : [\r\n]+;
 NUMBER          : '-'? [0-9]+ ('.' [0-9]+)? ([e] [+-]? [0-9]+)?;
 HEX             : '-'? '0' [x] [0-9A-F]+;
 STRING          : '"' (~["\\] | '\\' .)* '"';
-TYPE_NAME       : [A-Z][a-zA-Z_0-9]+;
+TYPE_NAME       : [A-Z][a-zA-Z0-9]+;
 NON_TYPE_NAME   : [a-z][a-z_0-9]*;
 WS              : [ \t]+ -> skip;
 COMMENT         : '/*' .*? '*/' -> skip;

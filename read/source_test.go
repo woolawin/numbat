@@ -80,6 +80,8 @@ PROC foo
 	VAR h #hex 0x3F
 	VAR i #num 1.2
 	VAR j Float32 #num -3.8
+	VAR k #kg/m^3 1
+	VAR l #m^3/kg 2
 `
 	assert(t, src, expected)
 }

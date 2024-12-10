@@ -45,6 +45,10 @@ func (listener *Listener) Source() *Source {
 	return src
 }
 
+//func (src *Source) InferTypes() bool {
+//
+//}
+
 func (src *Source) String() string {
 	var str strings.Builder
 	if src.Program != nil {

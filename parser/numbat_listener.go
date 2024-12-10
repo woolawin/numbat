@@ -11,9 +11,6 @@ type NumbatListener interface {
 	// EnterProg is called when entering the prog production.
 	EnterProg(c *ProgContext)
 
-	// EnterUnit is called when entering the unit production.
-	EnterUnit(c *UnitContext)
-
 	// EnterExpr_bool is called when entering the expr_bool production.
 	EnterExpr_bool(c *Expr_boolContext)
 
@@ -130,9 +127,6 @@ type NumbatListener interface {
 
 	// ExitProg is called when exiting the prog production.
 	ExitProg(c *ProgContext)
-
-	// ExitUnit is called when exiting the unit production.
-	ExitUnit(c *UnitContext)
 
 	// ExitExpr_bool is called when exiting the expr_bool production.
 	ExitExpr_bool(c *Expr_boolContext)
