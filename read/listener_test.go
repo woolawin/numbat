@@ -8,7 +8,7 @@ import (
 )
 
 func TestHelloWorld(t *testing.T) {
-	src := Read(samples.HelloWorld).String()
+	src := readSample(samples.HelloWorld).String()
 	expected := `
 PROGRAM
 	DO
@@ -18,7 +18,7 @@ PROGRAM
 }
 
 func TestComments(t *testing.T) {
-	src := Read(samples.Comments).String()
+	src := readSample(samples.Comments).String()
 	expected := `
 PROGRAM
 	DO
@@ -28,7 +28,7 @@ PROGRAM
 }
 
 func TestProcs(t *testing.T) {
-	src := Read(samples.Procs).String()
+	src := readSample(samples.Procs).String()
 	expected := `
 PROC foo
 	DO
@@ -66,7 +66,7 @@ PROC map
 }
 
 func TestVars(t *testing.T) {
-	src := Read(samples.Vars).String()
+	src := readSample(samples.Vars).String()
 	expected := `
 PROC foo
 	DO
@@ -87,7 +87,7 @@ PROC foo
 }
 
 func TestCalls(t *testing.T) {
-	src := Read(samples.Calls).String()
+	src := readSample(samples.Calls).String()
 	expected := `
 PROC main
 	DO
@@ -100,6 +100,12 @@ PROC main
 	VAR b &(foo #str "baz" #bool true)
 `
 	assert(t, src, expected)
+}
+
+func readSample(sample string) *Source {
+	listener := NewListener()
+	listener.Exec(sample)
+	return listener.Source()
 }
 
 func assert(t *testing.T, a, b string) {

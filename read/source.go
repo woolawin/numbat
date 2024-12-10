@@ -3,7 +3,6 @@ package read
 import (
 	"fmt"
 	"github.com/antlr4-go/antlr/v4"
-	"numbat/parser"
 	"strings"
 )
 
@@ -21,18 +20,8 @@ type Source struct {
 }
 
 func Read(code string) *Source {
-	input := antlr.NewInputStream(code)
-	lexer := parser.NewNumbatLexer(input)
-	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
-	p := parser.NewNumbatParser(stream)
-
-	errorListener := &ErrorListener{}
-	p.AddErrorListener(errorListener)
-
-	tree := p.Prog()
-
 	listener := NewListener()
-	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
+	listener.Exec(code)
 	src := listener.Source()
 	return src
 }
@@ -45,9 +34,9 @@ func (listener *Listener) Source() *Source {
 	return src
 }
 
-//func (src *Source) InferTypes() bool {
-//
-//}
+func (src *Source) InferTypes() bool {
+	return false
+}
 
 func (src *Source) String() string {
 	var str strings.Builder

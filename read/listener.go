@@ -1,6 +1,7 @@
 package read
 
 import (
+	"github.com/antlr4-go/antlr/v4"
 	"numbat/parser"
 )
 
@@ -25,6 +26,19 @@ func NewListener() *Listener {
 	return &Listener{
 		BaseNumbatListener: new(parser.BaseNumbatListener),
 	}
+}
+
+func (listener *Listener) Exec(code string) {
+	input := antlr.NewInputStream(code)
+	lexer := parser.NewNumbatLexer(input)
+	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
+	p := parser.NewNumbatParser(stream)
+
+	errorListener := &ErrorListener{}
+	p.AddErrorListener(errorListener)
+
+	tree := p.Prog()
+	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
 }
 
 func (listener *Listener) SetType(t *Type) {
