@@ -15,6 +15,22 @@ type UnInferrableVar struct {
 	VarName string
 }
 
+type NoExprToInferVariableType struct {
+	VarName string
+}
+
+type CanNotInferTypeFromNull struct {
+	VarName string
+}
+
+type CanNotInferTypeFromOtherVariable struct {
+	VarName string
+}
+
+type CanNotInferTypeFromCall struct {
+	VarName string
+}
+
 type ValidationError interface {
 }
 
@@ -22,15 +38,19 @@ type Validation struct {
 	errors []ValidationError
 }
 
-func InferTypes(src *read.Source) {
-	src.Program.InferTypes()
+func NewValidation() Validation {
+	return Validation{}
+}
+
+func (validation *Validation) InferTypes(src *read.Source) {
+	validation.inferProcTypes(src.Program)
 	for idx := range src.Procs {
 		proc := &src.Procs[idx]
-		inferProcTypes(proc)
+		validation.inferProcTypes(proc)
 	}
 }
 
-func inferProcTypes(proc *read.Proc) {
+func (validation *Validation) inferProcTypes(proc *read.Proc) {
 	for idx := range proc.Statements {
 		stmt := &proc.Statements[idx]
 		if stmt.Var == nil {
@@ -40,7 +60,7 @@ func inferProcTypes(proc *read.Proc) {
 			continue
 		}
 		if len(stmt.Var.Exprs) == 0 {
-			// return error
+			validation.addError(NoExprToInferVariableType{VarName: stmt.Var.Name})
 			continue
 		}
 		exp := stmt.Var.Exprs[0]
@@ -76,12 +96,12 @@ func inferProcTypes(proc *read.Proc) {
 		}
 
 		if exp.Null {
-			// return error
+			validation.addError(CanNotInferTypeFromNull{VarName: stmt.Var.Name})
 			continue
 		}
 
 		if exp.VarName != nil {
-			// return error
+			validation.addError(CanNotInferTypeFromOtherVariable{VarName: stmt.Var.Name})
 			continue
 		}
 
@@ -105,7 +125,7 @@ func inferProcTypes(proc *read.Proc) {
 				stmt.Var.VarType = TypeOf(exp.Call.Primary)
 				continue
 			}
-			// error
+			validation.addError(CanNotInferTypeFromCall{VarName: stmt.Var.Name})
 			continue
 		}
 
@@ -174,6 +194,10 @@ func (validation *Validation) checkType(typ read.Type) {
 	for _, in := range typ.In {
 		validation.checkType(*in.Typ)
 	}
+}
+
+func (validation *Validation) addError(verr ValidationError) {
+	validation.errors = append(validation.errors, verr)
 }
 
 func isUnknownType(name string) bool {

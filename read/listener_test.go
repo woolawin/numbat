@@ -82,6 +82,7 @@ PROC foo
 	VAR j Float32 #num -3.8
 	VAR k #kg/m^3 1
 	VAR l #m^3/kg 2
+	var m &(baz bar)
 `
 	assert(t, src, expected)
 }

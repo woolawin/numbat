@@ -13,5 +13,6 @@ proc foo do
     var j Float32 = -3.8
     var k = #kg/m^3 1
     var l = #m^3/kg 2
+    var m = (baz bar)
 end
 

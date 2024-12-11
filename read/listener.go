@@ -198,7 +198,7 @@ func (listener *Listener) EnterCall_primary(ctx *parser.Call_primaryContext) {
 }
 
 func (listener *Listener) EnterCall_secondary(ctx *parser.Call_secondaryContext) {
-	listener.statement.Call.Secondary = ctx.NON_TYPE_NAME().GetText()
+	listener.call.Secondary = ctx.NON_TYPE_NAME().GetText()
 }
 
 func (listener *Listener) EnterCall_expr(ctx *parser.Call_exprContext) {

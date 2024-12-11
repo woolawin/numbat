@@ -26,7 +26,8 @@ program do
 end
 `
 	src := readsrc(code)
-	src.InferTypes()
+	validation := NewValidation()
+	validation.InferTypes(src)
 
 	assertInferredType(t, src, "a", "Str")
 	assertInferredType(t, src, "b", "Int32")
@@ -59,6 +60,34 @@ func assertInferredType(t *testing.T, src *read.Source, name string, expected st
 		}
 	}
 	t.Fatalf("did not find variable %s", name)
+}
+
+func TestInferTypesErrs(t *testing.T) {
+	code := `
+program do
+	var a
+	var b = null
+	var c = foo
+	var d = (baz bar)
+end
+`
+	src := readsrc(code)
+	validation := NewValidation()
+	validation.InferTypes(src)
+
+	assertInferredTypeFailed(t, validation, NoExprToInferVariableType{VarName: "a"})
+	assertInferredTypeFailed(t, validation, CanNotInferTypeFromNull{VarName: "b"})
+	assertInferredTypeFailed(t, validation, CanNotInferTypeFromOtherVariable{VarName: "c"})
+	assertInferredTypeFailed(t, validation, CanNotInferTypeFromCall{VarName: "d"})
+}
+
+func assertInferredTypeFailed(t *testing.T, validation Validation, err ValidationError) {
+	for _, e := range validation.errors {
+		if e == err {
+			return
+		}
+	}
+	t.Fatalf("did not find validation error %s", err)
 }
 
 func readsrc(sample string) *read.Source {
