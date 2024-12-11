@@ -10,6 +10,7 @@ const TypeUint32 = "Uint32"
 const TypeUint64 = "Uint64"
 const TypeBool = "Bool"
 const TypeByte = "Byte"
+const TypeSize = "Size"
 
 const UnitInt32 = "i32"
 const UnitInt64 = "i64"
