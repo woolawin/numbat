@@ -26,4 +26,5 @@ end
 	assertValidationError(t, validation, UnknownType{TypeName: "FooBar"})
 	assertValidationError(t, validation, UnknownType{TypeName: "Foo"})
 	assertValidationError(t, validation, UnknownType{TypeName: "IntX"})
+	assertValidationErrorCount(t, validation, 3)
 }

@@ -79,6 +79,7 @@ end
 	assertValidationError(t, validation, CanNotInferTypeFromNull{VarName: "b"})
 	assertValidationError(t, validation, CanNotInferTypeFromOtherVariable{VarName: "c"})
 	assertValidationError(t, validation, CanNotInferTypeFromCall{VarName: "d"})
+	assertValidationErrorCount(t, validation, 4)
 }
 
 func assertValidationError(t *testing.T, validation Validation, err ValidationError) {
@@ -88,6 +89,12 @@ func assertValidationError(t *testing.T, validation Validation, err ValidationEr
 		}
 	}
 	t.Fatalf("did not find validation error %s", err)
+}
+
+func assertValidationErrorCount(t *testing.T, validation Validation, expected int) {
+	if len(validation.errors) != expected {
+		t.Fatalf("did not find %d validation errors", expected)
+	}
 }
 
 func readsrc(sample string) *read2.Source {
