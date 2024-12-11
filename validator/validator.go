@@ -166,6 +166,17 @@ func Check(source *read.Source) Validation {
 	return validation
 }
 
+func (validation *Validation) CheckTypes(src *read.Source) {
+
+	if src.Program != nil {
+		validation.checkProcTypes(*src.Program)
+	}
+
+	for _, proc := range src.Procs {
+		validation.checkProcTypes(proc)
+	}
+}
+
 func (validation *Validation) checkProcTypes(proc read.Proc) {
 	if proc.ReturnType != nil {
 		validation.checkType(*proc.ReturnType)

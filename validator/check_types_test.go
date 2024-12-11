@@ -1,7 +1,6 @@
 package validator
 
 import (
-	"github.com/google/go-cmp/cmp"
 	"numbat/read"
 	"testing"
 )
@@ -69,28 +68,10 @@ func TestTypes(t *testing.T) {
 		},
 	}
 
-	actual := Check(src)
+	validation := NewValidation()
+	validation.CheckTypes(src)
 
-	expected := Validation{
-		errors: []ValidationError{
-			UnknownType{
-				TypeName: "FooBar",
-			},
-			UnknownType{
-				TypeName: "Foo",
-			},
-			UnknownType{
-				TypeName: "IntX",
-			},
-		},
-	}
-
-	assert(t, actual, expected)
-}
-
-func assert(t *testing.T, actual Validation, expected Validation) {
-	diff := cmp.Diff(actual.errors, expected.errors)
-	if diff != "" {
-		t.Fatalf(diff)
-	}
+	assertValidationError(t, validation, UnknownType{TypeName: "FooBar"})
+	assertValidationError(t, validation, UnknownType{TypeName: "Foo"})
+	assertValidationError(t, validation, UnknownType{TypeName: "IntX"})
 }

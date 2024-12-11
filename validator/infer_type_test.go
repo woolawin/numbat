@@ -75,13 +75,13 @@ end
 	validation := NewValidation()
 	validation.InferTypes(src)
 
-	assertInferredTypeFailed(t, validation, NoExprToInferVariableType{VarName: "a"})
-	assertInferredTypeFailed(t, validation, CanNotInferTypeFromNull{VarName: "b"})
-	assertInferredTypeFailed(t, validation, CanNotInferTypeFromOtherVariable{VarName: "c"})
-	assertInferredTypeFailed(t, validation, CanNotInferTypeFromCall{VarName: "d"})
+	assertValidationError(t, validation, NoExprToInferVariableType{VarName: "a"})
+	assertValidationError(t, validation, CanNotInferTypeFromNull{VarName: "b"})
+	assertValidationError(t, validation, CanNotInferTypeFromOtherVariable{VarName: "c"})
+	assertValidationError(t, validation, CanNotInferTypeFromCall{VarName: "d"})
 }
 
-func assertInferredTypeFailed(t *testing.T, validation Validation, err ValidationError) {
+func assertValidationError(t *testing.T, validation Validation, err ValidationError) {
 	for _, e := range validation.errors {
 		if e == err {
 			return
