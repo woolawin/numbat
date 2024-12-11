@@ -166,6 +166,9 @@ func Check(src *read.Source) Validation {
 	validation.HasProgram(src)
 	validation.InferTypes(src)
 	validation.CheckTypesExists(src)
+	//checkCollisions
+	//checkReferences
+	//checkTypeCompatability
 	return validation
 }
 
