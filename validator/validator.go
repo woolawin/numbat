@@ -31,6 +31,9 @@ type CanNotInferTypeFromCall struct {
 	VarName string
 }
 
+type ProgramingMissing struct {
+}
+
 type ValidationError interface {
 }
 
@@ -40,6 +43,12 @@ type Validation struct {
 
 func NewValidation() Validation {
 	return Validation{}
+}
+
+func (validation *Validation) HasProgram(src *read.Source) {
+	if src.Program == nil {
+		validation.addError(ProgramingMissing{})
+	}
 }
 
 func (validation *Validation) InferTypes(src *read.Source) {
@@ -152,17 +161,11 @@ func TypeOf(name string) *read.Type {
 	return &read.Type{Out: read.TypeOut{Name: name}}
 }
 
-func Check(source *read.Source) Validation {
+func Check(src *read.Source) Validation {
 	validation := Validation{}
-
-	if source.Program != nil {
-		validation.checkProcTypes(*source.Program)
-	}
-
-	for _, proc := range source.Procs {
-		validation.checkProcTypes(proc)
-	}
-
+	validation.HasProgram(src)
+	validation.InferTypes(src)
+	validation.CheckTypes(src)
 	return validation
 }
 
@@ -227,7 +230,6 @@ func isBuiltInType(typeName string) bool {
 		common.TypeFloat32,
 		common.TypeFloat64,
 		common.TypeBool,
-		common.TypeStr,
 		common.TypeStr,
 	}
 
