@@ -69,7 +69,7 @@ func TestTypes(t *testing.T) {
 	}
 
 	validation := NewValidation()
-	validation.CheckTypes(src)
+	validation.CheckTypesExists(src)
 
 	assertValidationError(t, validation, UnknownType{TypeName: "FooBar"})
 	assertValidationError(t, validation, UnknownType{TypeName: "Foo"})

@@ -165,48 +165,48 @@ func Check(src *read.Source) Validation {
 	validation := Validation{}
 	validation.HasProgram(src)
 	validation.InferTypes(src)
-	validation.CheckTypes(src)
+	validation.CheckTypesExists(src)
 	return validation
 }
 
-func (validation *Validation) CheckTypes(src *read.Source) {
+func (validation *Validation) CheckTypesExists(src *read.Source) {
 
 	if src.Program != nil {
-		validation.checkProcTypes(*src.Program)
+		validation.checkProcTypesExists(*src.Program)
 	}
 
 	for _, proc := range src.Procs {
-		validation.checkProcTypes(proc)
+		validation.checkProcTypesExists(proc)
 	}
 }
 
-func (validation *Validation) checkProcTypes(proc read.Proc) {
+func (validation *Validation) checkProcTypesExists(proc read.Proc) {
 	if proc.ReturnType != nil {
-		validation.checkType(*proc.ReturnType)
+		validation.checkTypeExists(*proc.ReturnType)
 	}
 	for _, stmt := range proc.Statements {
-		validation.checkStatementTypes(stmt)
+		validation.checkStatementTypesExists(stmt)
 	}
 }
 
-func (validation *Validation) checkStatementTypes(statement read.Statement) {
+func (validation *Validation) checkStatementTypesExists(statement read.Statement) {
 	if statement.Var != nil {
-		validation.checkVarType(*statement.Var)
+		validation.checkVarTypeExists(*statement.Var)
 	}
 }
 
-func (validation *Validation) checkVarType(varStmt read.Var) {
+func (validation *Validation) checkVarTypeExists(varStmt read.Var) {
 	if varStmt.VarType != nil {
-		validation.checkType(*varStmt.VarType)
+		validation.checkTypeExists(*varStmt.VarType)
 	}
 }
 
-func (validation *Validation) checkType(typ read.Type) {
+func (validation *Validation) checkTypeExists(typ read.Type) {
 	if isUnknownType(typ.Out.Name) {
 		validation.errors = append(validation.errors, UnknownType{TypeName: typ.Out.Name})
 	}
 	for _, in := range typ.In {
-		validation.checkType(*in.Typ)
+		validation.checkTypeExists(*in.Typ)
 	}
 }
 
