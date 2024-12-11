@@ -1,5 +1,6 @@
 package common
 
+const TypeAscii = "Ascii"
 const TypeStr = "Str"
 const TypeInt32 = "Int32"
 const TypeInt64 = "Int64"

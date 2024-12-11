@@ -231,6 +231,7 @@ func isBuiltInType(typeName string) bool {
 		common.TypeFloat64,
 		common.TypeBool,
 		common.TypeStr,
+		common.TypeAscii,
 	}
 
 	for _, t := range types {
