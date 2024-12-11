@@ -1,8 +1,8 @@
 package validator
 
 import (
-	"numbat/common"
-	"numbat/read"
+	"numbat/internal/common"
+	read2 "numbat/internal/read"
 	"strings"
 	"unicode"
 )
@@ -45,13 +45,13 @@ func NewValidation() Validation {
 	return Validation{}
 }
 
-func (validation *Validation) HasProgram(src *read.Source) {
+func (validation *Validation) HasProgram(src *read2.Source) {
 	if src.Program == nil {
 		validation.addError(ProgramingMissing{})
 	}
 }
 
-func (validation *Validation) InferTypes(src *read.Source) {
+func (validation *Validation) InferTypes(src *read2.Source) {
 	validation.inferProcTypes(src.Program)
 	for idx := range src.Procs {
 		proc := &src.Procs[idx]
@@ -59,7 +59,7 @@ func (validation *Validation) InferTypes(src *read.Source) {
 	}
 }
 
-func (validation *Validation) inferProcTypes(proc *read.Proc) {
+func (validation *Validation) inferProcTypes(proc *read2.Proc) {
 	for idx := range proc.Statements {
 		stmt := &proc.Statements[idx]
 		if stmt.Var == nil {
@@ -157,11 +157,11 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 	}
 }
 
-func TypeOf(name string) *read.Type {
-	return &read.Type{Out: read.TypeOut{Name: name}}
+func TypeOf(name string) *read2.Type {
+	return &read2.Type{Out: read2.TypeOut{Name: name}}
 }
 
-func Check(src *read.Source) Validation {
+func Check(src *read2.Source) Validation {
 	validation := Validation{}
 	validation.HasProgram(src)
 	validation.InferTypes(src)
@@ -169,7 +169,7 @@ func Check(src *read.Source) Validation {
 	return validation
 }
 
-func (validation *Validation) CheckTypes(src *read.Source) {
+func (validation *Validation) CheckTypes(src *read2.Source) {
 
 	if src.Program != nil {
 		validation.checkProcTypes(*src.Program)
@@ -180,7 +180,7 @@ func (validation *Validation) CheckTypes(src *read.Source) {
 	}
 }
 
-func (validation *Validation) checkProcTypes(proc read.Proc) {
+func (validation *Validation) checkProcTypes(proc read2.Proc) {
 	if proc.ReturnType != nil {
 		validation.checkType(*proc.ReturnType)
 	}
@@ -189,19 +189,19 @@ func (validation *Validation) checkProcTypes(proc read.Proc) {
 	}
 }
 
-func (validation *Validation) checkStatementTypes(statement read.Statement) {
+func (validation *Validation) checkStatementTypes(statement read2.Statement) {
 	if statement.Var != nil {
 		validation.checkVarType(*statement.Var)
 	}
 }
 
-func (validation *Validation) checkVarType(varStmt read.Var) {
+func (validation *Validation) checkVarType(varStmt read2.Var) {
 	if varStmt.VarType != nil {
 		validation.checkType(*varStmt.VarType)
 	}
 }
 
-func (validation *Validation) checkType(typ read.Type) {
+func (validation *Validation) checkType(typ read2.Type) {
 	if isUnknownType(typ.Out.Name) {
 		validation.errors = append(validation.errors, UnknownType{TypeName: typ.Out.Name})
 	}

@@ -6,9 +6,26 @@ tasks:
       - curl -o antlr4.jar https://www.antlr.org/download/antlr-4.13.2-complete.jar
 
   antlr:
-    dir: parser
+    dir: internal/parser
     cmds:
       - java -jar antlr4.jar -Dlanguage=Go Numbat.g4
+
+  test:
+    dir: internal/read
+    cmds:
+      - task: test-read
+      - task: test-validator
+
+  test-read:
+    dir: internal/read
+    cmds:
+      - go test
+
+  test-validator:
+    dir: internal/validator
+    cmds:
+      - go test
+
 
   build:
     deps: [antlr]

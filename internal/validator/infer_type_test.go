@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"numbat/read"
+	read2 "numbat/internal/read"
 	"testing"
 )
 
@@ -46,7 +46,7 @@ end
 	assertInferredType(t, src, "m", "Metric")
 }
 
-func assertInferredType(t *testing.T, src *read.Source, name string, expected string) {
+func assertInferredType(t *testing.T, src *read2.Source, name string, expected string) {
 	for _, stmt := range src.Program.Statements {
 		if stmt.Var.Name == name {
 			if stmt.Var.VarType == nil {
@@ -90,8 +90,8 @@ func assertValidationError(t *testing.T, validation Validation, err ValidationEr
 	t.Fatalf("did not find validation error %s", err)
 }
 
-func readsrc(sample string) *read.Source {
-	listener := read.NewListener()
+func readsrc(sample string) *read2.Source {
+	listener := read2.NewListener()
 	listener.Exec(sample)
 	return listener.Source()
 }

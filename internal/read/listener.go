@@ -2,11 +2,11 @@ package read
 
 import (
 	"github.com/antlr4-go/antlr/v4"
-	"numbat/parser"
+	parser2 "numbat/internal/parser"
 )
 
 type Listener struct {
-	*parser.BaseNumbatListener
+	*parser2.BaseNumbatListener
 
 	program *Proc
 
@@ -24,15 +24,15 @@ type Listener struct {
 
 func NewListener() *Listener {
 	return &Listener{
-		BaseNumbatListener: new(parser.BaseNumbatListener),
+		BaseNumbatListener: new(parser2.BaseNumbatListener),
 	}
 }
 
 func (listener *Listener) Exec(code string) {
 	input := antlr.NewInputStream(code)
-	lexer := parser.NewNumbatLexer(input)
+	lexer := parser2.NewNumbatLexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
-	p := parser.NewNumbatParser(stream)
+	p := parser2.NewNumbatParser(stream)
 
 	errorListener := &ErrorListener{}
 	p.AddErrorListener(errorListener)
@@ -65,12 +65,12 @@ func (listener *Listener) UnsetType() {
 // PROGRAM
 // ============================================================================================================
 
-func (listener *Listener) EnterProgram(ctx *parser.ProgramContext) {
+func (listener *Listener) EnterProgram(ctx *parser2.ProgramContext) {
 	listener.program = &Proc{}
 	listener.proc = listener.program
 }
 
-func (listener *Listener) ExitProgram(ctx *parser.ProgramContext) {
+func (listener *Listener) ExitProgram(ctx *parser2.ProgramContext) {
 	listener.proc = nil
 }
 
@@ -78,20 +78,20 @@ func (listener *Listener) ExitProgram(ctx *parser.ProgramContext) {
 // PROC
 // ============================================================================================================
 
-func (listener *Listener) EnterProc(ctx *parser.ProcContext) {
+func (listener *Listener) EnterProc(ctx *parser2.ProcContext) {
 	listener.procs = append(listener.procs, Proc{})
 	listener.proc = &listener.procs[len(listener.procs)-1]
 }
 
-func (listener *Listener) ExitProc(ctx *parser.ProcContext) {
+func (listener *Listener) ExitProc(ctx *parser2.ProcContext) {
 	listener.proc = nil
 }
 
-func (listener *Listener) EnterProc_name(ctx *parser.Proc_nameContext) {
+func (listener *Listener) EnterProc_name(ctx *parser2.Proc_nameContext) {
 	listener.proc.Name = ctx.NON_TYPE_NAME().GetText()
 }
 
-func (listener *Listener) EnterProc_type(ctx *parser.Proc_typeContext) {
+func (listener *Listener) EnterProc_type(ctx *parser2.Proc_typeContext) {
 	listener.proc.ReturnType = &Type{}
 	listener.SetType(listener.proc.ReturnType)
 }
@@ -100,11 +100,11 @@ func (listener *Listener) EnterProc_type(ctx *parser.Proc_typeContext) {
 // TYPE
 // ============================================================================================================
 
-func (listener *Listener) ExitType(ctx *parser.TypeContext) {
+func (listener *Listener) ExitType(ctx *parser2.TypeContext) {
 	listener.UnsetType()
 }
 
-func (listener *Listener) EnterType_out(ctx *parser.Type_outContext) {
+func (listener *Listener) EnterType_out(ctx *parser2.Type_outContext) {
 	listener.typ.Out.Name = ctx.TYPE_NAME().GetText()
 }
 
@@ -112,27 +112,27 @@ func (listener *Listener) EnterType_out(ctx *parser.Type_outContext) {
 // PARAM
 // ============================================================================================================
 
-func (listener *Listener) EnterParam(ctx *parser.ParamContext) {
+func (listener *Listener) EnterParam(ctx *parser2.ParamContext) {
 	listener.typ.In = append(listener.typ.In, Param{
 		Name: ctx.NON_TYPE_NAME().GetText(),
 	})
 	listener.typ.Param = &listener.typ.In[len(listener.typ.In)-1]
 }
 
-func (listener *Listener) ExitParam(ctx *parser.ParamContext) {
+func (listener *Listener) ExitParam(ctx *parser2.ParamContext) {
 	listener.typ.Param = nil
 }
 
-func (listener *Listener) EnterParam_expr(ctx *parser.Param_exprContext) {
+func (listener *Listener) EnterParam_expr(ctx *parser2.Param_exprContext) {
 	listener.typ.Param.Expr = make([]Expr, 0)
 	listener.exprs = &listener.typ.Param.Expr
 }
 
-func (listener *Listener) ExitParam_expr(ctx *parser.Param_exprContext) {
+func (listener *Listener) ExitParam_expr(ctx *parser2.Param_exprContext) {
 	listener.exprs = nil
 }
 
-func (listener *Listener) EnterParam_type(ctx *parser.Param_typeContext) {
+func (listener *Listener) EnterParam_type(ctx *parser2.Param_typeContext) {
 	listener.typ.Param.Typ = &Type{}
 	listener.SetType(listener.typ.Param.Typ)
 }
@@ -141,7 +141,7 @@ func (listener *Listener) EnterParam_type(ctx *parser.Param_typeContext) {
 // VAR
 // ============================================================================================================
 
-func (listener *Listener) EnterVar_stmt(ctx *parser.Var_stmtContext) {
+func (listener *Listener) EnterVar_stmt(ctx *parser2.Var_stmtContext) {
 	listener.proc.Statements = append(listener.proc.Statements, Statement{
 		Var: &Var{},
 	})
@@ -149,24 +149,24 @@ func (listener *Listener) EnterVar_stmt(ctx *parser.Var_stmtContext) {
 	listener.varStmt = listener.statement.Var
 }
 
-func (listener *Listener) ExitVar_stmt(ctx *parser.Var_stmtContext) {
+func (listener *Listener) ExitVar_stmt(ctx *parser2.Var_stmtContext) {
 	listener.varStmt = nil
 }
 
-func (listener *Listener) EnterVar_expr(ctx *parser.Var_exprContext) {
+func (listener *Listener) EnterVar_expr(ctx *parser2.Var_exprContext) {
 	listener.varStmt.Exprs = make([]Expr, 0)
 	listener.exprs = &listener.varStmt.Exprs
 }
 
-func (listener *Listener) ExitVar_expr(ctx *parser.Var_exprContext) {
+func (listener *Listener) ExitVar_expr(ctx *parser2.Var_exprContext) {
 	listener.exprs = nil
 }
 
-func (listener *Listener) EnterVar_name(ctx *parser.Var_nameContext) {
+func (listener *Listener) EnterVar_name(ctx *parser2.Var_nameContext) {
 	listener.varStmt.Name = ctx.NON_TYPE_NAME().GetText()
 }
 
-func (listener *Listener) EnterVar_type(ctx *parser.Var_typeContext) {
+func (listener *Listener) EnterVar_type(ctx *parser2.Var_typeContext) {
 	listener.varStmt.VarType = &Type{}
 	listener.SetType(listener.varStmt.VarType)
 }
@@ -175,7 +175,7 @@ func (listener *Listener) EnterVar_type(ctx *parser.Var_typeContext) {
 // CALL
 // ============================================================================================================
 
-func (listener *Listener) EnterCall_stmt(ctx *parser.Call_stmtContext) {
+func (listener *Listener) EnterCall_stmt(ctx *parser2.Call_stmtContext) {
 	listener.proc.Statements = append(listener.proc.Statements, Statement{
 		Call: &Call{},
 	})
@@ -183,11 +183,11 @@ func (listener *Listener) EnterCall_stmt(ctx *parser.Call_stmtContext) {
 	listener.call = listener.statement.Call
 }
 
-func (listener *Listener) ExitCall_stmt(ctx *parser.Call_stmtContext) {
+func (listener *Listener) ExitCall_stmt(ctx *parser2.Call_stmtContext) {
 	listener.call = nil
 }
 
-func (listener *Listener) EnterCall_primary(ctx *parser.Call_primaryContext) {
+func (listener *Listener) EnterCall_primary(ctx *parser2.Call_primaryContext) {
 	primary := ""
 	if ctx.NON_TYPE_NAME() != nil {
 		primary = ctx.NON_TYPE_NAME().GetText()
@@ -197,16 +197,16 @@ func (listener *Listener) EnterCall_primary(ctx *parser.Call_primaryContext) {
 	listener.call.Primary = primary
 }
 
-func (listener *Listener) EnterCall_secondary(ctx *parser.Call_secondaryContext) {
+func (listener *Listener) EnterCall_secondary(ctx *parser2.Call_secondaryContext) {
 	listener.call.Secondary = ctx.NON_TYPE_NAME().GetText()
 }
 
-func (listener *Listener) EnterCall_expr(ctx *parser.Call_exprContext) {
+func (listener *Listener) EnterCall_expr(ctx *parser2.Call_exprContext) {
 	listener.call.Exprs = make([]Expr, 0)
 	listener.exprs = &listener.call.Exprs
 }
 
-func (listener *Listener) ExitCall_expr(ctx *parser.Call_exprContext) {
+func (listener *Listener) ExitCall_expr(ctx *parser2.Call_exprContext) {
 	listener.exprs = nil
 }
 
@@ -214,23 +214,23 @@ func (listener *Listener) ExitCall_expr(ctx *parser.Call_exprContext) {
 // RETURN
 // ============================================================================================================
 
-func (listener *Listener) EnterReturn_stmt(ctx *parser.Return_stmtContext) {
+func (listener *Listener) EnterReturn_stmt(ctx *parser2.Return_stmtContext) {
 	listener.proc.Statements = append(listener.proc.Statements, Statement{
 		Ret: &Return{},
 	})
 	listener.statement = &listener.proc.Statements[len(listener.proc.Statements)-1]
 }
 
-func (listener *Listener) ExitReturn_stmt(ctx *parser.Return_stmtContext) {
+func (listener *Listener) ExitReturn_stmt(ctx *parser2.Return_stmtContext) {
 	listener.statement = nil
 }
 
-func (listener *Listener) EnterReturn_expr(ctx *parser.Return_exprContext) {
+func (listener *Listener) EnterReturn_expr(ctx *parser2.Return_exprContext) {
 	listener.statement.Ret.Exprs = make([]Expr, 0)
 	listener.exprs = &listener.statement.Ret.Exprs
 }
 
-func (listener *Listener) ExitReturn_expr(ctx *parser.Return_exprContext) {
+func (listener *Listener) ExitReturn_expr(ctx *parser2.Return_exprContext) {
 	listener.exprs = nil
 }
 
@@ -238,27 +238,27 @@ func (listener *Listener) ExitReturn_expr(ctx *parser.Return_exprContext) {
 // ASSIGNMENT
 // ============================================================================================================
 
-func (listener *Listener) EnterAssignment(ctx *parser.AssignmentContext) {
+func (listener *Listener) EnterAssignment(ctx *parser2.AssignmentContext) {
 	listener.proc.Statements = append(listener.proc.Statements, Statement{
 		Assignment: &Assignment{},
 	})
 	listener.statement = &listener.proc.Statements[len(listener.proc.Statements)-1]
 }
 
-func (listener *Listener) ExitAssignment(ctx *parser.AssignmentContext) {
+func (listener *Listener) ExitAssignment(ctx *parser2.AssignmentContext) {
 	listener.statement = nil
 }
 
-func (listener *Listener) EnterAssignment_var(ctx *parser.Assignment_varContext) {
+func (listener *Listener) EnterAssignment_var(ctx *parser2.Assignment_varContext) {
 	listener.statement.Assignment.Vars = append(listener.statement.Assignment.Vars, ctx.NON_TYPE_NAME().GetText())
 }
 
-func (listener *Listener) EnterAssignment_expr(ctx *parser.Assignment_exprContext) {
+func (listener *Listener) EnterAssignment_expr(ctx *parser2.Assignment_exprContext) {
 	listener.statement.Assignment.Exprs = make([]Expr, 0)
 	listener.exprs = &listener.statement.Assignment.Exprs
 }
 
-func (listener *Listener) ExitAssignment_expr(ctx *parser.Assignment_exprContext) {
+func (listener *Listener) ExitAssignment_expr(ctx *parser2.Assignment_exprContext) {
 	listener.exprs = nil
 }
 
@@ -266,12 +266,12 @@ func (listener *Listener) ExitAssignment_expr(ctx *parser.Assignment_exprContext
 // EXPR
 // ============================================================================================================
 
-func (listener *Listener) EnterExpr_bool(ctx *parser.Expr_boolContext) {
+func (listener *Listener) EnterExpr_bool(ctx *parser2.Expr_boolContext) {
 	str := ctx.GetText()
 	*listener.exprs = append(*listener.exprs, Expr{Boolean: &str, Unit: "bool"})
 }
 
-func (listener *Listener) EnterExpr_num(ctx *parser.Expr_numContext) {
+func (listener *Listener) EnterExpr_num(ctx *parser2.Expr_numContext) {
 	value := ctx.NUMBER().GetText()
 	unit := "num"
 	if ctx.UNIT() != nil {
@@ -280,26 +280,26 @@ func (listener *Listener) EnterExpr_num(ctx *parser.Expr_numContext) {
 	*listener.exprs = append(*listener.exprs, Expr{Number: &value, Unit: unit})
 }
 
-func (listener *Listener) EnterExpr_hex(ctx *parser.Expr_hexContext) {
+func (listener *Listener) EnterExpr_hex(ctx *parser2.Expr_hexContext) {
 	value := ctx.GetText()
 	*listener.exprs = append(*listener.exprs, Expr{Hex: &value, Unit: "hex"})
 }
 
-func (listener *Listener) EnterExpr_str(ctx *parser.Expr_strContext) {
+func (listener *Listener) EnterExpr_str(ctx *parser2.Expr_strContext) {
 	value := ctx.GetText()
 	*listener.exprs = append(*listener.exprs, Expr{Str: &value, Unit: "str"})
 }
 
-func (listener *Listener) EnterExpr_null(ctx *parser.Expr_nullContext) {
+func (listener *Listener) EnterExpr_null(ctx *parser2.Expr_nullContext) {
 	*listener.exprs = append(*listener.exprs, Expr{Null: true})
 }
 
-func (listener *Listener) EnterExpr_var(ctx *parser.Expr_varContext) {
+func (listener *Listener) EnterExpr_var(ctx *parser2.Expr_varContext) {
 	value := ctx.GetText()
 	*listener.exprs = append(*listener.exprs, Expr{VarName: &VarName{value}})
 }
 
-func (listener *Listener) EnterExpr_call(ctx *parser.Expr_callContext) {
+func (listener *Listener) EnterExpr_call(ctx *parser2.Expr_callContext) {
 	call := &Call{}
 	*listener.exprs = append(*listener.exprs, Expr{Call: call})
 	listener.call = call

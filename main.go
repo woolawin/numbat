@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"numbat/read"
+	"numbat/internal/read"
 )
 
 func main() {
