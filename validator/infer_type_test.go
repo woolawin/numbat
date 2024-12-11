@@ -1,6 +1,7 @@
-package read
+package validator
 
 import (
+	"numbat/read"
 	"testing"
 )
 
@@ -24,7 +25,7 @@ program do
 	var m = (Metric: "request_count")
 end
 `
-	src := readSample(code)
+	src := readsrc(code)
 	src.InferTypes()
 
 	assertInferredType(t, src, "a", "Str")
@@ -44,7 +45,7 @@ end
 	assertInferredType(t, src, "m", "Metric")
 }
 
-func assertInferredType(t *testing.T, src *Source, name string, expected string) {
+func assertInferredType(t *testing.T, src *read.Source, name string, expected string) {
 	for _, stmt := range src.Program.Statements {
 		if stmt.Var.Name == name {
 			if stmt.Var.VarType == nil {
@@ -58,4 +59,10 @@ func assertInferredType(t *testing.T, src *Source, name string, expected string)
 		}
 	}
 	t.Fatalf("did not find variable %s", name)
+}
+
+func readsrc(sample string) *read.Source {
+	listener := read.NewListener()
+	listener.Exec(sample)
+	return listener.Source()
 }
