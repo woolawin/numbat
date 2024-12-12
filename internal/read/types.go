@@ -1,7 +1,10 @@
 package read
 
+import "numbat/internal/common"
+
 type TypeOut struct {
-	Name string
+	Name     string
+	Location common.Location
 }
 
 type ParamDefaultValue struct {
@@ -35,6 +38,8 @@ type Expr struct {
 	Str     *string
 	Null    bool
 	Call    *Call
+
+	Location common.Location
 }
 
 type Call struct {
@@ -63,10 +68,13 @@ type Statement struct {
 	Var        *Var
 	Ret        *Return
 	Assignment *Assignment
+
+	Location common.Location
 }
 
 type Proc struct {
 	Name       string
 	ReturnType *Type
 	Statements []Statement
+	Location   common.Location
 }

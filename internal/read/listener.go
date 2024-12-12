@@ -2,11 +2,13 @@ package read
 
 import (
 	"github.com/antlr4-go/antlr/v4"
-	parser2 "numbat/internal/parser"
+	"numbat/internal/common"
+	"numbat/internal/parser"
 )
 
 type SourceReader struct {
-	*parser2.BaseNumbatListener
+	*parser.BaseNumbatListener
+	fileName string
 
 	program *Proc
 
@@ -24,15 +26,17 @@ type SourceReader struct {
 
 func NewSourceReader() *SourceReader {
 	return &SourceReader{
-		BaseNumbatListener: new(parser2.BaseNumbatListener),
+		BaseNumbatListener: new(parser.BaseNumbatListener),
 	}
 }
 
-func (reader *SourceReader) Read(code string) {
+func (reader *SourceReader) Read(code string, fileName string) {
+	reader.Reset()
+	reader.fileName = fileName
 	input := antlr.NewInputStream(code)
-	lexer := parser2.NewNumbatLexer(input)
+	lexer := parser.NewNumbatLexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
-	p := parser2.NewNumbatParser(stream)
+	p := parser.NewNumbatParser(stream)
 
 	errorListener := &ErrorListener{}
 	p.AddErrorListener(errorListener)
@@ -44,6 +48,7 @@ func (reader *SourceReader) Read(code string) {
 }
 
 func (reader *SourceReader) Reset() {
+	reader.fileName = ""
 	reader.proc = nil
 	reader.statement = nil
 	reader.call = nil
@@ -78,12 +83,18 @@ func (reader *SourceReader) UnsetType() {
 // PROGRAM
 // ============================================================================================================
 
-func (reader *SourceReader) EnterProgram(ctx *parser2.ProgramContext) {
-	reader.program = &Proc{}
+func (reader *SourceReader) EnterProgram(ctx *parser.ProgramContext) {
+	reader.program = &Proc{
+		Location: common.Location{
+			File:   reader.fileName,
+			Line:   ctx.GetStart().GetLine(),
+			Column: ctx.GetStart().GetColumn(),
+		},
+	}
 	reader.proc = reader.program
 }
 
-func (reader *SourceReader) ExitProgram(ctx *parser2.ProgramContext) {
+func (reader *SourceReader) ExitProgram(ctx *parser.ProgramContext) {
 	reader.proc = nil
 }
 
@@ -91,20 +102,26 @@ func (reader *SourceReader) ExitProgram(ctx *parser2.ProgramContext) {
 // PROC
 // ============================================================================================================
 
-func (reader *SourceReader) EnterProc(ctx *parser2.ProcContext) {
-	reader.procs = append(reader.procs, Proc{})
+func (reader *SourceReader) EnterProc(ctx *parser.ProcContext) {
+	reader.procs = append(reader.procs, Proc{
+		Location: common.Location{
+			File:   reader.fileName,
+			Line:   ctx.GetStart().GetLine(),
+			Column: ctx.GetStart().GetColumn(),
+		},
+	})
 	reader.proc = &reader.procs[len(reader.procs)-1]
 }
 
-func (reader *SourceReader) ExitProc(ctx *parser2.ProcContext) {
+func (reader *SourceReader) ExitProc(ctx *parser.ProcContext) {
 	reader.proc = nil
 }
 
-func (reader *SourceReader) EnterProc_name(ctx *parser2.Proc_nameContext) {
+func (reader *SourceReader) EnterProc_name(ctx *parser.Proc_nameContext) {
 	reader.proc.Name = ctx.NON_TYPE_NAME().GetText()
 }
 
-func (reader *SourceReader) EnterProc_type(ctx *parser2.Proc_typeContext) {
+func (reader *SourceReader) EnterProc_type(ctx *parser.Proc_typeContext) {
 	reader.proc.ReturnType = &Type{}
 	reader.SetType(reader.proc.ReturnType)
 }
@@ -113,39 +130,40 @@ func (reader *SourceReader) EnterProc_type(ctx *parser2.Proc_typeContext) {
 // TYPE
 // ============================================================================================================
 
-func (reader *SourceReader) ExitType(ctx *parser2.TypeContext) {
+func (reader *SourceReader) ExitType(ctx *parser.TypeContext) {
 	reader.UnsetType()
 }
 
-func (reader *SourceReader) EnterType_out(ctx *parser2.Type_outContext) {
+func (reader *SourceReader) EnterType_out(ctx *parser.Type_outContext) {
 	reader.typ.Out.Name = ctx.TYPE_NAME().GetText()
+	reader.typ.Out.Location = reader.location(ctx.BaseParserRuleContext)
 }
 
 // ============================================================================================================
 // PARAM
 // ============================================================================================================
 
-func (reader *SourceReader) EnterParam(ctx *parser2.ParamContext) {
+func (reader *SourceReader) EnterParam(ctx *parser.ParamContext) {
 	reader.typ.In = append(reader.typ.In, Param{
 		Name: ctx.NON_TYPE_NAME().GetText(),
 	})
 	reader.typ.Param = &reader.typ.In[len(reader.typ.In)-1]
 }
 
-func (reader *SourceReader) ExitParam(ctx *parser2.ParamContext) {
+func (reader *SourceReader) ExitParam(ctx *parser.ParamContext) {
 	reader.typ.Param = nil
 }
 
-func (reader *SourceReader) EnterParam_expr(ctx *parser2.Param_exprContext) {
+func (reader *SourceReader) EnterParam_expr(ctx *parser.Param_exprContext) {
 	reader.typ.Param.Expr = make([]Expr, 0)
 	reader.exprs = &reader.typ.Param.Expr
 }
 
-func (reader *SourceReader) ExitParam_expr(ctx *parser2.Param_exprContext) {
+func (reader *SourceReader) ExitParam_expr(ctx *parser.Param_exprContext) {
 	reader.exprs = nil
 }
 
-func (reader *SourceReader) EnterParam_type(ctx *parser2.Param_typeContext) {
+func (reader *SourceReader) EnterParam_type(ctx *parser.Param_typeContext) {
 	reader.typ.Param.Typ = &Type{}
 	reader.SetType(reader.typ.Param.Typ)
 }
@@ -154,32 +172,33 @@ func (reader *SourceReader) EnterParam_type(ctx *parser2.Param_typeContext) {
 // VAR
 // ============================================================================================================
 
-func (reader *SourceReader) EnterVar_stmt(ctx *parser2.Var_stmtContext) {
+func (reader *SourceReader) EnterVar_stmt(ctx *parser.Var_stmtContext) {
 	reader.proc.Statements = append(reader.proc.Statements, Statement{
-		Var: &Var{},
+		Var:      &Var{},
+		Location: reader.location(ctx.BaseParserRuleContext),
 	})
 	reader.statement = &reader.proc.Statements[len(reader.proc.Statements)-1]
 	reader.varStmt = reader.statement.Var
 }
 
-func (reader *SourceReader) ExitVar_stmt(ctx *parser2.Var_stmtContext) {
+func (reader *SourceReader) ExitVar_stmt(ctx *parser.Var_stmtContext) {
 	reader.varStmt = nil
 }
 
-func (reader *SourceReader) EnterVar_expr(ctx *parser2.Var_exprContext) {
+func (reader *SourceReader) EnterVar_expr(ctx *parser.Var_exprContext) {
 	reader.varStmt.Exprs = make([]Expr, 0)
 	reader.exprs = &reader.varStmt.Exprs
 }
 
-func (reader *SourceReader) ExitVar_expr(ctx *parser2.Var_exprContext) {
+func (reader *SourceReader) ExitVar_expr(ctx *parser.Var_exprContext) {
 	reader.exprs = nil
 }
 
-func (reader *SourceReader) EnterVar_name(ctx *parser2.Var_nameContext) {
+func (reader *SourceReader) EnterVar_name(ctx *parser.Var_nameContext) {
 	reader.varStmt.Name = ctx.NON_TYPE_NAME().GetText()
 }
 
-func (reader *SourceReader) EnterVar_type(ctx *parser2.Var_typeContext) {
+func (reader *SourceReader) EnterVar_type(ctx *parser.Var_typeContext) {
 	reader.varStmt.VarType = &Type{}
 	reader.SetType(reader.varStmt.VarType)
 }
@@ -188,19 +207,20 @@ func (reader *SourceReader) EnterVar_type(ctx *parser2.Var_typeContext) {
 // CALL
 // ============================================================================================================
 
-func (reader *SourceReader) EnterCall_stmt(ctx *parser2.Call_stmtContext) {
+func (reader *SourceReader) EnterCall_stmt(ctx *parser.Call_stmtContext) {
 	reader.proc.Statements = append(reader.proc.Statements, Statement{
-		Call: &Call{},
+		Call:     &Call{},
+		Location: reader.location(ctx.BaseParserRuleContext),
 	})
 	reader.statement = &reader.proc.Statements[len(reader.proc.Statements)-1]
 	reader.call = reader.statement.Call
 }
 
-func (reader *SourceReader) ExitCall_stmt(ctx *parser2.Call_stmtContext) {
+func (reader *SourceReader) ExitCall_stmt(ctx *parser.Call_stmtContext) {
 	reader.call = nil
 }
 
-func (reader *SourceReader) EnterCall_primary(ctx *parser2.Call_primaryContext) {
+func (reader *SourceReader) EnterCall_primary(ctx *parser.Call_primaryContext) {
 	primary := ""
 	if ctx.NON_TYPE_NAME() != nil {
 		primary = ctx.NON_TYPE_NAME().GetText()
@@ -210,16 +230,16 @@ func (reader *SourceReader) EnterCall_primary(ctx *parser2.Call_primaryContext) 
 	reader.call.Primary = primary
 }
 
-func (reader *SourceReader) EnterCall_secondary(ctx *parser2.Call_secondaryContext) {
+func (reader *SourceReader) EnterCall_secondary(ctx *parser.Call_secondaryContext) {
 	reader.call.Secondary = ctx.NON_TYPE_NAME().GetText()
 }
 
-func (reader *SourceReader) EnterCall_expr(ctx *parser2.Call_exprContext) {
+func (reader *SourceReader) EnterCall_expr(ctx *parser.Call_exprContext) {
 	reader.call.Exprs = make([]Expr, 0)
 	reader.exprs = &reader.call.Exprs
 }
 
-func (reader *SourceReader) ExitCall_expr(ctx *parser2.Call_exprContext) {
+func (reader *SourceReader) ExitCall_expr(ctx *parser.Call_exprContext) {
 	reader.exprs = nil
 }
 
@@ -227,23 +247,24 @@ func (reader *SourceReader) ExitCall_expr(ctx *parser2.Call_exprContext) {
 // RETURN
 // ============================================================================================================
 
-func (reader *SourceReader) EnterReturn_stmt(ctx *parser2.Return_stmtContext) {
+func (reader *SourceReader) EnterReturn_stmt(ctx *parser.Return_stmtContext) {
 	reader.proc.Statements = append(reader.proc.Statements, Statement{
-		Ret: &Return{},
+		Ret:      &Return{},
+		Location: reader.location(ctx.BaseParserRuleContext),
 	})
 	reader.statement = &reader.proc.Statements[len(reader.proc.Statements)-1]
 }
 
-func (reader *SourceReader) ExitReturn_stmt(ctx *parser2.Return_stmtContext) {
+func (reader *SourceReader) ExitReturn_stmt(ctx *parser.Return_stmtContext) {
 	reader.statement = nil
 }
 
-func (reader *SourceReader) EnterReturn_expr(ctx *parser2.Return_exprContext) {
+func (reader *SourceReader) EnterReturn_expr(ctx *parser.Return_exprContext) {
 	reader.statement.Ret.Exprs = make([]Expr, 0)
 	reader.exprs = &reader.statement.Ret.Exprs
 }
 
-func (reader *SourceReader) ExitReturn_expr(ctx *parser2.Return_exprContext) {
+func (reader *SourceReader) ExitReturn_expr(ctx *parser.Return_exprContext) {
 	reader.exprs = nil
 }
 
@@ -251,27 +272,28 @@ func (reader *SourceReader) ExitReturn_expr(ctx *parser2.Return_exprContext) {
 // ASSIGNMENT
 // ============================================================================================================
 
-func (reader *SourceReader) EnterAssignment(ctx *parser2.AssignmentContext) {
+func (reader *SourceReader) EnterAssignment(ctx *parser.AssignmentContext) {
 	reader.proc.Statements = append(reader.proc.Statements, Statement{
 		Assignment: &Assignment{},
+		Location:   reader.location(ctx.BaseParserRuleContext),
 	})
 	reader.statement = &reader.proc.Statements[len(reader.proc.Statements)-1]
 }
 
-func (reader *SourceReader) ExitAssignment(ctx *parser2.AssignmentContext) {
+func (reader *SourceReader) ExitAssignment(ctx *parser.AssignmentContext) {
 	reader.statement = nil
 }
 
-func (reader *SourceReader) EnterAssignment_var(ctx *parser2.Assignment_varContext) {
+func (reader *SourceReader) EnterAssignment_var(ctx *parser.Assignment_varContext) {
 	reader.statement.Assignment.Vars = append(reader.statement.Assignment.Vars, ctx.NON_TYPE_NAME().GetText())
 }
 
-func (reader *SourceReader) EnterAssignment_expr(ctx *parser2.Assignment_exprContext) {
+func (reader *SourceReader) EnterAssignment_expr(ctx *parser.Assignment_exprContext) {
 	reader.statement.Assignment.Exprs = make([]Expr, 0)
 	reader.exprs = &reader.statement.Assignment.Exprs
 }
 
-func (reader *SourceReader) ExitAssignment_expr(ctx *parser2.Assignment_exprContext) {
+func (reader *SourceReader) ExitAssignment_expr(ctx *parser.Assignment_exprContext) {
 	reader.exprs = nil
 }
 
@@ -279,41 +301,70 @@ func (reader *SourceReader) ExitAssignment_expr(ctx *parser2.Assignment_exprCont
 // EXPR
 // ============================================================================================================
 
-func (reader *SourceReader) EnterExpr_bool(ctx *parser2.Expr_boolContext) {
+func (reader *SourceReader) EnterExpr_bool(ctx *parser.Expr_boolContext) {
 	str := ctx.GetText()
-	*reader.exprs = append(*reader.exprs, Expr{Boolean: &str, Unit: "bool"})
+
+	*reader.exprs = append(
+		*reader.exprs,
+		Expr{Boolean: &str, Unit: "bool", Location: reader.location(ctx.BaseParserRuleContext)},
+	)
 }
 
-func (reader *SourceReader) EnterExpr_num(ctx *parser2.Expr_numContext) {
+func (reader *SourceReader) location(ctx antlr.BaseParserRuleContext) common.Location {
+	return common.Location{
+		File:   reader.fileName,
+		Line:   ctx.GetStart().GetLine(),
+		Column: ctx.GetStart().GetColumn(),
+	}
+}
+
+func (reader *SourceReader) EnterExpr_num(ctx *parser.Expr_numContext) {
 	value := ctx.NUMBER().GetText()
 	unit := "num"
 	if ctx.UNIT() != nil {
 		unit = ctx.UNIT().GetText()[1:]
 	}
-	*reader.exprs = append(*reader.exprs, Expr{Number: &value, Unit: unit})
+	*reader.exprs = append(
+		*reader.exprs,
+		Expr{Number: &value, Unit: unit, Location: reader.location(ctx.BaseParserRuleContext)},
+	)
 }
 
-func (reader *SourceReader) EnterExpr_hex(ctx *parser2.Expr_hexContext) {
+func (reader *SourceReader) EnterExpr_hex(ctx *parser.Expr_hexContext) {
 	value := ctx.GetText()
-	*reader.exprs = append(*reader.exprs, Expr{Hex: &value, Unit: "hex"})
+	*reader.exprs = append(
+		*reader.exprs,
+		Expr{Hex: &value, Unit: "hex", Location: reader.location(ctx.BaseParserRuleContext)},
+	)
 }
 
-func (reader *SourceReader) EnterExpr_str(ctx *parser2.Expr_strContext) {
+func (reader *SourceReader) EnterExpr_str(ctx *parser.Expr_strContext) {
 	value := ctx.GetText()
-	*reader.exprs = append(*reader.exprs, Expr{Str: &value, Unit: "str"})
+	*reader.exprs = append(
+		*reader.exprs, Expr{Str: &value, Unit: "str", Location: reader.location(ctx.BaseParserRuleContext)},
+	)
 }
 
-func (reader *SourceReader) EnterExpr_null(ctx *parser2.Expr_nullContext) {
-	*reader.exprs = append(*reader.exprs, Expr{Null: true})
+func (reader *SourceReader) EnterExpr_null(ctx *parser.Expr_nullContext) {
+	*reader.exprs = append(
+		*reader.exprs,
+		Expr{Null: true, Location: reader.location(ctx.BaseParserRuleContext)},
+	)
 }
 
-func (reader *SourceReader) EnterExpr_var(ctx *parser2.Expr_varContext) {
+func (reader *SourceReader) EnterExpr_var(ctx *parser.Expr_varContext) {
 	value := ctx.GetText()
-	*reader.exprs = append(*reader.exprs, Expr{VarName: &VarName{value}})
+	*reader.exprs = append(
+		*reader.exprs,
+		Expr{VarName: &VarName{value}, Location: reader.location(ctx.BaseParserRuleContext)},
+	)
 }
 
-func (reader *SourceReader) EnterExpr_call(ctx *parser2.Expr_callContext) {
+func (reader *SourceReader) EnterExpr_call(ctx *parser.Expr_callContext) {
 	call := &Call{}
-	*reader.exprs = append(*reader.exprs, Expr{Call: call})
+	*reader.exprs = append(
+		*reader.exprs,
+		Expr{Call: call, Location: reader.location(ctx.BaseParserRuleContext)},
+	)
 	reader.call = call
 }

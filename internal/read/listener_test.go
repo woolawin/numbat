@@ -105,7 +105,7 @@ PROC main
 
 func readSample(sample string) *Source {
 	listener := NewSourceReader()
-	listener.Read(sample)
+	listener.Read(sample, "")
 	return listener.Source()
 }
 

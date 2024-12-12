@@ -19,23 +19,12 @@ type Source struct {
 	Procs   []Proc
 }
 
-func Read(code string) *Source {
-	listener := NewSourceReader()
-	listener.Read(code)
-	src := listener.Source()
-	return src
-}
-
 func (reader *SourceReader) Source() *Source {
 	src := &Source{
 		Program: reader.program,
 		Procs:   reader.procs,
 	}
 	return src
-}
-
-func TypeOf(name string) *Type {
-	return &Type{Out: TypeOut{Name: name}}
 }
 
 func (src *Source) String() string {

@@ -36,7 +36,7 @@ func main() {
 			fmt.Printf("failed to read file '%s': %v\n", srcFile, err)
 			continue
 		}
-		reader.Read(string(data))
+		reader.Read(string(data), srcFile)
 	}
 	fmt.Println(reader.Source().String())
 }
