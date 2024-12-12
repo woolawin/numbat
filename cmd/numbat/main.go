@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
+	"numbat/internal/read"
 	"os"
 	"strings"
 )
@@ -21,8 +23,22 @@ func main() {
 		return
 	}
 
-
-	fmt.Println(srcFiles)
+	reader := read.NewSourceReader()
+	for _, srcFile := range srcFiles {
+		file, err := os.Open(srcFile)
+		if err != nil {
+			fmt.Printf("failed to open file '%s': %v\n", srcFile, err)
+			continue
+		}
+		data, err := io.ReadAll(file)
+		file.Close()
+		if err != nil {
+			fmt.Printf("failed to read file '%s': %v\n", srcFile, err)
+			continue
+		}
+		reader.Read(string(data))
+	}
+	fmt.Println(reader.Source().String())
 }
 
 func listSrc(srcDir string) ([]string, bool) {

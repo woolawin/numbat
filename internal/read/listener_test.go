@@ -104,8 +104,8 @@ PROC main
 }
 
 func readSample(sample string) *Source {
-	listener := NewListener()
-	listener.Exec(sample)
+	listener := NewSourceReader()
+	listener.Read(sample)
 	return listener.Source()
 }
 

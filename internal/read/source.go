@@ -20,16 +20,16 @@ type Source struct {
 }
 
 func Read(code string) *Source {
-	listener := NewListener()
-	listener.Exec(code)
+	listener := NewSourceReader()
+	listener.Read(code)
 	src := listener.Source()
 	return src
 }
 
-func (listener *Listener) Source() *Source {
+func (reader *SourceReader) Source() *Source {
 	src := &Source{
-		Program: listener.program,
-		Procs:   listener.procs,
+		Program: reader.program,
+		Procs:   reader.procs,
 	}
 	return src
 }

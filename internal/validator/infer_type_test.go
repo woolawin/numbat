@@ -98,7 +98,7 @@ func assertValidationErrorCount(t *testing.T, validation Validation, expected in
 }
 
 func readsrc(sample string) *read.Source {
-	listener := read.NewListener()
-	listener.Exec(sample)
-	return listener.Source()
+	reader := read.NewSourceReader()
+	reader.Read(sample)
+	return reader.Source()
 }
