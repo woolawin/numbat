@@ -21,6 +21,7 @@ func main() {
 		return
 	}
 
+
 	fmt.Println(srcFiles)
 }
 
