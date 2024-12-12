@@ -154,14 +154,14 @@ func (typ *Type) String() string {
 
 func (exp *Expr) String() string {
 	var str strings.Builder
-	str.WriteString("#")
-	str.WriteString(exp.Unit)
-	str.WriteString(" ")
-
 	if exp.Boolean != nil {
 		str.WriteString(*exp.Boolean)
 	} else if exp.Number != nil {
 		str.WriteString(*exp.Number)
+		if exp.Unit != "" {
+			str.WriteString("#")
+			str.WriteString(exp.Unit)
+		}
 	} else if exp.Hex != nil {
 		str.WriteString(*exp.Hex)
 	} else if exp.Str != nil {

@@ -320,7 +320,7 @@ func (reader *SourceReader) location(ctx antlr.BaseParserRuleContext) common.Loc
 
 func (reader *SourceReader) EnterExpr_num(ctx *parser.Expr_numContext) {
 	value := ctx.NUMBER().GetText()
-	unit := "num"
+	unit := ""
 	if ctx.UNIT() != nil {
 		unit = ctx.UNIT().GetText()[1:]
 	}

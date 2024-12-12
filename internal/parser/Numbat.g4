@@ -3,7 +3,7 @@ grammar Numbat;
 prog: (WS | NEWLINE | object)*;
 
 expr_bool: ('true' | 'false');
-expr_num: UNIT? NUMBER;
+expr_num: NUMBER(UNIT)?;
 expr_hex: HEX;
 expr_str: STRING;
 expr_null: 'null';

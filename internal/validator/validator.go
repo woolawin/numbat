@@ -75,35 +75,6 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 		}
 		exp := stmt.Var.Exprs[0]
 
-		if exp.Unit == common.UnitFloat64 {
-			stmt.Var.VarType = TypeOf(common.TypeFloat64)
-			continue
-		}
-
-		if exp.Unit == common.UnitFloat32 {
-			stmt.Var.VarType = TypeOf(common.TypeFloat32)
-			continue
-		}
-
-		if exp.Unit == common.UnitInt32 {
-			stmt.Var.VarType = TypeOf(common.TypeInt32)
-			continue
-		}
-
-		if exp.Unit == common.UnitInt64 {
-			stmt.Var.VarType = TypeOf(common.TypeInt64)
-			continue
-		}
-
-		if exp.Unit == common.UnitUint32 {
-			stmt.Var.VarType = TypeOf(common.TypeUint32)
-			continue
-		}
-
-		if exp.Unit == common.UnitUint64 {
-			stmt.Var.VarType = TypeOf(common.TypeUint64)
-			continue
-		}
 
 		if exp.Null {
 			validation.addError(CanNotInferTypeFromNull{VarName: stmt.Var.Name})
