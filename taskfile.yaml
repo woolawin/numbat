@@ -29,9 +29,8 @@ tasks:
 
   build:
     deps: [antlr]
-    dir: cmd/numbat
     cmds:
-      - go build -o numbat
+      - go build -o bin/numbat ./cmd/numbat
 
   run:
     deps: [build]
