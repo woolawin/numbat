@@ -1,7 +1,6 @@
 package read
 
 import (
-	"fmt"
 	"github.com/google/go-cmp/cmp"
 	"numbat/samples"
 	"strings"
@@ -109,7 +108,6 @@ PROC main
 
 func TestCallNested(t *testing.T) {
 	src := readSample(samples.NestedCalls).String()
-	fmt.Println(src)
 	expected := `
 PROC main
 	DO
