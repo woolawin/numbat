@@ -17,6 +17,7 @@ type SourceReader struct {
 	proc      *Proc
 	statement *Statement
 	call      *Call
+	callChain []*Call
 	exprs     *[]Expr
 	varStmt   *Var
 
@@ -57,6 +58,29 @@ func (reader *SourceReader) Reset() {
 
 	reader.typ = nil
 	reader.typeChain = nil
+}
+
+func (reader *SourceReader) PushCall(call *Call) {
+	reader.callChain = append(reader.callChain, call)
+	reader.call = call
+	reader.exprs = &reader.call.Exprs
+}
+
+func (reader *SourceReader) PopCall() {
+	if len(reader.callChain) == 0 {
+		return
+	}
+
+	if len(reader.callChain) == 1 {
+		reader.call = nil
+		reader.exprs = nil
+		reader.callChain = nil
+		return
+	}
+
+	reader.callChain = reader.callChain[:len(reader.callChain)-1]
+	reader.call = reader.callChain[len(reader.callChain)-1]
+	reader.exprs = &reader.call.Exprs
 }
 
 func (reader *SourceReader) SetType(t *Type) {
@@ -209,15 +233,17 @@ func (reader *SourceReader) EnterVar_type(ctx *parser.Var_typeContext) {
 
 func (reader *SourceReader) EnterCall_stmt(ctx *parser.Call_stmtContext) {
 	reader.proc.Statements = append(reader.proc.Statements, Statement{
-		Call:     &Call{},
+		Call: &Call{
+			Exprs: make([]Expr, 0),
+		},
 		Location: reader.location(ctx.BaseParserRuleContext),
 	})
 	reader.statement = &reader.proc.Statements[len(reader.proc.Statements)-1]
-	reader.call = reader.statement.Call
+	reader.PushCall(reader.statement.Call)
 }
 
 func (reader *SourceReader) ExitCall_stmt(ctx *parser.Call_stmtContext) {
-	reader.call = nil
+	reader.PopCall()
 }
 
 func (reader *SourceReader) EnterCall_primary(ctx *parser.Call_primaryContext) {
@@ -232,15 +258,6 @@ func (reader *SourceReader) EnterCall_primary(ctx *parser.Call_primaryContext) {
 
 func (reader *SourceReader) EnterCall_secondary(ctx *parser.Call_secondaryContext) {
 	reader.call.Secondary = ctx.NON_TYPE_NAME().GetText()
-}
-
-func (reader *SourceReader) EnterCall_args(ctx *parser.Call_argsContext) {
-	reader.call.Exprs = make([]Expr, 0)
-	reader.exprs = &reader.call.Exprs
-}
-
-func (reader *SourceReader) ExitCall_expr(ctx *parser.Call_argsContext) {
-	reader.exprs = nil
 }
 
 // ============================================================================================================
@@ -361,10 +378,16 @@ func (reader *SourceReader) EnterExpr_var(ctx *parser.Expr_varContext) {
 }
 
 func (reader *SourceReader) EnterExpr_call(ctx *parser.Expr_callContext) {
-	call := &Call{}
+	call := &Call{
+		Exprs: make([]Expr, 0),
+	}
 	*reader.exprs = append(
 		*reader.exprs,
 		Expr{Call: call, Location: reader.location(ctx.BaseParserRuleContext)},
 	)
-	reader.call = call
+	reader.PushCall(call)
+}
+
+func (reader *SourceReader) ExitExpr_call(ctx *parser.Expr_callContext) {
+	reader.PopCall()
 }

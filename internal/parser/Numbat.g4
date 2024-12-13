@@ -30,7 +30,7 @@ proc: proc_def proc_body;
 
 
 call_arg: (expr_var | expr_constant);
-call_args: call_arg(',' call_arg)*;
+call_args: expr_all(',' expr_all)*;
 call_secondary: NON_TYPE_NAME;
 call_primary: (TYPE_NAME | NON_TYPE_NAME);
 call: call_primary(':'call_secondary)?'('call_args?')';

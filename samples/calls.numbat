@@ -9,6 +9,7 @@ proc main do
 
     var a = foo()
     var b = foo("baz", true )
+    foo(bar(), baz(true, doh()), -1.7)
 end
 
 

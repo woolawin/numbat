@@ -1,6 +1,6 @@
 
 program do
-    (log: "yes") // end of line
+    log("yes") // end of line
     // (log: "nope")
 end
 

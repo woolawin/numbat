@@ -1,6 +1,7 @@
 package read
 
 import (
+	"fmt"
 	"github.com/google/go-cmp/cmp"
 	"numbat/samples"
 	"strings"
@@ -101,6 +102,20 @@ PROC main
 	CALL alot 1 true false -45 "msg" 0xFFF 3e+14
 	VAR a &(foo)
 	VAR b &(foo "baz" true)
+	CALL foo &(bar) &(baz true &(doh)) -1.7
+`
+	assert(t, src, expected)
+}
+
+func TestCallNested(t *testing.T) {
+	src := readSample(samples.NestedCalls).String()
+	fmt.Println(src)
+	expected := `
+PROC main
+	DO
+	CALL foo &(bar) &(baz true &(doh)) -1.7
+	CALL foo &(bar true &(baz) -1.8) "Hello"
+	CALL foo &(lib2.bar "MSG" &(free)) &(baz true &(lib.doh)) -1.7
 `
 	assert(t, src, expected)
 }

@@ -127,7 +127,7 @@ func numbatParserInit() {
 		0, 0, 168, 39, 1, 0, 0, 0, 169, 170, 3, 38, 19, 0, 170, 171, 3, 32, 16,
 		0, 171, 41, 1, 0, 0, 0, 172, 175, 3, 14, 7, 0, 173, 175, 3, 12, 6, 0, 174,
 		172, 1, 0, 0, 0, 174, 173, 1, 0, 0, 0, 175, 43, 1, 0, 0, 0, 176, 181, 3,
-		42, 21, 0, 177, 178, 5, 6, 0, 0, 178, 180, 3, 42, 21, 0, 179, 177, 1, 0,
+		18, 9, 0, 177, 178, 5, 6, 0, 0, 178, 180, 3, 18, 9, 0, 179, 177, 1, 0,
 		0, 0, 180, 183, 1, 0, 0, 0, 181, 179, 1, 0, 0, 0, 181, 182, 1, 0, 0, 0,
 		182, 45, 1, 0, 0, 0, 183, 181, 1, 0, 0, 0, 184, 185, 5, 21, 0, 0, 185,
 		47, 1, 0, 0, 0, 186, 187, 7, 1, 0, 0, 187, 49, 1, 0, 0, 0, 188, 191, 3,
@@ -3168,8 +3168,8 @@ type ICall_argsContext interface {
 	GetParser() antlr.Parser
 
 	// Getter signatures
-	AllCall_arg() []ICall_argContext
-	Call_arg(i int) ICall_argContext
+	AllExpr_all() []IExpr_allContext
+	Expr_all(i int) IExpr_allContext
 
 	// IsCall_argsContext differentiates from other interfaces.
 	IsCall_argsContext()
@@ -3207,20 +3207,20 @@ func NewCall_argsContext(parser antlr.Parser, parent antlr.ParserRuleContext, in
 
 func (s *Call_argsContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *Call_argsContext) AllCall_arg() []ICall_argContext {
+func (s *Call_argsContext) AllExpr_all() []IExpr_allContext {
 	children := s.GetChildren()
 	len := 0
 	for _, ctx := range children {
-		if _, ok := ctx.(ICall_argContext); ok {
+		if _, ok := ctx.(IExpr_allContext); ok {
 			len++
 		}
 	}
 
-	tst := make([]ICall_argContext, len)
+	tst := make([]IExpr_allContext, len)
 	i := 0
 	for _, ctx := range children {
-		if t, ok := ctx.(ICall_argContext); ok {
-			tst[i] = t.(ICall_argContext)
+		if t, ok := ctx.(IExpr_allContext); ok {
+			tst[i] = t.(IExpr_allContext)
 			i++
 		}
 	}
@@ -3228,11 +3228,11 @@ func (s *Call_argsContext) AllCall_arg() []ICall_argContext {
 	return tst
 }
 
-func (s *Call_argsContext) Call_arg(i int) ICall_argContext {
+func (s *Call_argsContext) Expr_all(i int) IExpr_allContext {
 	var t antlr.RuleContext
 	j := 0
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(ICall_argContext); ok {
+		if _, ok := ctx.(IExpr_allContext); ok {
 			if j == i {
 				t = ctx.(antlr.RuleContext)
 				break
@@ -3245,7 +3245,7 @@ func (s *Call_argsContext) Call_arg(i int) ICall_argContext {
 		return nil
 	}
 
-	return t.(ICall_argContext)
+	return t.(IExpr_allContext)
 }
 
 func (s *Call_argsContext) GetRuleContext() antlr.RuleContext {
@@ -3276,7 +3276,7 @@ func (p *NumbatParser) Call_args() (localctx ICall_argsContext) {
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(176)
-		p.Call_arg()
+		p.Expr_all()
 	}
 	p.SetState(181)
 	p.GetErrorHandler().Sync(p)
@@ -3296,7 +3296,7 @@ func (p *NumbatParser) Call_args() (localctx ICall_argsContext) {
 		}
 		{
 			p.SetState(178)
-			p.Call_arg()
+			p.Expr_all()
 		}
 
 		p.SetState(183)
@@ -3685,7 +3685,7 @@ func (p *NumbatParser) Call() (localctx ICallContext) {
 	}
 	_la = p.GetTokenStream().LA(1)
 
-	if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&3014670) != 0 {
+	if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&4063246) != 0 {
 		{
 			p.SetState(194)
 			p.Call_args()

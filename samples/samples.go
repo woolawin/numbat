@@ -18,3 +18,6 @@ var Vars string
 
 //go:embed calls.numbat
 var Calls string
+
+//go:embed nest_call.numbat
+var NestedCalls string

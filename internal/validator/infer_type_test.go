@@ -14,8 +14,8 @@ program do
 	var e = true
 	var f = 0xFF
 	var g = 1e+22
-	var l = (Link)
-	var m = (Metric: "request_count")
+	var l = Link()
+	var m = Metric("request_count")
 end
 `
 	src := readsrc(code)
@@ -54,7 +54,7 @@ program do
 	var a
 	var b = null
 	var c = foo
-	var d = (baz bar)
+	var d = baz:bar()
 end
 `
 	src := readsrc(code)

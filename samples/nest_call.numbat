@@ -1,0 +1,5 @@
+proc main do
+    foo(bar(), baz(true, doh()), -1.7)
+    foo(bar(true, baz(), -1.8), "Hello")
+    foo(lib2:bar("MSG", free()), baz(true, lib:doh()), -1.7)
+end
