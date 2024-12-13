@@ -234,12 +234,12 @@ func (reader *SourceReader) EnterCall_secondary(ctx *parser.Call_secondaryContex
 	reader.call.Secondary = ctx.NON_TYPE_NAME().GetText()
 }
 
-func (reader *SourceReader) EnterCall_expr(ctx *parser.Call_exprContext) {
+func (reader *SourceReader) EnterCall_args(ctx *parser.Call_argsContext) {
 	reader.call.Exprs = make([]Expr, 0)
 	reader.exprs = &reader.call.Exprs
 }
 
-func (reader *SourceReader) ExitCall_expr(ctx *parser.Call_exprContext) {
+func (reader *SourceReader) ExitCall_expr(ctx *parser.Call_argsContext) {
 	reader.exprs = nil
 }
 

@@ -93,8 +93,10 @@ func TestCalls(t *testing.T) {
 PROC main
 	DO
 	CALL foo
+	CALL foo
 	CALL foo.bar
 	CALL foo "baz"
+	CALL foo.bar "baz"
 	CALL foo.bar "baz"
 	CALL alot 1 true false -45 "msg" 0xFFF 3e+14
 	VAR a &(foo)

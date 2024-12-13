@@ -71,8 +71,11 @@ type NumbatListener interface {
 	// EnterProc is called when entering the proc production.
 	EnterProc(c *ProcContext)
 
-	// EnterCall_expr is called when entering the call_expr production.
-	EnterCall_expr(c *Call_exprContext)
+	// EnterCall_arg is called when entering the call_arg production.
+	EnterCall_arg(c *Call_argContext)
+
+	// EnterCall_args is called when entering the call_args production.
+	EnterCall_args(c *Call_argsContext)
 
 	// EnterCall_secondary is called when entering the call_secondary production.
 	EnterCall_secondary(c *Call_secondaryContext)
@@ -188,8 +191,11 @@ type NumbatListener interface {
 	// ExitProc is called when exiting the proc production.
 	ExitProc(c *ProcContext)
 
-	// ExitCall_expr is called when exiting the call_expr production.
-	ExitCall_expr(c *Call_exprContext)
+	// ExitCall_arg is called when exiting the call_arg production.
+	ExitCall_arg(c *Call_argContext)
+
+	// ExitCall_args is called when exiting the call_args production.
+	ExitCall_args(c *Call_argsContext)
 
 	// ExitCall_secondary is called when exiting the call_secondary production.
 	ExitCall_secondary(c *Call_secondaryContext)

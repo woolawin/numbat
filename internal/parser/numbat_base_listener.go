@@ -147,11 +147,17 @@ func (s *BaseNumbatListener) EnterProc(ctx *ProcContext) {}
 // ExitProc is called when production proc is exited.
 func (s *BaseNumbatListener) ExitProc(ctx *ProcContext) {}
 
-// EnterCall_expr is called when production call_expr is entered.
-func (s *BaseNumbatListener) EnterCall_expr(ctx *Call_exprContext) {}
+// EnterCall_arg is called when production call_arg is entered.
+func (s *BaseNumbatListener) EnterCall_arg(ctx *Call_argContext) {}
 
-// ExitCall_expr is called when production call_expr is exited.
-func (s *BaseNumbatListener) ExitCall_expr(ctx *Call_exprContext) {}
+// ExitCall_arg is called when production call_arg is exited.
+func (s *BaseNumbatListener) ExitCall_arg(ctx *Call_argContext) {}
+
+// EnterCall_args is called when production call_args is entered.
+func (s *BaseNumbatListener) EnterCall_args(ctx *Call_argsContext) {}
+
+// ExitCall_args is called when production call_args is exited.
+func (s *BaseNumbatListener) ExitCall_args(ctx *Call_argsContext) {}
 
 // EnterCall_secondary is called when production call_secondary is entered.
 func (s *BaseNumbatListener) EnterCall_secondary(ctx *Call_secondaryContext) {}

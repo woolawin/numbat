@@ -1,13 +1,14 @@
-
 proc main do
-    (foo)
-    (foo bar)
-    (foo: "baz")
-    (foo bar: "baz")
-    (alot: 1 true false -45 "msg" 0xFFF 3e+14)
+    foo()
+    foo( )
+    foo:bar()
+    foo("baz")
+    foo:bar("baz")
+    foo:bar( "baz" ) // same but spaced out
+    alot(1, true, false, -45, "msg", 0xFFF, 3e+14)
 
-    var a = (foo)
-    var b = (foo: "baz" true)
+    var a = foo()
+    var b = foo("baz", true )
 end
 
 

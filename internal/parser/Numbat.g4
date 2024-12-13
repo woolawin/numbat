@@ -29,10 +29,11 @@ proc_def: 'proc' proc_name proc_type?;
 proc: proc_def proc_body;
 
 
-call_expr: ':' (expr_var | expr_constant)+;
+call_arg: (expr_var | expr_constant);
+call_args: call_arg(',' call_arg)*;
 call_secondary: NON_TYPE_NAME;
 call_primary: (TYPE_NAME | NON_TYPE_NAME);
-call: '(' call_primary call_secondary? call_expr?')';
+call: call_primary(':'call_secondary)?'('call_args?')';
 call_stmt: call;
 
 var_expr: '=' expr_all;

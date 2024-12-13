@@ -4,7 +4,7 @@ proc foo do
     var a = 0
     var b Int32 = 1
     var c Int32
-    var d Int32 = (baz)
+    var d Int32 = baz()
     var e Int64 = 1e+22
     var g Int64 = 12#kg
     var f = a
@@ -13,6 +13,6 @@ proc foo do
     var j Float32 = -3.8
     var k = 1#kg/m^3
     var l = 2#m^3/kg
-    var m = (baz bar)
+    var m = baz:bar()
 end
 
