@@ -12,8 +12,13 @@ type ParamDefaultValue struct {
 	Str     *string
 }
 
+type Name struct {
+	Value    string
+	Location common.Location
+}
+
 type Param struct {
-	Name string
+	Name Name
 	Typ  *Type
 	Expr []Expr
 }
@@ -73,7 +78,7 @@ type Statement struct {
 }
 
 type Proc struct {
-	Name       string
+	Name       Name
 	ReturnType *Type
 	Statements []Statement
 	Location   common.Location

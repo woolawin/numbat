@@ -1,6 +1,9 @@
 package validator
 
-import "testing"
+import (
+	"numbat/internal/common"
+	"testing"
+)
 
 func TestProgramCanNotBeNull(t *testing.T) {
 	code := `
@@ -13,4 +16,11 @@ end
 
 	assertValidationError(t, validation, ProgramingMissing{})
 	assertValidationErrorCount(t, validation, 1)
+}
+
+func loc(line, column int) common.Location {
+	return common.Location{
+		Line:   line,
+		Column: column,
+	}
 }

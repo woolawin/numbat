@@ -142,7 +142,10 @@ func (reader *SourceReader) ExitProc(ctx *parser.ProcContext) {
 }
 
 func (reader *SourceReader) EnterProc_name(ctx *parser.Proc_nameContext) {
-	reader.proc.Name = ctx.NON_TYPE_NAME().GetText()
+	reader.proc.Name = Name{
+		Value:    ctx.NON_TYPE_NAME().GetText(),
+		Location: reader.location(ctx.BaseParserRuleContext),
+	}
 }
 
 func (reader *SourceReader) EnterProc_type(ctx *parser.Proc_typeContext) {
@@ -169,7 +172,10 @@ func (reader *SourceReader) EnterType_out(ctx *parser.Type_outContext) {
 
 func (reader *SourceReader) EnterParam(ctx *parser.ParamContext) {
 	reader.typ.In = append(reader.typ.In, Param{
-		Name: ctx.NON_TYPE_NAME().GetText(),
+		Name: Name{
+			Value:    ctx.NON_TYPE_NAME().GetText(),
+			Location: reader.location(ctx.BaseParserRuleContext),
+		},
 	})
 	reader.typ.Param = &reader.typ.In[len(reader.typ.In)-1]
 }
@@ -331,7 +337,7 @@ func (reader *SourceReader) location(ctx antlr.BaseParserRuleContext) common.Loc
 	return common.Location{
 		File:   reader.fileName,
 		Line:   ctx.GetStart().GetLine(),
-		Column: ctx.GetStart().GetColumn(),
+		Column: ctx.GetStart().GetColumn() + 1,
 	}
 }
 

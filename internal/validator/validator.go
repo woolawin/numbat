@@ -34,8 +34,16 @@ type CanNotInferTypeFromCall struct {
 type ProgramingMissing struct {
 }
 
-type ValidationError interface {
+type NameConflict struct {
+	Name           read.Name
+	ConflictedWith common.Location
+}
 
+func newNameConflict(name read.Name, conflictedWith common.Location) NameConflict {
+	return NameConflict{Name: name, ConflictedWith: conflictedWith}
+}
+
+type ValidationError interface {
 }
 
 type Validation struct {
@@ -44,6 +52,62 @@ type Validation struct {
 
 func NewValidation() Validation {
 	return Validation{}
+}
+
+func Check(src *read.Source) Validation {
+	validation := Validation{}
+	validation.HasProgram(src)
+	validation.InferTypes(src)
+	validation.CheckTypesExists(src)
+	//checkCollisions
+	//checkReferences
+	//checkTypeCompatability
+	return validation
+}
+
+type Object struct {
+	Name     read.Name
+	Location common.Location
+	Type     *read.Type
+}
+
+func newProcObject(proc *read.Proc) Object {
+	return Object{Name: proc.Name, Location: proc.Location, Type: proc.ReturnType}
+}
+
+func newParamObject(param read.Param) Object {
+	return Object{Name: param.Name, Location: param.Name.Location, Type: param.Typ}
+}
+
+func (validation *Validation) Validate(src *read.Source) {
+	objects := make(map[string]Object)
+	for idx := range src.Procs {
+		proc := &src.Procs[idx]
+		object, found := objects[proc.Name.Value]
+		if found {
+			validation.addError(newNameConflict(proc.Name, object.Name.Location))
+		} else {
+			objects[proc.Name.Value] = newProcObject(proc)
+		}
+	}
+
+	for idx := range src.Procs {
+		proc := &src.Procs[idx]
+		validation.validateProc(fork(objects), proc)
+	}
+}
+
+func (validation *Validation) validateProc(objects map[string]Object, proc *read.Proc) {
+	if proc.ReturnType != nil {
+		for _, param := range proc.ReturnType.In {
+			object, found := objects[param.Name.Value]
+			if found {
+				validation.addError(newNameConflict(param.Name, object.Name.Location))
+			} else {
+				objects[param.Name.Value] = newParamObject(param)
+			}
+		}
+	}
 }
 
 func (validation *Validation) HasProgram(src *read.Source) {
@@ -74,7 +138,6 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 			continue
 		}
 		exp := stmt.Var.Exprs[0]
-
 
 		if exp.Null {
 			validation.addError(CanNotInferTypeFromNull{VarName: stmt.Var.Name})
@@ -131,17 +194,6 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 
 func TypeOf(name string) *read.Type {
 	return &read.Type{Out: read.TypeOut{Name: name}}
-}
-
-func Check(src *read.Source) Validation {
-	validation := Validation{}
-	validation.HasProgram(src)
-	validation.InferTypes(src)
-	validation.CheckTypesExists(src)
-	//checkCollisions
-	//checkReferences
-	//checkTypeCompatability
-	return validation
 }
 
 func (validation *Validation) CheckTypesExists(src *read.Source) {
@@ -217,4 +269,12 @@ func isBuiltInType(typeName string) bool {
 	}
 
 	return false
+}
+
+func fork(objects map[string]Object) map[string]Object {
+	forked := make(map[string]Object)
+	for key, value := range objects {
+		forked[key] = value
+	}
+	return forked
 }

@@ -42,12 +42,12 @@ func (src *Source) String() string {
 
 func (proc *Proc) String() string {
 	var str strings.Builder
-	str.WriteString(proc.Name)
+	str.WriteString(proc.Name.Value)
 	str.WriteString("\n")
 	if proc.ReturnType != nil {
 		for _, in := range proc.ReturnType.In {
 			str.WriteString("\tIN ")
-			str.WriteString(in.Name)
+			str.WriteString(in.Name.Value)
 			str.WriteString(" ")
 			str.WriteString(in.Typ.String())
 
@@ -131,7 +131,7 @@ func (typ *Type) String() string {
 	if len(typ.In) != 0 {
 		str.WriteString("(")
 		for idx, param := range typ.In {
-			str.WriteString(param.Name)
+			str.WriteString(param.Name.Value)
 			if param.Typ != nil {
 				str.WriteString(" ")
 				str.WriteString(param.Typ.String())
