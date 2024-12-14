@@ -225,7 +225,10 @@ func (reader *SourceReader) ExitVar_expr(ctx *parser.Var_exprContext) {
 }
 
 func (reader *SourceReader) EnterVar_name(ctx *parser.Var_nameContext) {
-	reader.varStmt.Name = ctx.NON_TYPE_NAME().GetText()
+	reader.varStmt.Name = Name{
+		Value: ctx.NON_TYPE_NAME().GetText(),
+		Location: reader.location(ctx.BaseParserRuleContext),
+	}
 }
 
 func (reader *SourceReader) EnterVar_type(ctx *parser.Var_typeContext) {

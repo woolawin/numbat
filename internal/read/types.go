@@ -54,7 +54,7 @@ type Call struct {
 }
 
 type Var struct {
-	Name    string
+	Name    Name
 	VarType *Type
 	Exprs   []Expr
 }

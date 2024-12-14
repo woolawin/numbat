@@ -74,7 +74,7 @@ func (proc *Proc) String() string {
 
 		if stmt.Var != nil {
 			str.WriteString("\tVAR ")
-			str.WriteString(stmt.Var.Name)
+			str.WriteString(stmt.Var.Name.Value)
 			if stmt.Var.VarType != nil {
 				str.WriteString(" ")
 				str.WriteString(stmt.Var.VarType.String())

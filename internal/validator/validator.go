@@ -108,6 +108,24 @@ func (validation *Validation) validateProc(objects map[string]Object, proc *read
 			}
 		}
 	}
+
+	for idx := range proc.Statements {
+		validation.validateStatement(objects, &proc.Statements[idx])
+	}
+
+}
+
+func (validation *Validation) validateStatement(objects map[string]Object, stmt *read.Statement) {
+	if stmt.Var != nil {
+		validation.validateVar(objects, stmt.Var)
+	}
+}
+
+func (validation *Validation) validateVar(objects map[string]Object, stmt *read.Var) {
+	object, found := objects[stmt.Name.Value]
+	if found {
+		validation.addError(newNameConflict(stmt.Name, object.Name.Location))
+	}
 }
 
 func (validation *Validation) HasProgram(src *read.Source) {
@@ -134,18 +152,18 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 			continue
 		}
 		if len(stmt.Var.Exprs) == 0 {
-			validation.addError(NoExprToInferVariableType{VarName: stmt.Var.Name})
+			validation.addError(NoExprToInferVariableType{VarName: stmt.Var.Name.Value})
 			continue
 		}
 		exp := stmt.Var.Exprs[0]
 
 		if exp.Null {
-			validation.addError(CanNotInferTypeFromNull{VarName: stmt.Var.Name})
+			validation.addError(CanNotInferTypeFromNull{VarName: stmt.Var.Name.Value})
 			continue
 		}
 
 		if exp.VarName != nil {
-			validation.addError(CanNotInferTypeFromOtherVariable{VarName: stmt.Var.Name})
+			validation.addError(CanNotInferTypeFromOtherVariable{VarName: stmt.Var.Name.Value})
 			continue
 		}
 
@@ -169,7 +187,7 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 				stmt.Var.VarType = TypeOf(exp.Call.Primary)
 				continue
 			}
-			validation.addError(CanNotInferTypeFromCall{VarName: stmt.Var.Name})
+			validation.addError(CanNotInferTypeFromCall{VarName: stmt.Var.Name.Value})
 			continue
 		}
 

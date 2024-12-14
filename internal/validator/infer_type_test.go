@@ -35,7 +35,7 @@ end
 
 func assertInferredType(t *testing.T, src *read.Source, name string, expected string) {
 	for _, stmt := range src.Program.Statements {
-		if stmt.Var.Name == name {
+		if stmt.Var.Name.Value == name {
 			if stmt.Var.VarType == nil {
 				t.Fatalf("%s: expected type", name)
 			}
