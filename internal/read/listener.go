@@ -149,8 +149,8 @@ func (reader *SourceReader) EnterProc_name(ctx *parser.Proc_nameContext) {
 }
 
 func (reader *SourceReader) EnterProc_type(ctx *parser.Proc_typeContext) {
-	reader.proc.ReturnType = &Type{}
-	reader.SetType(reader.proc.ReturnType)
+	reader.proc.Type = &Type{}
+	reader.SetType(reader.proc.Type)
 }
 
 // ============================================================================================================
@@ -226,7 +226,7 @@ func (reader *SourceReader) ExitVar_expr(ctx *parser.Var_exprContext) {
 
 func (reader *SourceReader) EnterVar_name(ctx *parser.Var_nameContext) {
 	reader.varStmt.Name = Name{
-		Value: ctx.NON_TYPE_NAME().GetText(),
+		Value:    ctx.NON_TYPE_NAME().GetText(),
 		Location: reader.location(ctx.BaseParserRuleContext),
 	}
 }

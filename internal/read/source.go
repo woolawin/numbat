@@ -44,8 +44,8 @@ func (proc *Proc) String() string {
 	var str strings.Builder
 	str.WriteString(proc.Name.Value)
 	str.WriteString("\n")
-	if proc.ReturnType != nil {
-		for _, in := range proc.ReturnType.In {
+	if proc.Type != nil {
+		for _, in := range proc.Type.In {
 			str.WriteString("\tIN ")
 			str.WriteString(in.Name.Value)
 			str.WriteString(" ")
@@ -57,9 +57,9 @@ func (proc *Proc) String() string {
 			}
 			str.WriteString("\n")
 		}
-		if proc.ReturnType.Out.Name != "" {
+		if proc.Type.Out.Name != "" {
 			str.WriteString("\tOUT ")
-			str.WriteString(proc.ReturnType.Out.Name)
+			str.WriteString(proc.Type.Out.Name)
 			str.WriteString("\n")
 		}
 	}

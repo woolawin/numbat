@@ -72,7 +72,7 @@ type Object struct {
 }
 
 func newProcObject(proc *read.Proc) Object {
-	return Object{Name: proc.Name, Location: proc.Location, Type: proc.ReturnType}
+	return Object{Name: proc.Name, Location: proc.Location, Type: proc.Type}
 }
 
 func newParamObject(param read.Param) Object {
@@ -98,8 +98,8 @@ func (validation *Validation) Validate(src *read.Source) {
 }
 
 func (validation *Validation) validateProc(objects map[string]Object, proc *read.Proc) {
-	if proc.ReturnType != nil {
-		for _, param := range proc.ReturnType.In {
+	if proc.Type != nil {
+		for _, param := range proc.Type.In {
 			object, found := objects[param.Name.Value]
 			if found {
 				validation.addError(newNameConflict(param.Name, object.Name.Location))
@@ -226,8 +226,8 @@ func (validation *Validation) CheckTypesExists(src *read.Source) {
 }
 
 func (validation *Validation) checkProcTypesExists(proc read.Proc) {
-	if proc.ReturnType != nil {
-		validation.checkTypeExists(*proc.ReturnType)
+	if proc.Type != nil {
+		validation.checkTypeExists(*proc.Type)
 	}
 	for _, stmt := range proc.Statements {
 		validation.checkStatementTypesExists(stmt)

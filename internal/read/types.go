@@ -79,7 +79,7 @@ type Statement struct {
 
 type Proc struct {
 	Name       Name
-	ReturnType *Type
+	Type       *Type
 	Statements []Statement
 	Location   common.Location
 }
