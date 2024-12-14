@@ -339,6 +339,10 @@ func exprType(expr *read.Expr) *read.Type {
 		return TypeOf(common.TypeBool)
 	}
 
+	if expr.Number == nil {
+		return nil
+	}
+
 	if strings.Contains(*expr.Number, "e+") {
 		return TypeOf(common.TypeFloat64)
 	}
