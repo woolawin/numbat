@@ -355,7 +355,6 @@ func TypeOf(name string) *read.Type {
 }
 
 func (validation *Validation) CheckTypesExists(src *read.Source) {
-
 	if src.Program != nil {
 		validation.checkProcTypesExists(*src.Program)
 	}

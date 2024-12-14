@@ -34,6 +34,81 @@ program do
 	var d_4 Byte = 3.14
 	var d_5 Byte = null
 	var d_6 Byte = 0xD2
+
+	var e_1 Int64 = true
+	var e_2 Int64 = "message"
+	var e_3 Int64 = 2
+	var e_4 Int64 = 3.14
+	var e_5 Int64 = null
+	var e_6 Int64 = 0xD2
+
+	var f_1 Float32 = true
+	var f_2 Float32 = "message"
+	var f_3 Float32 = 2
+	var f_4 Float32 = 3.14
+	var f_5 Float32 = null
+	var f_6 Float32 = 0xD2
+end
+`
+	src := readsrc(code)
+	validation := NewValidation()
+	validation.Validate(src)
+
+	assertValidationError(t, validation, newIncompatibleType("String", "Bool", loc(4, 17)))
+	assertValidationError(t, validation, newIncompatibleType("Int32", "Bool", loc(5, 17)))
+	assertValidationError(t, validation, newIncompatibleType("Float64", "Bool", loc(6, 17)))
+	assertValidationError(t, validation, newIncompatibleType("Null", "Bool", loc(7, 17)))
+	assertValidationError(t, validation, newIncompatibleType("Byte", "Bool", loc(8, 17)))
+
+	assertValidationError(t, validation, newIncompatibleType("Bool", "Int32", loc(10, 18)))
+	assertValidationError(t, validation, newIncompatibleType("String", "Int32", loc(11, 18)))
+	assertValidationError(t, validation, newIncompatibleType("Float64", "Int32", loc(13, 18)))
+	assertValidationError(t, validation, newIncompatibleType("Null", "Int32", loc(14, 18)))
+	assertValidationError(t, validation, newIncompatibleType("Byte", "Int32", loc(15, 18)))
+
+	assertValidationError(t, validation, newIncompatibleType("Bool", "Float64", loc(17, 20)))
+	assertValidationError(t, validation, newIncompatibleType("String", "Float64", loc(18, 20)))
+	assertValidationError(t, validation, newIncompatibleType("Int32", "Float64", loc(19, 20)))
+	assertValidationError(t, validation, newIncompatibleType("Null", "Float64", loc(21, 20)))
+	assertValidationError(t, validation, newIncompatibleType("Byte", "Float64", loc(22, 20)))
+
+	assertValidationError(t, validation, newIncompatibleType("Bool", "Byte", loc(24, 17)))
+	assertValidationError(t, validation, newIncompatibleType("String", "Byte", loc(25, 17)))
+	assertValidationError(t, validation, newIncompatibleType("Int32", "Byte", loc(26, 17)))
+	assertValidationError(t, validation, newIncompatibleType("Float64", "Byte", loc(27, 17)))
+	assertValidationError(t, validation, newIncompatibleType("Null", "Byte", loc(28, 17)))
+
+	assertValidationError(t, validation, newIncompatibleType("Bool", "Int64", loc(31, 18)))
+	assertValidationError(t, validation, newIncompatibleType("String", "Int64", loc(32, 18)))
+	assertValidationError(t, validation, newIncompatibleType("Int32", "Int64", loc(33, 18)))
+	assertValidationError(t, validation, newIncompatibleType("Float64", "Int64", loc(34, 18)))
+	assertValidationError(t, validation, newIncompatibleType("Null", "Int64", loc(35, 18)))
+	assertValidationError(t, validation, newIncompatibleType("Byte", "Int64", loc(36, 18)))
+
+	assertValidationError(t, validation, newIncompatibleType("Bool", "Float32", loc(38, 20)))
+	assertValidationError(t, validation, newIncompatibleType("String", "Float32", loc(39, 20)))
+	assertValidationError(t, validation, newIncompatibleType("Int32", "Float32", loc(40, 20)))
+	assertValidationError(t, validation, newIncompatibleType("Float64", "Float32", loc(41, 20)))
+	assertValidationError(t, validation, newIncompatibleType("Null", "Float32", loc(42, 20)))
+	assertValidationError(t, validation, newIncompatibleType("Byte", "Float32", loc(43, 20)))
+
+	assertValidationErrorCount(t, validation, 32)
+}
+
+/*
+func TestIncompatibleVarAndProcTypes(t *testing.T) {
+	code := `
+program do
+	var i Int32 = 1
+	var l Int64 = 2
+	var b Bool = true
+	var byt Byte = 0x34
+	var f Float32 = 3.14
+	var d Float64 = 6.28
+end
+
+proc i32 Int32 do
+
 end
 `
 	src := readsrc(code)
@@ -66,3 +141,4 @@ end
 
 	assertValidationErrorCount(t, validation, 20)
 }
+*/
