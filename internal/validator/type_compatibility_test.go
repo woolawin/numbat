@@ -179,3 +179,20 @@ end
 
 	assertValidationErrorCount(t, validation, 12)
 }
+
+func TestIncompatibleWhenObjectIsNotFound(t *testing.T) {
+	code := `
+program do
+	var a Int32 = unknown_var
+	var b Int32 = unknown_proc()
+end
+`
+	src := readsrc(code)
+	validation := NewValidation()
+	validation.Validate(src)
+
+	assertValidationError(t, validation, newIncompatibleType("", "Int32", loc(3, 16)))
+	assertValidationError(t, validation, newIncompatibleType("", "Int32", loc(4, 16)))
+
+	assertValidationErrorCount(t, validation, 4)
+}
