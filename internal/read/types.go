@@ -8,7 +8,7 @@ type TypeOut struct {
 }
 
 type ParamDefaultValue struct {
-	VarName *VarName
+	VarName *Name
 	Str     *string
 }
 
@@ -30,13 +30,9 @@ type Type struct {
 	Param *Param
 }
 
-type VarName struct {
-	Name string
-}
-
 type Expr struct {
 	Unit    string
-	VarName *VarName
+	VarName *Name
 	Boolean *string
 	Number  *string
 	Hex     *string
@@ -48,8 +44,8 @@ type Expr struct {
 }
 
 type Call struct {
-	Primary   string
-	Secondary string
+	Primary   Name
+	Secondary Name
 	Exprs     []Expr
 }
 

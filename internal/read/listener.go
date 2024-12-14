@@ -262,11 +262,17 @@ func (reader *SourceReader) EnterCall_primary(ctx *parser.Call_primaryContext) {
 	} else if ctx.TYPE_NAME() != nil {
 		primary = ctx.TYPE_NAME().GetText()
 	}
-	reader.call.Primary = primary
+	reader.call.Primary = Name{
+		Value:    primary,
+		Location: reader.location(ctx.BaseParserRuleContext),
+	}
 }
 
 func (reader *SourceReader) EnterCall_secondary(ctx *parser.Call_secondaryContext) {
-	reader.call.Secondary = ctx.NON_TYPE_NAME().GetText()
+	reader.call.Secondary = Name{
+		Value:    ctx.NON_TYPE_NAME().GetText(),
+		Location: reader.location(ctx.BaseParserRuleContext),
+	}
 }
 
 // ============================================================================================================
@@ -382,7 +388,13 @@ func (reader *SourceReader) EnterExpr_var(ctx *parser.Expr_varContext) {
 	value := ctx.GetText()
 	*reader.exprs = append(
 		*reader.exprs,
-		Expr{VarName: &VarName{value}, Location: reader.location(ctx.BaseParserRuleContext)},
+		Expr{
+			VarName: &Name{
+				Value:    value,
+				Location: reader.location(ctx.BaseParserRuleContext),
+			},
+			Location: reader.location(ctx.BaseParserRuleContext),
+		},
 	)
 }
 

@@ -114,10 +114,10 @@ func (proc *Proc) String() string {
 
 func (call *Call) String() string {
 	var str strings.Builder
-	str.WriteString(call.Primary)
-	if call.Secondary != "" {
+	str.WriteString(call.Primary.Value)
+	if call.Secondary.Value != "" {
 		str.WriteString(".")
-		str.WriteString(call.Secondary)
+		str.WriteString(call.Secondary.Value)
 	}
 	for _, exp := range call.Exprs {
 		str.WriteString(" ")
@@ -169,7 +169,7 @@ func (exp *Expr) String() string {
 	} else if exp.Null {
 		return "null"
 	} else if exp.VarName != nil {
-		return "$" + exp.VarName.Name
+		return "$" + exp.VarName.Value
 	} else if exp.Call != nil {
 		return "&(" + exp.Call.String() + ")"
 	}

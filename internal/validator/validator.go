@@ -43,6 +43,25 @@ func newNameConflict(name read.Name, conflictedWith common.Location) NameConflic
 	return NameConflict{Name: name, ConflictedWith: conflictedWith}
 }
 
+type UnknownObject struct {
+	Name     string
+	Location common.Location
+}
+
+func newUnknownObject(name string, location common.Location) UnknownObject {
+	return UnknownObject{Name: name, Location: location}
+}
+
+//type TypeMismatch struct {
+//	Location common.Location
+//	Provided string
+//	Required string
+//}
+//
+//func newTypeMismatch(location common.Location, provided string, required string) TypeMismatch {
+//	return TypeMismatch{Location: location, Provided: provided, Required: required}
+//}
+
 type ValidationError interface {
 }
 
@@ -77,6 +96,10 @@ func newProcObject(proc *read.Proc) Object {
 
 func newParamObject(param read.Param) Object {
 	return Object{Name: param.Name, Location: param.Name.Location, Type: param.Typ}
+}
+
+func newVarObject(stmt *read.Var) Object {
+	return Object{Name: stmt.Name, Location: stmt.Name.Location, Type: stmt.VarType}
 }
 
 func (validation *Validation) Validate(src *read.Source) {
@@ -119,12 +142,50 @@ func (validation *Validation) validateStatement(objects map[string]Object, stmt 
 	if stmt.Var != nil {
 		validation.validateVar(objects, stmt.Var)
 	}
+
+	if stmt.Call != nil {
+		validation.validateCall(objects, stmt.Call)
+	}
 }
 
 func (validation *Validation) validateVar(objects map[string]Object, stmt *read.Var) {
+	// Check if variable name is already taken
 	object, found := objects[stmt.Name.Value]
 	if found {
 		validation.addError(newNameConflict(stmt.Name, object.Name.Location))
+	} else {
+		objects[stmt.Name.Value] = newVarObject(stmt)
+	}
+
+	if len(stmt.Exprs) == 1 {
+		validation.validateExpr(objects, &stmt.Exprs[0])
+	}
+}
+
+func (validation *Validation) validateExpr(objects map[string]Object, expr *read.Expr) {
+	if expr.VarName != nil {
+		// Check if the RHS variable exists
+		_, found := objects[expr.VarName.Value]
+		if !found {
+			validation.addError(newUnknownObject(expr.VarName.Value, expr.VarName.Location))
+		}
+	}
+
+	if expr.Call != nil {
+		validation.validateCall(objects, expr.Call)
+	}
+}
+
+func (validation *Validation) validateCall(objects map[string]Object, call *read.Call) {
+	// Check if the  procedure exists
+	_, found := objects[call.Primary.Value]
+	if !found {
+		validation.addError(newUnknownObject(call.Primary.Value, call.Primary.Location))
+	}
+
+	for idx := range call.Exprs {
+		subexpr := &call.Exprs[idx]
+		validation.validateExpr(objects, subexpr)
 	}
 }
 
@@ -183,8 +244,8 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 		}
 
 		if exp.Call != nil {
-			if unicode.IsUpper([]rune(exp.Call.Primary)[0]) && strings.TrimSpace(exp.Call.Secondary) == "" {
-				stmt.Var.VarType = TypeOf(exp.Call.Primary)
+			if unicode.IsUpper([]rune(exp.Call.Primary.Value)[0]) && strings.TrimSpace(exp.Call.Secondary.Value) == "" {
+				stmt.Var.VarType = TypeOf(exp.Call.Primary.Value)
 				continue
 			}
 			validation.addError(CanNotInferTypeFromCall{VarName: stmt.Var.Name.Value})
