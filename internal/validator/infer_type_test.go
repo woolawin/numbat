@@ -81,7 +81,7 @@ func assertValidationError(t *testing.T, validation Validation, err ValidationEr
 
 func assertValidationErrorCount(t *testing.T, validation Validation, expected int) {
 	if len(validation.errors) != expected {
-		t.Fatalf("did not find %d validation errors", expected)
+		t.Fatalf("did not find %d validation errors, found %d", expected, len(validation.errors))
 	}
 }
 

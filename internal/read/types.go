@@ -40,6 +40,7 @@ type Expr struct {
 	Null    bool
 	Call    *Call
 
+	Type     *Type
 	Location common.Location
 }
 

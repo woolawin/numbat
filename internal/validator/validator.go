@@ -52,15 +52,26 @@ func newUnknownObject(name string, location common.Location) UnknownObject {
 	return UnknownObject{Name: name, Location: location}
 }
 
-//type TypeMismatch struct {
-//	Location common.Location
-//	Provided string
-//	Required string
-//}
-//
-//func newTypeMismatch(location common.Location, provided string, required string) TypeMismatch {
-//	return TypeMismatch{Location: location, Provided: provided, Required: required}
-//}
+type IncompatibleType struct {
+	Location common.Location
+	Actual   string
+	Expected string
+}
+
+func newIncompatibleType(actual string, expected string, location common.Location) IncompatibleType {
+	return IncompatibleType{Location: location, Actual: actual, Expected: expected}
+}
+
+type IncorrectArgumentCount struct {
+	ProcName string
+	Location common.Location
+	Actual   int
+	Expected int
+}
+
+func newIncorrectArgumentCount(name string, location common.Location, actual, expected int) IncorrectArgumentCount {
+	return IncorrectArgumentCount{ProcName: name, Location: location, Actual: actual, Expected: expected}
+}
 
 type ValidationError interface {
 }
@@ -114,6 +125,12 @@ func (validation *Validation) Validate(src *read.Source) {
 		}
 	}
 
+	if src.Program == nil {
+
+	} else {
+		validation.validateProc(fork(objects), src.Program)
+	}
+
 	for idx := range src.Procs {
 		proc := &src.Procs[idx]
 		validation.validateProc(fork(objects), proc)
@@ -158,35 +175,64 @@ func (validation *Validation) validateVar(objects map[string]Object, stmt *read.
 	}
 
 	if len(stmt.Exprs) == 1 {
-		validation.validateExpr(objects, &stmt.Exprs[0])
+		validation.validateExpr(objects, &stmt.Exprs[0], stmt.VarType)
 	}
 }
 
-func (validation *Validation) validateExpr(objects map[string]Object, expr *read.Expr) {
+func (validation *Validation) validateExpr(objects map[string]Object, expr *read.Expr, expectedType *read.Type) {
 	if expr.VarName != nil {
 		// Check if the RHS variable exists
-		_, found := objects[expr.VarName.Value]
+		object, found := objects[expr.VarName.Value]
 		if !found {
 			validation.addError(newUnknownObject(expr.VarName.Value, expr.VarName.Location))
+		} else if expr.Type == nil {
+			expr.Type = object.Type
 		}
 	}
 
 	if expr.Call != nil {
-		validation.validateCall(objects, expr.Call)
+		callReturnType := validation.validateCall(objects, expr.Call)
+		if expr.Type == nil {
+			expr.Type = callReturnType
+		}
 	}
+
+	expr.Type = exprType(expr)
+
+	if expectedType == nil {
+		if expr.Type == nil {
+			validation.addError(newIncompatibleType(expr.Type.String(), "", expr.Location))
+		}
+	} else {
+		if expr.Type == nil {
+			validation.addError(newIncompatibleType("", expectedType.String(), expr.Location))
+		} else if typesIncompatible(expectedType, expr.Type) {
+			validation.addError(newIncompatibleType(expr.Type.String(), expectedType.String(), expr.Location))
+		}
+	}
+
 }
 
-func (validation *Validation) validateCall(objects map[string]Object, call *read.Call) {
+func (validation *Validation) validateCall(objects map[string]Object, call *read.Call) (out *read.Type) {
 	// Check if the  procedure exists
-	_, found := objects[call.Primary.Value]
+	object, found := objects[call.Primary.Value]
 	if !found {
 		validation.addError(newUnknownObject(call.Primary.Value, call.Primary.Location))
+		return nil
+	} else {
+		out = object.Type
+	}
+
+	if len(call.Exprs) != len(call.Exprs) {
+		validation.addError(newIncorrectArgumentCount(call.Primary.Value, call.Primary.Location, len(call.Exprs), len(call.Exprs)))
+		return out
 	}
 
 	for idx := range call.Exprs {
 		subexpr := &call.Exprs[idx]
-		validation.validateExpr(objects, subexpr)
+		validation.validateExpr(objects, subexpr, object.Type.In[idx].Typ)
 	}
+	return out
 }
 
 func (validation *Validation) HasProgram(src *read.Source) {
@@ -271,6 +317,39 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 	}
 }
 
+func exprType(expr *read.Expr) *read.Type {
+
+	if expr.Type != nil {
+		return expr.Type
+	}
+
+	if expr.Null {
+		return TypeOf(common.LiteralTypeNull)
+	}
+
+	if expr.Hex != nil {
+		return TypeOf(common.TypeByte)
+	}
+
+	if expr.Str != nil {
+		return TypeOf(common.LiteralTypeString)
+	}
+
+	if expr.Boolean != nil {
+		return TypeOf(common.TypeBool)
+	}
+
+	if strings.Contains(*expr.Number, "e+") {
+		return TypeOf(common.TypeFloat64)
+	}
+
+	if strings.Contains(*expr.Number, ".") {
+		return TypeOf(common.TypeFloat64)
+	}
+	return TypeOf(common.TypeInt32)
+
+}
+
 func TypeOf(name string) *read.Type {
 	return &read.Type{Out: read.TypeOut{Name: name}}
 }
@@ -305,6 +384,21 @@ func (validation *Validation) checkVarTypeExists(varStmt read.Var) {
 	if varStmt.VarType != nil {
 		validation.checkTypeExists(*varStmt.VarType)
 	}
+}
+
+func typesIncompatible(left, right *read.Type) bool {
+	if left.Out.Name != right.Out.Name {
+		return true
+	}
+	if len(left.In) != len(right.In) {
+		return true
+	}
+	for idx := range left.In {
+		if typesIncompatible(left.In[idx].Typ, right.In[idx].Typ) {
+			return true
+		}
+	}
+	return false
 }
 
 func (validation *Validation) checkTypeExists(typ read.Type) {

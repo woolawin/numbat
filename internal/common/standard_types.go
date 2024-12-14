@@ -11,3 +11,7 @@ const TypeUint64 = "Uint64"
 const TypeBool = "Bool"
 const TypeByte = "Byte"
 const TypeSize = "Size"
+
+const LiteralTypeNull = "Null"
+const LiteralTypeString = "String"
+
