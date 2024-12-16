@@ -1,22 +1,22 @@
 package common
 
-type ProcedureDefinition struct {
+type ProcedureForwardDeclaration struct {
 	Name Name
 	Type *Type
 }
 
-func NewProcedureDefinition(name Name, t *Type) ProcedureDefinition {
-	return ProcedureDefinition{Name: name, Type: t}
+func NewProcedureForwardDeclaration(name Name, t *Type) ProcedureForwardDeclaration {
+	return ProcedureForwardDeclaration{Name: name, Type: t}
 }
 
-func (p *ProcedureDefinition) GetName() Name {
+func (p *ProcedureForwardDeclaration) GetName() Name {
 	return p.Name
 }
 
-func (p *ProcedureDefinition) GetType() *Type {
+func (p *ProcedureForwardDeclaration) GetType() *Type {
 	return p.Type
 }
 
-func (p *ProcedureDefinition) IsCallable() bool {
+func (p *ProcedureForwardDeclaration) IsCallable() bool {
 	return true
 }

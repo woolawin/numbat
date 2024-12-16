@@ -93,7 +93,7 @@ func (verr NameConflict) Message() string {
 	return fmt.Sprintf("Object name conflicts with name on %d,%d", verr.ConflictedWith.Line, verr.ConflictedWith.Column)
 }
 
-func newNameConflict(name common.Name, conflictedWith common.Location) NameConflict {
+func NewNameConflict(name common.Name, conflictedWith common.Location) NameConflict {
 	return NameConflict{Name: name, ConflictedWith: conflictedWith}
 }
 

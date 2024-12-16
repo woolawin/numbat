@@ -77,14 +77,14 @@ type Expression interface {
 type Statement interface {
 }
 
-type Project struct {
+type Source struct {
 	Context    Context
 	Program    Procedure
 	Procedures []Procedure
 }
 
-func NewProject() *Project {
-	return &Project{
+func NewSource() *Source {
+	return &Source{
 		Context: Context{
 			Parent:  nil,
 			Types:   GetStandardTypes(),
@@ -93,7 +93,7 @@ func NewProject() *Project {
 	}
 }
 
-func (p *Project) AddProcedure(name Name, t *Type) *Procedure {
+func (p *Source) AddProcedure(name Name, t *Type) *Procedure {
 	p.Procedures = append(p.Procedures, NewProcedure(&p.Context, name))
 	param := &p.Procedures[len(p.Procedures)-1]
 	param.Type = t

@@ -32,7 +32,7 @@ end
 	assertInferredType(t, p, "m", "Float32")
 }
 
-func assertInferredType(t *testing.T, src *common.Project, name string, expected string) {
+func assertInferredType(t *testing.T, src *common.Source, name string, expected string) {
 	for _, stmt := range src.Program.Statements {
 		switch stmt := stmt.(type) {
 		case *common.VariableDeclaration:

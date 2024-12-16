@@ -24,7 +24,7 @@ end
 	validation := NewValidation()
 	validation.Validate(src)
 
-	assertValidationError(t, validation, newNameConflict(name("foo", 11, 6), loc(5, 6)))
+	assertValidationError(t, validation, NewNameConflict(name("foo", 11, 6), loc(5, 6)))
 	assertValidationErrorCount(t, validation, 1)
 }
 
@@ -40,7 +40,7 @@ end
 	validation := NewValidation()
 	validation.Validate(src)
 
-	assertValidationError(t, validation, newNameConflict(name("bar", 5, 21), loc(5, 10)))
+	assertValidationError(t, validation, NewNameConflict(name("bar", 5, 21), loc(5, 10)))
 	assertValidationErrorCount(t, validation, 1)
 }
 
@@ -59,7 +59,7 @@ end
 	validation := NewValidation()
 	validation.Validate(src)
 
-	assertValidationError(t, validation, newNameConflict(name("bar", 5, 10), loc(8, 6)))
+	assertValidationError(t, validation, NewNameConflict(name("bar", 5, 10), loc(8, 6)))
 	assertValidationErrorCount(t, validation, 1)
 }
 
@@ -82,8 +82,8 @@ end
 	validation := NewValidation()
 	validation.Validate(src)
 
-	assertValidationError(t, validation, newNameConflict(name("orange", 7, 6), loc(12, 6)))
-	assertValidationError(t, validation, newNameConflict(name("apple", 9, 6), loc(5, 10)))
+	assertValidationError(t, validation, NewNameConflict(name("orange", 7, 6), loc(12, 6)))
+	assertValidationError(t, validation, NewNameConflict(name("apple", 9, 6), loc(5, 10)))
 	assertValidationErrorCount(t, validation, 2)
 }
 

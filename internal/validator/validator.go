@@ -15,37 +15,39 @@ func NewValidation() Validation {
 	return Validation{}
 }
 
-func (validation *Validation) Validate(src *read.Source) *common.Project {
+func (validation *Validation) Validate(src *read.Source) *common.Source {
 
-	project := common.NewProject()
+	source := common.NewSource()
 
+	// First before validating statements, we need to find all the procedures that could be used and first register
+	// them to know they are valid references
 	for idx := range src.Procs {
 		proc := &src.Procs[idx]
-		object, found := project.Context.GetObject(proc.Name.Value)
+		object, found := source.Context.GetObject(proc.Name.Value)
 		if found {
-			validation.addError(newNameConflict(proc.Name.ToName(), object.GetName().Location))
+			validation.addError(NewNameConflict(proc.Name.ToName(), object.GetName().Location))
 		} else {
-			t := validation.validateType(proc.Type, &project.Context, false)
-			obj := common.NewProcedureDefinition(proc.Name.ToName(), &t)
-			project.Context.AddObject(proc.Name.Value, &obj)
+			t := validation.validateType(proc.Type, &source.Context, false)
+			obj := common.NewProcedureForwardDeclaration(proc.Name.ToName(), &t)
+			source.Context.AddObject(proc.Name.Value, &obj)
 		}
 	}
 
 	if src.Program == nil {
 		validation.addError(&ProgramingMissing{})
 	} else {
-		project.Program.AddStatements(validation.validateStatements(src.Program.Statements, &project.Context))
+		source.Program.AddStatements(validation.validateStatements(src.Program.Statements, &source.Context))
 	}
 
 	for idx := range src.Procs {
 		proc := &src.Procs[idx]
-		project.Context.GetObject(proc.Name.Value)
-		t := validation.validateType(proc.Type, &project.Context, true)
-		procedure := project.AddProcedure(proc.Name.ToName(), &t)
+		source.Context.GetObject(proc.Name.Value)
+		t := validation.validateType(proc.Type, &source.Context, true)
+		procedure := source.AddProcedure(proc.Name.ToName(), &t)
 		validation.validateProc(proc, procedure)
 	}
 
-	return project
+	return source
 }
 
 func (validation *Validation) validateProc(proc *read.Proc, procedure *common.Procedure) {
@@ -58,7 +60,7 @@ func (validation *Validation) validateProc(proc *read.Proc, procedure *common.Pr
 			}
 			object, found := procedure.Context.GetObject(in.Name.Value)
 			if found {
-				validation.addError(newNameConflict(in.Name, object.GetName().Location))
+				validation.addError(NewNameConflict(in.Name, object.GetName().Location))
 			} else {
 				procedure.Context.AddObject(in.Name.Value, &parameter)
 			}
@@ -151,7 +153,7 @@ func (validation *Validation) validateVar(stmt *read.Var, context *common.Contex
 	// Check if variable name is already taken
 	object, found := context.GetObject(stmt.Name.Value)
 	if found {
-		validation.addError(newNameConflict(stmt.Name.ToName(), object.GetName().Location))
+		validation.addError(NewNameConflict(stmt.Name.ToName(), object.GetName().Location))
 	} else {
 		if variableType == nil {
 			// if we do not know the variable type, we can not work with it so skip, we should
