@@ -173,7 +173,7 @@ func (validation *Validation) Validate(src *read.Source) *common.Project {
 	}
 
 	if src.Program == nil {
-
+		validation.addError(&ProgramingMissing{})
 	} else {
 		project.Program.AddStatements(validation.validateStatements(src.Program.Statements, &project.Context))
 	}
@@ -459,12 +459,6 @@ func (validation *Validation) validateCall(call *read.Call, context *common.Cont
 	return &c
 }
 
-func (validation *Validation) HasProgram(src *read.Source) {
-	if src.Program == nil {
-		validation.addError(&ProgramingMissing{})
-	}
-}
-
 func numericType(value string) common.Type {
 	if strings.Contains(value, "e+") {
 		return common.Type{Out: common.Name{Value: common.TypeFloat64}}
@@ -480,7 +474,6 @@ func numericType(value string) common.Type {
 func TypeOf(name string) *read.Type {
 	return &read.Type{Out: read.TypeOut{Name: name}}
 }
-
 
 func areTypesIncompatible(left, right *common.Type) bool {
 	if left == nil || right == nil {
@@ -500,9 +493,6 @@ func areTypesIncompatible(left, right *common.Type) bool {
 	return false
 }
 
-
-
 func (validation *Validation) addError(verr ValidationError) {
 	validation.errors = append(validation.errors, verr)
 }
-

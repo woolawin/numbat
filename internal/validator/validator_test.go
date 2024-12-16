@@ -12,7 +12,7 @@ end
 `
 	src := readsrc(code)
 	validation := NewValidation()
-	validation.HasProgram(src)
+	validation.Validate(src)
 
 	assertValidationError(t, validation, &ProgramingMissing{})
 	assertValidationErrorCount(t, validation, 1)
