@@ -314,7 +314,7 @@ func (validation *Validation) validateExpr(expr *read.Expr, expectedType *common
 	}
 
 	if expr.Str != nil {
-		e := common.NewLiteralExpression(*expr.Str, "", common.NewType(common.Name{Value: common.TypeStr}, nil))
+		e := common.NewLiteralExpression(*expr.Str, "", common.NewType(common.Name{Value: common.LiteralTypeString}, nil))
 		expression = &e
 	}
 
@@ -338,7 +338,7 @@ func (validation *Validation) validateExpr(expr *read.Expr, expectedType *common
 	}
 	et := expression.GetType()
 	if areTypesIncompatible(expectedType, &et) {
-		validation.addError(newIncompatibleType(et.Out.Value, "", expr.Location))
+		validation.addError(newIncompatibleType(et.Out.Value, expectedType.Out.Value, expr.Location))
 	}
 
 	return expression
