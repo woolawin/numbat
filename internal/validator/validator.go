@@ -265,6 +265,8 @@ func (validation *Validation) validateVar(stmt *read.Var, context *common.Contex
 	var variableDeclaration *common.VariableDeclaration
 	var variableType *common.Type
 
+	checkExprType := true
+
 	if stmt.VarType != nil {
 		// The specified a type so make sure it is a correct type
 		t := validation.validateType(stmt.VarType, context, true)
@@ -275,7 +277,10 @@ func (validation *Validation) validateVar(stmt *read.Var, context *common.Contex
 			// No expression to infer the type so error
 			validation.addError(NewNoExprToInferVariableType(stmt.Name.ToName()))
 		} else {
-			exprType := validation.inferVarType(&stmt.Exprs[0], stmt.Name.ToName(), context)
+			exprType, errored := validation.inferVarType(&stmt.Exprs[0], stmt.Name.ToName(), context)
+			// if we can not validate the expression type, do not try to validate the expression in general
+			// otherwise there will just be double error reporting
+			checkExprType = !errored
 			variableType = &exprType
 		}
 	}
@@ -285,14 +290,17 @@ func (validation *Validation) validateVar(stmt *read.Var, context *common.Contex
 	if found {
 		validation.addError(newNameConflict(stmt.Name.ToName(), object.GetName().Location))
 	} else {
-		//_ := validation.validateType(stmt.VarType, context, true)
-		// TODO check if expr type is compatible with var type
+		if variableType == nil {
+			// if we do not know the variable type, we can not work with it so skip, we should
+			// add a placeholder object to say it exists but type is not known @TODO
+			return nil
+		}
 		a := common.NewVariableDeclaration(stmt.Name.ToName(), *variableType, nil)
 		variableDeclaration = &a
 		context.AddObject(stmt.Name.Value, variableDeclaration)
 	}
 
-	if len(stmt.Exprs) == 1 {
+	if len(stmt.Exprs) == 1 && checkExprType {
 		e := validation.validateExpr(&stmt.Exprs[0], variableType, context)
 		variableDeclaration.Value = e
 	}
@@ -368,48 +376,48 @@ func (validation *Validation) validateExpr(expr *read.Expr, expectedType *common
 	return expression
 }
 
-func (validation *Validation) inferVarType(expr *read.Expr, varName common.Name, context *common.Context) common.Type {
+func (validation *Validation) inferVarType(expr *read.Expr, varName common.Name, context *common.Context) (common.Type, bool) {
 
 	if expr.Null {
 		validation.addError(CanNotInferTypeFromNull{VarName: varName})
-		return common.Type{}
+		return common.Type{}, true
 	}
 
 	if expr.VarName != nil {
 		validation.addError(CanNotInferTypeFromOtherVariable{VarName: varName})
-		return common.Type{}
+		return common.Type{}, true
 	}
 
 	if expr.Call != nil {
 		if unicode.IsUpper([]rune(expr.Call.Primary.Value)[0]) && strings.TrimSpace(expr.Call.Secondary.Value) == "" {
-			return validation.validateType(TypeOf(expr.Call.Primary.Value), context, true)
+			return validation.validateType(TypeOf(expr.Call.Primary.Value), context, true), false
 		}
 		validation.addError(CanNotInferTypeFromCall{VarName: varName})
-		return common.Type{}
+		return common.Type{}, true
 	}
 
 	if expr.Boolean != nil {
-		return common.NewType(common.Name{Value: common.TypeBool}, nil)
+		return common.NewType(common.Name{Value: common.TypeBool}, nil), false
 	}
 
 	if expr.Number != nil {
-		return numericType(*expr.Number)
+		return numericType(*expr.Number), false
 	}
 
 	if expr.Str != nil {
-		return common.NewType(common.Name{Value: common.LiteralTypeString}, nil)
+		return common.NewType(common.Name{Value: common.LiteralTypeString}, nil), false
 	}
 
 	if expr.Null {
-		return common.NewType(common.Name{Value: common.LiteralTypeNull}, nil)
+		return common.NewType(common.Name{Value: common.LiteralTypeNull}, nil), false
 	}
 
 	if expr.Hex != nil {
-		return common.NewType(common.Name{Value: common.TypeByte}, nil)
+		return common.NewType(common.Name{Value: common.TypeByte}, nil), false
 	}
 
 	// Should never get here
-	return common.Type{}
+	return common.Type{}, false
 }
 
 func (validation *Validation) validateCall(call *read.Call, context *common.Context) *common.ProcedureCall {
@@ -450,82 +458,6 @@ func (validation *Validation) validateCall(call *read.Call, context *common.Cont
 func (validation *Validation) HasProgram(src *read.Source) {
 	if src.Program == nil {
 		validation.addError(&ProgramingMissing{})
-	}
-}
-
-func (validation *Validation) InferTypes(src *read.Source) {
-	validation.inferProcTypes(src.Program)
-	for idx := range src.Procs {
-		proc := &src.Procs[idx]
-		validation.inferProcTypes(proc)
-	}
-}
-
-func (validation *Validation) inferProcTypes(proc *read.Proc) {
-	for idx := range proc.Statements {
-		stmt := &proc.Statements[idx]
-		if stmt.Var == nil {
-			continue
-		}
-		if stmt.Var.VarType != nil {
-			continue
-		}
-		if len(stmt.Var.Exprs) == 0 {
-			validation.addError(NoExprToInferVariableType{VarName: stmt.Var.Name.ToName()})
-			continue
-		}
-		exp := stmt.Var.Exprs[0]
-
-		if exp.Null {
-			validation.addError(CanNotInferTypeFromNull{VarName: stmt.Var.Name.ToName()})
-			continue
-		}
-
-		if exp.VarName != nil {
-			validation.addError(CanNotInferTypeFromOtherVariable{VarName: stmt.Var.Name.ToName()})
-			continue
-		}
-
-		if exp.Hex != nil {
-			stmt.Var.VarType = TypeOf(common.TypeByte)
-			continue
-		}
-
-		if exp.Str != nil {
-			stmt.Var.VarType = TypeOf(common.TypeStr)
-			continue
-		}
-
-		if exp.Boolean != nil {
-			stmt.Var.VarType = TypeOf(common.TypeBool)
-			continue
-		}
-
-		if exp.Call != nil {
-			if unicode.IsUpper([]rune(exp.Call.Primary.Value)[0]) && strings.TrimSpace(exp.Call.Secondary.Value) == "" {
-				stmt.Var.VarType = TypeOf(exp.Call.Primary.Value)
-				continue
-			}
-			validation.addError(CanNotInferTypeFromCall{VarName: stmt.Var.Name.ToName()})
-			continue
-		}
-
-		if exp.Number == nil {
-			// return error
-			continue
-		}
-
-		if strings.Contains(*exp.Number, "e+") {
-			stmt.Var.VarType = TypeOf(common.TypeFloat64)
-			continue
-		}
-
-		if strings.Contains(*exp.Number, ".") {
-			stmt.Var.VarType = TypeOf(common.TypeFloat64)
-			continue
-		}
-		stmt.Var.VarType = TypeOf(common.TypeInt32)
-		continue
 	}
 }
 
@@ -635,12 +567,4 @@ func isBuiltInType(typeName string) bool {
 	}
 
 	return false
-}
-
-func fork(objects map[string]Object) map[string]Object {
-	forked := make(map[string]Object)
-	for key, value := range objects {
-		forked[key] = value
-	}
-	return forked
 }

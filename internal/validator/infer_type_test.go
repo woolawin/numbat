@@ -54,20 +54,26 @@ func assertInferredType(t *testing.T, src *common.Project, name string, expected
 func TestInferTypesErrs(t *testing.T) {
 	code := `
 program do
+	var foo Int32
+
 	var a
 	var b = null
 	var c = foo
-	var d = baz:bar()
+	var d = baz()
+end
+
+proc baz Int32 do
+
 end
 `
 	src := readsrc(code)
 	validation := NewValidation()
 	validation.Validate(src)
 
-	assertValidationError(t, validation, NewNoExprToInferVariableType(name("a", 3, 6)))
-	assertValidationError(t, validation, NewCanNotInferTypeFromNull(name("b", 4, 6)))
-	assertValidationError(t, validation, NewCanNotInferTypeFromOtherVariable(name("c", 5, 6)))
-	assertValidationError(t, validation, NewCanNotInferTypeFromCall(name("d", 6, 6)))
+	assertValidationError(t, validation, NewNoExprToInferVariableType(name("a", 5, 6)))
+	assertValidationError(t, validation, NewCanNotInferTypeFromNull(name("b", 6, 6)))
+	assertValidationError(t, validation, NewCanNotInferTypeFromOtherVariable(name("c", 7, 6)))
+	assertValidationError(t, validation, NewCanNotInferTypeFromCall(name("d", 8, 6)))
 	assertValidationErrorCount(t, validation, 4)
 }
 
