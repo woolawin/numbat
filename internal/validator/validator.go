@@ -25,35 +25,51 @@ func (verr UnInferrableVar) Message() string {
 }
 
 type NoExprToInferVariableType struct {
-	VarName string
+	VarName common.Name
+}
+
+func NewNoExprToInferVariableType(varName common.Name) NoExprToInferVariableType {
+	return NoExprToInferVariableType{VarName: varName}
 }
 
 func (verr NoExprToInferVariableType) Message() string {
-	return fmt.Sprintf("can not infer type for variable without expression: %s", verr.VarName)
+	return fmt.Sprintf("can not infer type for variable `%s` without expression", verr.VarName.Value)
 }
 
 type CanNotInferTypeFromNull struct {
-	VarName string
+	VarName common.Name
+}
+
+func NewCanNotInferTypeFromNull(name common.Name) CanNotInferTypeFromNull {
+	return CanNotInferTypeFromNull{VarName: name}
 }
 
 func (verr CanNotInferTypeFromNull) Message() string {
-	return fmt.Sprintf("can not infer type for variable with null expression: %s", verr.VarName)
+	return fmt.Sprintf("can not infer type for variable `%s` with null expression", verr.VarName.Value)
 }
 
 type CanNotInferTypeFromOtherVariable struct {
-	VarName string
+	VarName common.Name
+}
+
+func NewCanNotInferTypeFromOtherVariable(name common.Name) CanNotInferTypeFromOtherVariable {
+	return CanNotInferTypeFromOtherVariable{VarName: name}
 }
 
 func (verr CanNotInferTypeFromOtherVariable) Message() string {
-	return fmt.Sprintf("type inference from variable not supported: %s", verr.VarName)
+	return fmt.Sprintf("infering type for variable `%s` from variable is not supported", verr.VarName.Value)
 }
 
 type CanNotInferTypeFromCall struct {
-	VarName string
+	VarName common.Name
+}
+
+func NewCanNotInferTypeFromCall(varName common.Name) CanNotInferTypeFromCall {
+	return CanNotInferTypeFromCall{VarName: varName}
 }
 
 func (verr CanNotInferTypeFromCall) Message() string {
-	return fmt.Sprintf("type inference from variable not supported: %s", verr.VarName)
+	return fmt.Sprintf("infering type for variable `%s` from procedure call is not supported", verr.VarName.Value)
 }
 
 type ProgramingMissing struct {
@@ -246,22 +262,30 @@ func (validation *Validation) validateStatement(stmt *read.Statement, context *c
 }
 
 func (validation *Validation) validateVar(stmt *read.Var, context *common.Context) *common.VariableDeclaration {
-	// Check if variable name is already taken
-
 	var variableDeclaration *common.VariableDeclaration
 	var variableType *common.Type
+
 	if stmt.VarType != nil {
+		// The specified a type so make sure it is a correct type
 		t := validation.validateType(stmt.VarType, context, true)
 		variableType = &t
+	} else {
+		// No type specified so lets try to infer it by the expression
+		if len(stmt.Exprs) == 0 {
+			// No expression to infer the type so error
+			validation.addError(NewNoExprToInferVariableType(stmt.Name.ToName()))
+		} else {
+			exprType := validation.inferVarType(&stmt.Exprs[0], stmt.Name.ToName(), context)
+			variableType = &exprType
+		}
 	}
+
+	// Check if variable name is already taken
 	object, found := context.GetObject(stmt.Name.Value)
 	if found {
 		validation.addError(newNameConflict(stmt.Name.ToName(), object.GetName().Location))
 	} else {
-		exprType := validation.validateType(stmt.VarType, context, true)
-		if stmt.VarType == nil {
-			variableType = &exprType
-		}
+		//_ := validation.validateType(stmt.VarType, context, true)
 		// TODO check if expr type is compatible with var type
 		a := common.NewVariableDeclaration(stmt.Name.ToName(), *variableType, nil)
 		variableDeclaration = &a
@@ -344,6 +368,50 @@ func (validation *Validation) validateExpr(expr *read.Expr, expectedType *common
 	return expression
 }
 
+func (validation *Validation) inferVarType(expr *read.Expr, varName common.Name, context *common.Context) common.Type {
+
+	if expr.Null {
+		validation.addError(CanNotInferTypeFromNull{VarName: varName})
+		return common.Type{}
+	}
+
+	if expr.VarName != nil {
+		validation.addError(CanNotInferTypeFromOtherVariable{VarName: varName})
+		return common.Type{}
+	}
+
+	if expr.Call != nil {
+		if unicode.IsUpper([]rune(expr.Call.Primary.Value)[0]) && strings.TrimSpace(expr.Call.Secondary.Value) == "" {
+			return validation.validateType(TypeOf(expr.Call.Primary.Value), context, true)
+		}
+		validation.addError(CanNotInferTypeFromCall{VarName: varName})
+		return common.Type{}
+	}
+
+	if expr.Boolean != nil {
+		return common.NewType(common.Name{Value: common.TypeBool}, nil)
+	}
+
+	if expr.Number != nil {
+		return numericType(*expr.Number)
+	}
+
+	if expr.Str != nil {
+		return common.NewType(common.Name{Value: common.LiteralTypeString}, nil)
+	}
+
+	if expr.Null {
+		return common.NewType(common.Name{Value: common.LiteralTypeNull}, nil)
+	}
+
+	if expr.Hex != nil {
+		return common.NewType(common.Name{Value: common.TypeByte}, nil)
+	}
+
+	// Should never get here
+	return common.Type{}
+}
+
 func (validation *Validation) validateCall(call *read.Call, context *common.Context) *common.ProcedureCall {
 	// Check if the  procedure exists
 
@@ -403,18 +471,18 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 			continue
 		}
 		if len(stmt.Var.Exprs) == 0 {
-			validation.addError(NoExprToInferVariableType{VarName: stmt.Var.Name.Value})
+			validation.addError(NoExprToInferVariableType{VarName: stmt.Var.Name.ToName()})
 			continue
 		}
 		exp := stmt.Var.Exprs[0]
 
 		if exp.Null {
-			validation.addError(CanNotInferTypeFromNull{VarName: stmt.Var.Name.Value})
+			validation.addError(CanNotInferTypeFromNull{VarName: stmt.Var.Name.ToName()})
 			continue
 		}
 
 		if exp.VarName != nil {
-			validation.addError(CanNotInferTypeFromOtherVariable{VarName: stmt.Var.Name.Value})
+			validation.addError(CanNotInferTypeFromOtherVariable{VarName: stmt.Var.Name.ToName()})
 			continue
 		}
 
@@ -438,7 +506,7 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 				stmt.Var.VarType = TypeOf(exp.Call.Primary.Value)
 				continue
 			}
-			validation.addError(CanNotInferTypeFromCall{VarName: stmt.Var.Name.Value})
+			validation.addError(CanNotInferTypeFromCall{VarName: stmt.Var.Name.ToName()})
 			continue
 		}
 

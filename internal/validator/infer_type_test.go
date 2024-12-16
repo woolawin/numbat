@@ -2,6 +2,7 @@ package validator
 
 import (
 	"encoding/json"
+	"numbat/internal/common"
 	"numbat/internal/read"
 	"testing"
 )
@@ -9,41 +10,42 @@ import (
 func TestInferTypes(t *testing.T) {
 	code := `
 program do
-	var a = "string"
 	var b = 1
 	var c = 1.2
 	var e = true
 	var f = 0xFF
 	var g = 1e+22
-	var l = Link()
-	var m = Metric("request_count")
+	var l = Int32()
+	var m = Float32("request_count")
 end
 `
 	src := readsrc(code)
 	validation := NewValidation()
-	validation.InferTypes(src)
+	p := validation.Validate(src)
 
-	assertInferredType(t, src, "a", "Str")
-	assertInferredType(t, src, "b", "Int32")
-	assertInferredType(t, src, "c", "Float64")
-	assertInferredType(t, src, "e", "Bool")
-	assertInferredType(t, src, "f", "Byte")
-	assertInferredType(t, src, "g", "Float64")
-	assertInferredType(t, src, "l", "Link")
-	assertInferredType(t, src, "m", "Metric")
+	assertInferredType(t, p, "b", "Int32")
+	assertInferredType(t, p, "c", "Float64")
+	assertInferredType(t, p, "e", "Bool")
+	assertInferredType(t, p, "f", "Byte")
+	assertInferredType(t, p, "g", "Float64")
+	assertInferredType(t, p, "l", "Int32")
+	assertInferredType(t, p, "m", "Float32")
 }
 
-func assertInferredType(t *testing.T, src *read.Source, name string, expected string) {
+func assertInferredType(t *testing.T, src *common.Project, name string, expected string) {
 	for _, stmt := range src.Program.Statements {
-		if stmt.Var.Name.Value == name {
-			if stmt.Var.VarType == nil {
-				t.Fatalf("%s: expected type", name)
+		switch stmt := stmt.(type) {
+		case *common.VariableDeclaration:
+			{
+				if stmt.Name.Value == name {
+					typ := stmt.Type
+					actual := typ.Out.Value
+					if actual != expected {
+						t.Fatalf("Inferred type of %s should be %s but is %s", name, expected, actual)
+					}
+					return
+				}
 			}
-			actual := stmt.Var.VarType.Out.Name
-			if actual != expected {
-				t.Fatalf("Inferred type of %s should be %s but is %s", name, expected, actual)
-			}
-			return
 		}
 	}
 	t.Fatalf("did not find variable %s", name)
@@ -60,12 +62,12 @@ end
 `
 	src := readsrc(code)
 	validation := NewValidation()
-	validation.InferTypes(src)
+	validation.Validate(src)
 
-	assertValidationError(t, validation, NoExprToInferVariableType{VarName: "a"})
-	assertValidationError(t, validation, CanNotInferTypeFromNull{VarName: "b"})
-	assertValidationError(t, validation, CanNotInferTypeFromOtherVariable{VarName: "c"})
-	assertValidationError(t, validation, CanNotInferTypeFromCall{VarName: "d"})
+	assertValidationError(t, validation, NewNoExprToInferVariableType(name("a", 3, 6)))
+	assertValidationError(t, validation, NewCanNotInferTypeFromNull(name("b", 4, 6)))
+	assertValidationError(t, validation, NewCanNotInferTypeFromOtherVariable(name("c", 5, 6)))
+	assertValidationError(t, validation, NewCanNotInferTypeFromCall(name("d", 6, 6)))
 	assertValidationErrorCount(t, validation, 4)
 }
 

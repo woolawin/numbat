@@ -62,12 +62,12 @@ func NewProcedure(parent *Context, name Name) Procedure {
 	return Procedure{Context: NewContext(parent), Name: name, Type: nil}
 }
 
-func (p Procedure) AddStatement(stmt Statement) {
+func (p *Procedure) AddStatement(stmt Statement) {
 	p.Statements = append(p.Statements, stmt)
 }
 
-func (p Procedure) AddStatements(stmt []Statement) {
-	p.Statements = append(p.Statements, stmt)
+func (p *Procedure) AddStatements(stmt []Statement) {
+	p.Statements = append(p.Statements, stmt...)
 }
 
 type Expression interface {
