@@ -9,11 +9,15 @@ import (
 )
 
 type UnknownType struct {
-	TypeName string
+	TypeName common.Name
+}
+
+func NewUnknownType(name common.Name) UnknownType {
+	return UnknownType{name}
 }
 
 func (verr UnknownType) Message() string {
-	return fmt.Sprintf("unknown type: %s", verr.TypeName)
+	return fmt.Sprintf("unknown type `%s`", verr.TypeName.Value)
 }
 
 type UnInferrableVar struct {
@@ -225,7 +229,7 @@ func (validation *Validation) validateType(t *read.Type, context *common.Context
 		outType, found := context.GetType(t.Out.Name)
 		if !found {
 			if reportError {
-				validation.errors = append(validation.errors, UnknownType{TypeName: t.Out.Name})
+				validation.errors = append(validation.errors, UnknownType{TypeName: t.Out.ToName()})
 			}
 			return common.Type{}
 		} else {
@@ -477,36 +481,6 @@ func TypeOf(name string) *read.Type {
 	return &read.Type{Out: read.TypeOut{Name: name}}
 }
 
-func (validation *Validation) CheckTypesExists(src *read.Source) {
-	if src.Program != nil {
-		validation.checkProcTypesExists(*src.Program)
-	}
-
-	for _, proc := range src.Procs {
-		validation.checkProcTypesExists(proc)
-	}
-}
-
-func (validation *Validation) checkProcTypesExists(proc read.Proc) {
-	if proc.Type != nil {
-		validation.checkTypeExists(*proc.Type)
-	}
-	for _, stmt := range proc.Statements {
-		validation.checkStatementTypesExists(stmt)
-	}
-}
-
-func (validation *Validation) checkStatementTypesExists(statement read.Statement) {
-	if statement.Var != nil {
-		validation.checkVarTypeExists(*statement.Var)
-	}
-}
-
-func (validation *Validation) checkVarTypeExists(varStmt read.Var) {
-	if varStmt.VarType != nil {
-		validation.checkTypeExists(*varStmt.VarType)
-	}
-}
 
 func areTypesIncompatible(left, right *common.Type) bool {
 	if left == nil || right == nil {
@@ -526,45 +500,9 @@ func areTypesIncompatible(left, right *common.Type) bool {
 	return false
 }
 
-func (validation *Validation) checkTypeExists(typ read.Type) {
-	if isUnknownType(typ.Out.Name) {
-		validation.errors = append(validation.errors, UnknownType{TypeName: typ.Out.Name})
-	}
-	for _, in := range typ.In {
-		validation.checkTypeExists(*in.Typ)
-	}
-}
+
 
 func (validation *Validation) addError(verr ValidationError) {
 	validation.errors = append(validation.errors, verr)
 }
 
-func isUnknownType(name string) bool {
-	if name == "" {
-		return false
-	}
-	return !isBuiltInType(name)
-}
-
-func isBuiltInType(typeName string) bool {
-	var types = [...]string{
-		common.TypeInt32,
-		common.TypeInt64,
-		common.TypeUint32,
-		common.TypeUint64,
-		common.TypeFloat32,
-		common.TypeFloat64,
-		common.TypeBool,
-		common.TypeStr,
-		common.TypeAscii,
-		common.TypeSize,
-	}
-
-	for _, t := range types {
-		if typeName == t {
-			return true
-		}
-	}
-
-	return false
-}

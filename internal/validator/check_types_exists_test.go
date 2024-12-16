@@ -21,10 +21,10 @@ proc multiply(num Int32) IntX do
 end
 `
 	validation := NewValidation()
-	validation.CheckTypesExists(readsrc(code))
+	validation.Validate(readsrc(code))
 
-	assertValidationError(t, validation, UnknownType{TypeName: "FooBar"})
-	assertValidationError(t, validation, UnknownType{TypeName: "Foo"})
-	assertValidationError(t, validation, UnknownType{TypeName: "IntX"})
+	assertValidationError(t, validation, NewUnknownType(name("FooBar", 5, 8)))
+	assertValidationError(t, validation, NewUnknownType(name("Foo", 8, 12)))
+	assertValidationError(t, validation, NewUnknownType(name("IntX", 12, 26)))
 	assertValidationErrorCount(t, validation, 3)
 }

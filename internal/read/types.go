@@ -7,6 +7,10 @@ type TypeOut struct {
 	Location common.Location
 }
 
+func (to *TypeOut) ToName() common.Name {
+	return common.Name{Value: to.Name, Location: to.Location}
+}
+
 type ParamDefaultValue struct {
 	VarName *Name
 	Str     *string
@@ -27,15 +31,12 @@ type Param struct {
 	Expr []Expr
 }
 
-
-
 type Type struct {
 	Out TypeOut
 	In  []Param
 
 	Param *Param
 }
-
 
 type Expr struct {
 	Unit    string
