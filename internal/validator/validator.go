@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"numbat/internal/common"
 	"numbat/internal/read"
 	"strings"
@@ -11,41 +12,77 @@ type UnknownType struct {
 	TypeName string
 }
 
+func (verr UnknownType) Message() string {
+	return fmt.Sprintf("unknown type: %s", verr.TypeName)
+}
+
 type UnInferrableVar struct {
 	VarName string
+}
+
+func (verr UnInferrableVar) Message() string {
+	return fmt.Sprintf("can not infer type for variable: %s", verr.VarName)
 }
 
 type NoExprToInferVariableType struct {
 	VarName string
 }
 
+func (verr NoExprToInferVariableType) Message() string {
+	return fmt.Sprintf("can not infer type for variable without expression: %s", verr.VarName)
+}
+
 type CanNotInferTypeFromNull struct {
 	VarName string
+}
+
+func (verr CanNotInferTypeFromNull) Message() string {
+	return fmt.Sprintf("can not infer type for variable with null expression: %s", verr.VarName)
 }
 
 type CanNotInferTypeFromOtherVariable struct {
 	VarName string
 }
 
+func (verr CanNotInferTypeFromOtherVariable) Message() string {
+	return fmt.Sprintf("type inference from variable not supported: %s", verr.VarName)
+}
+
 type CanNotInferTypeFromCall struct {
 	VarName string
+}
+
+func (verr CanNotInferTypeFromCall) Message() string {
+	return fmt.Sprintf("type inference from variable not supported: %s", verr.VarName)
 }
 
 type ProgramingMissing struct {
 }
 
+func (verr ProgramingMissing) Message() string {
+	return "No program object found"
+}
+
 type NameConflict struct {
-	Name           read.Name
+	Name           common.Name
 	ConflictedWith common.Location
 }
 
-func newNameConflict(name read.Name, conflictedWith common.Location) NameConflict {
+func (verr NameConflict) Message() string {
+	return fmt.Sprintf("Object name conflicts with name on %d,%d", verr.ConflictedWith.Line, verr.ConflictedWith.Column)
+}
+
+func newNameConflict(name common.Name, conflictedWith common.Location) NameConflict {
 	return NameConflict{Name: name, ConflictedWith: conflictedWith}
 }
 
 type UnknownObject struct {
 	Name     string
 	Location common.Location
+}
+
+func (verr UnknownObject) Message() string {
+	return fmt.Sprintf("unknown object: %s", verr.Name)
 }
 
 func newUnknownObject(name string, location common.Location) UnknownObject {
@@ -62,6 +99,10 @@ func newIncompatibleType(actual string, expected string, location common.Locatio
 	return IncompatibleType{Location: location, Actual: actual, Expected: expected}
 }
 
+func (verr IncompatibleType) Message() string {
+	return fmt.Sprintf("can not use type `%s` for required type `%s`", verr.Actual, verr.Expected)
+}
+
 type IncorrectArgumentCount struct {
 	ProcName string
 	Location common.Location
@@ -73,7 +114,12 @@ func newIncorrectArgumentCount(name string, location common.Location, actual, ex
 	return IncorrectArgumentCount{ProcName: name, Location: location, Actual: actual, Expected: expected}
 }
 
+func (verr IncorrectArgumentCount) Message() string {
+	return fmt.Sprintf("procedure expected %d,  %d provided", verr.Expected, verr.Actual)
+}
+
 type ValidationError interface {
+	Message() string
 }
 
 type Validation struct {
@@ -113,32 +159,61 @@ func newVarObject(stmt *read.Var) Object {
 	return Object{Name: stmt.Name, Location: stmt.Name.Location, Type: stmt.VarType}
 }
 
-func (validation *Validation) Validate(src *read.Source) {
-	objects := make(map[string]Object)
+func (validation *Validation) Validate(src *read.Source) *common.Project {
+
+	project := common.NewProject()
+
+	//objects := make(map[string]Object)
+
 	for idx := range src.Procs {
 		proc := &src.Procs[idx]
-		object, found := objects[proc.Name.Value]
+		object, found := project.Context.GetObject(proc.Name.Value)
+		//object, found := objects[proc.Name.Value]
 		if found {
-			validation.addError(newNameConflict(proc.Name, object.Name.Location))
+			validation.addError(newNameConflict(proc.Name.ToName(), object.GetName().Location))
 		} else {
-			objects[proc.Name.Value] = newProcObject(proc)
+			//objects[proc.Name.Value] = newProcObject(proc)
+			t := validation.validateType(proc.Type, &project.Context, false)
+			obj := common.NewProcedureDefinition(proc.Name.ToName(), &t)
+			project.Context.AddObject(proc.Name.Value, &obj)
 		}
 	}
 
 	if src.Program == nil {
 
 	} else {
-		validation.validateProc(fork(objects), src.Program)
+		project.Program.AddStatements(validation.validateStatementS(src.Program.Statements, &project.Context))
 	}
 
 	for idx := range src.Procs {
 		proc := &src.Procs[idx]
-		validation.validateProc(fork(objects), proc)
+		project.Context.GetObject(proc.Name.Value)
+		t := validation.validateType(proc.Type, &project.Context, true)
+		procedure := project.AddProcedure(proc.Name.ToName(), &t)
+		validation.validateProc(proc, procedure)
 	}
+
+	return project
 }
 
-func (validation *Validation) validateProc(objects map[string]Object, proc *read.Proc) {
-	if proc.Type != nil {
+func (validation *Validation) validateProc(proc *read.Proc, procedure *common.Procedure) {
+
+	if procedure.Type != nil {
+		for _, in := range procedure.Type.In {
+			parameter := common.Parameter{
+				Name: in.Name,
+				Type: in.Type,
+			}
+			object, found := procedure.Context.GetObject(in.Name.Value)
+			if found {
+				validation.addError(newNameConflict(in.Name, object.GetName().Location))
+			} else {
+				procedure.Context.AddObject(in.Name.Value, &parameter)
+			}
+		}
+	}
+
+	/*if proc.Type != nil {
 		for _, param := range proc.Type.In {
 			object, found := objects[param.Name.Value]
 			if found {
@@ -147,97 +222,242 @@ func (validation *Validation) validateProc(objects map[string]Object, proc *read
 				objects[param.Name.Value] = newParamObject(param)
 			}
 		}
-	}
+	}*/
 
-	for idx := range proc.Statements {
+	/*for idx := range proc.Statements {
 		validation.validateStatement(objects, &proc.Statements[idx])
-	}
+	}*/
 
+	procedure.AddStatements(validation.validateStatementS(proc.Statements, procedure.Context))
 }
 
-func (validation *Validation) validateStatement(objects map[string]Object, stmt *read.Statement) {
+func (validation *Validation) validateStatementS(stmts []read.Statement, context *common.Context) []common.Statement {
+	var statements []common.Statement
+	for idx := range stmts {
+		stmt := validation.validateStatement(&stmts[idx], context)
+		if stmt != nil {
+			statements = append(statements, stmt)
+		}
+	}
+	return statements
+}
+
+func (validation *Validation) validateType(t *read.Type, context *common.Context, reportError bool) common.Type {
+	if t == nil {
+		return common.Type{}
+	}
+	out, found := context.GetType(t.Out.Name)
+	if !found {
+		if reportError {
+			validation.errors = append(validation.errors, UnknownType{TypeName: t.Out.Name})
+		}
+		return common.Type{}
+	}
+	var ins []common.InType
+	for _, param := range t.In {
+		in := validation.validateType(param.Typ, context, reportError)
+		if in.Out.Value == "" { // TODO replace isCompilationErrorType
+			return common.Type{}
+		}
+		var defaultValue *common.Expression
+		if len(param.Expr) == 1 {
+			e := validation.validateExpr(&param.Expr[0], nil, context)
+			defaultValue = &e
+		}
+		ins = append(ins, common.NewInType(in, param.Name.ToName(), defaultValue))
+	}
+	return common.NewType(out.Out, ins)
+}
+
+func (validation *Validation) validateStatement(stmt *read.Statement, context *common.Context) common.Statement {
 	if stmt.Var != nil {
-		validation.validateVar(objects, stmt.Var)
+		return validation.validateVar(stmt.Var, context)
 	}
 
 	if stmt.Call != nil {
-		validation.validateCall(objects, stmt.Call)
+		return validation.validateCall(stmt.Call, context)
 	}
+
+	return nil // ERROR
 }
 
-func (validation *Validation) validateVar(objects map[string]Object, stmt *read.Var) {
+func (validation *Validation) validateVar(stmt *read.Var, context *common.Context) *common.VariableDeclaration {
 	// Check if variable name is already taken
-	object, found := objects[stmt.Name.Value]
+	//object, found := objects[stmt.Name.Value]
+	//if found {
+	//	validation.addError(newNameConflict(stmt.Name, object.Name.Location))
+	//} else {
+	//	objects[stmt.Name.Value] = newVarObject(stmt)
+	//}
+
+	var variableDeclaration *common.VariableDeclaration
+	var variableType *common.Type
+	if stmt.VarType != nil {
+		t := validation.validateType(stmt.VarType, context, true)
+		variableType = &t
+	}
+	object, found := context.GetObject(stmt.Name.Value)
 	if found {
-		validation.addError(newNameConflict(stmt.Name, object.Name.Location))
+		validation.addError(newNameConflict(stmt.Name.ToName(), object.GetName().Location))
 	} else {
-		objects[stmt.Name.Value] = newVarObject(stmt)
+		exprType := validation.validateType(stmt.VarType, context, true)
+		if stmt.VarType == nil {
+			variableType = &exprType
+		}
+		// TODO check if expr type is compatible with var type
+		a := common.NewVariableDeclaration(stmt.Name.ToName(), *variableType, nil)
+		variableDeclaration = &a
+		context.AddObject(stmt.Name.Value, variableDeclaration)
 	}
 
 	if len(stmt.Exprs) == 1 {
-		validation.validateExpr(objects, &stmt.Exprs[0], stmt.VarType)
+		e := validation.validateExpr(&stmt.Exprs[0], variableType, context)
+		variableDeclaration.Value = e
 	}
+
+	return variableDeclaration
 }
 
-func (validation *Validation) validateExpr(objects map[string]Object, expr *read.Expr, expectedType *read.Type) {
+func (validation *Validation) validateExpr(expr *read.Expr, expectedType *common.Type, context *common.Context) common.Expression {
+	//if expr.VarName != nil {
+	//	// Check if the RHS variable exists
+	//	object, found := objects[expr.VarName.Value]
+	//	if !found {
+	//		validation.addError(newUnknownObject(expr.VarName.Value, expr.VarName.Location))
+	//	} else if expr.Type == nil {
+	//		expr.Type = object.Type
+	//	}
+	//}
+
+	var expression common.Expression
+	if expr.Type != nil {
+		validation.validateType(expr.Type, context, true)
+	}
+
 	if expr.VarName != nil {
 		// Check if the RHS variable exists
-		object, found := objects[expr.VarName.Value]
+		object, found := context.GetObject(expr.VarName.Value)
 		if !found {
 			validation.addError(newUnknownObject(expr.VarName.Value, expr.VarName.Location))
-		} else if expr.Type == nil {
-			expr.Type = object.Type
+		} else {
+			ve := common.NewVariableExpression(expr.VarName.ToName(), *object.GetType())
+			expression = &ve
 		}
 	}
+
+	//if expr.Call != nil {
+	//	callReturnType := validation.validateCall(objects, expr.Call)
+	//	if expr.Type == nil {
+	//		expr.Type = callReturnType
+	//	}
+	//}
 
 	if expr.Call != nil {
-		callReturnType := validation.validateCall(objects, expr.Call)
-		if expr.Type == nil {
-			expr.Type = callReturnType
-		}
+		call := validation.validateCall(expr.Call, context)
+		ce := common.NewProcedureExpression(*call)
+		expression = &ce
 	}
 
-	expr.Type = exprType(expr)
+	if expr.Boolean != nil {
+		e := common.NewLiteralExpression(*expr.Boolean, "", common.NewType(common.Name{Value: common.TypeBool}, nil))
+		expression = &e
+	}
+
+	if expr.Number != nil {
+		e := common.NewLiteralExpression(*expr.Number, "", numericType(*expr.Number))
+		expression = &e
+	}
+
+	if expr.Str != nil {
+		e := common.NewLiteralExpression(*expr.Number, "", common.NewType(common.Name{Value: common.TypeStr}, nil))
+		expression = &e
+	}
+
+	if expr.Str != nil {
+		e := common.NewLiteralExpression(*expr.Str, "", common.NewType(common.Name{Value: common.LiteralTypeString}, nil))
+		expression = &e
+	}
+
+	if expr.Null {
+		e := common.NewLiteralExpression("", "", common.NewType(common.Name{Value: common.LiteralTypeNull}, nil))
+		expression = &e
+	}
+
+	if expr.Hex != nil {
+		e := common.NewLiteralExpression(*expr.Hex, "", common.NewType(common.Name{Value: common.TypeByte}, nil))
+		expression = &e
+	}
+
+	if expression == nil {
+		// TODO return error
+		return expression
+	}
 
 	if expectedType == nil {
-		if expr.Type == nil {
-			validation.addError(newIncompatibleType(expr.Type.String(), "", expr.Location))
-		}
-	} else {
-		if expr.Type == nil {
-			validation.addError(newIncompatibleType("", expectedType.String(), expr.Location))
-		} else if typesIncompatible(expectedType, expr.Type) {
-			validation.addError(newIncompatibleType(expr.Type.String(), expectedType.String(), expr.Location))
-		}
+		return expression
+	}
+	et := expression.GetType()
+	if areTypesIncompatible(expectedType, &et) {
+		validation.addError(newIncompatibleType(expr.Type.String(), "", expr.Location))
 	}
 
+	return expression
 }
 
-func (validation *Validation) validateCall(objects map[string]Object, call *read.Call) (out *read.Type) {
+func (validation *Validation) validateCall(call *read.Call, context *common.Context) *common.ProcedureCall {
 	// Check if the  procedure exists
-	object, found := objects[call.Primary.Value]
+	//object, found := objects[call.Primary.Value]
+	//if !found {
+	//	validation.addError(newUnknownObject(call.Primary.Value, call.Primary.Location))
+	//	return nil
+	//} else {
+	//	out = object.Type
+	//}
+
+	object, found := context.GetObject(call.Primary.Value)
 	if !found {
 		validation.addError(newUnknownObject(call.Primary.Value, call.Primary.Location))
-		return nil
-	} else {
-		out = object.Type
+		return nil // Still validate arguments where possible
 	}
 
-	if len(call.Exprs) != len(call.Exprs) {
-		validation.addError(newIncorrectArgumentCount(call.Primary.Value, call.Primary.Location, len(call.Exprs), len(call.Exprs)))
-		return out
+	//if len(call.Exprs) != len(call.Exprs) {
+	//	validation.addError(newIncorrectArgumentCount(call.Primary.Value, call.Primary.Location, len(call.Exprs), len(call.Exprs)))
+	//	return out
+	//}
+
+	validateParamAgainstType := false
+
+	if object.GetType() != nil {
+		if len(call.Exprs) != len(object.GetType().In) {
+			validation.addError(newIncorrectArgumentCount(call.Primary.Value, call.Primary.Location, len(call.Exprs), len(call.Exprs)))
+		} else {
+			validateParamAgainstType = true
+		}
 	}
 
+	//for idx := range call.Exprs {
+	//	subexpr := &call.Exprs[idx]
+	//	validation.validateExpr(objects, subexpr, object.Type.In[idx].Typ)
+	//}
+	var arguments []common.Expression
 	for idx := range call.Exprs {
 		subexpr := &call.Exprs[idx]
-		validation.validateExpr(objects, subexpr, object.Type.In[idx].Typ)
+		var typeToCheckAgainst *common.Type
+		if validateParamAgainstType {
+			typeToCheckAgainst = &object.GetType().In[idx].Type
+		}
+		e := validation.validateExpr(subexpr, typeToCheckAgainst, context)
+		if e != nil {
+			arguments = append(arguments, e)
+		}
 	}
-	return out
+	c := common.NewProcedureCall(object, arguments)
+	return &c
 }
 
 func (validation *Validation) HasProgram(src *read.Source) {
 	if src.Program == nil {
-		validation.addError(ProgramingMissing{})
+		validation.addError(&ProgramingMissing{})
 	}
 }
 
@@ -259,18 +479,18 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 			continue
 		}
 		if len(stmt.Var.Exprs) == 0 {
-			validation.addError(NoExprToInferVariableType{VarName: stmt.Var.Name.Value})
+			validation.addError(&NoExprToInferVariableType{VarName: stmt.Var.Name.Value})
 			continue
 		}
 		exp := stmt.Var.Exprs[0]
 
 		if exp.Null {
-			validation.addError(CanNotInferTypeFromNull{VarName: stmt.Var.Name.Value})
+			validation.addError(&CanNotInferTypeFromNull{VarName: stmt.Var.Name.Value})
 			continue
 		}
 
 		if exp.VarName != nil {
-			validation.addError(CanNotInferTypeFromOtherVariable{VarName: stmt.Var.Name.Value})
+			validation.addError(&CanNotInferTypeFromOtherVariable{VarName: stmt.Var.Name.Value})
 			continue
 		}
 
@@ -294,7 +514,7 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 				stmt.Var.VarType = TypeOf(exp.Call.Primary.Value)
 				continue
 			}
-			validation.addError(CanNotInferTypeFromCall{VarName: stmt.Var.Name.Value})
+			validation.addError(&CanNotInferTypeFromCall{VarName: stmt.Var.Name.Value})
 			continue
 		}
 
@@ -317,40 +537,15 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 	}
 }
 
-func exprType(expr *read.Expr) *read.Type {
-
-	if expr.Type != nil {
-		return expr.Type
+func numericType(value string) common.Type {
+	if strings.Contains(value, "e+") {
+		return common.Type{Out: common.Name{Value: common.TypeFloat64}}
 	}
 
-	if expr.Null {
-		return TypeOf(common.LiteralTypeNull)
+	if strings.Contains(value, ".") {
+		return common.Type{Out: common.Name{Value: common.TypeFloat64}}
 	}
-
-	if expr.Hex != nil {
-		return TypeOf(common.TypeByte)
-	}
-
-	if expr.Str != nil {
-		return TypeOf(common.LiteralTypeString)
-	}
-
-	if expr.Boolean != nil {
-		return TypeOf(common.TypeBool)
-	}
-
-	if expr.Number == nil {
-		return nil
-	}
-
-	if strings.Contains(*expr.Number, "e+") {
-		return TypeOf(common.TypeFloat64)
-	}
-
-	if strings.Contains(*expr.Number, ".") {
-		return TypeOf(common.TypeFloat64)
-	}
-	return TypeOf(common.TypeInt32)
+	return common.Type{Out: common.Name{Value: common.TypeInt32}}
 
 }
 
@@ -387,6 +582,24 @@ func (validation *Validation) checkVarTypeExists(varStmt read.Var) {
 	if varStmt.VarType != nil {
 		validation.checkTypeExists(*varStmt.VarType)
 	}
+}
+
+func areTypesIncompatible(left, right *common.Type) bool {
+	if left == nil || right == nil {
+		return false
+	}
+	if left.Out.Value != right.Out.Value {
+		return true
+	}
+	if len(left.In) != len(right.In) {
+		return true
+	}
+	for idx := range left.In {
+		if areTypesIncompatible(&left.In[idx].Type, &right.In[idx].Type) {
+			return true
+		}
+	}
+	return false
 }
 
 func typesIncompatible(left, right *read.Type) bool {

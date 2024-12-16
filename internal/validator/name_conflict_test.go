@@ -2,7 +2,6 @@ package validator
 
 import (
 	"numbat/internal/common"
-	"numbat/internal/read"
 	"testing"
 )
 
@@ -88,8 +87,8 @@ end
 	assertValidationErrorCount(t, validation, 2)
 }
 
-func name(name string, line, column int) read.Name {
-	return read.Name{
+func name(name string, line, column int) common.Name {
+	return common.Name{
 		Value: name,
 		Location: common.Location{
 			Line:   line,

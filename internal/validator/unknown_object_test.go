@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -43,6 +44,10 @@ end
 	src := readsrc(code)
 	validation := NewValidation()
 	validation.Validate(src)
+
+	for _, verr := range validation.errors {
+		fmt.Println(verr.Message())
+	}
 
 	assertValidationError(t, validation, newUnknownObject("blueberry", loc(7, 21)))
 	assertValidationErrorCount(t, validation, 1)

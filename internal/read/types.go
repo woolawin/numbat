@@ -17,11 +17,17 @@ type Name struct {
 	Location common.Location
 }
 
+func (n *Name) ToName() common.Name {
+	return common.Name{Value: n.Value, Location: n.Location}
+}
+
 type Param struct {
 	Name Name
 	Typ  *Type
 	Expr []Expr
 }
+
+
 
 type Type struct {
 	Out TypeOut
@@ -29,6 +35,7 @@ type Type struct {
 
 	Param *Param
 }
+
 
 type Expr struct {
 	Unit    string
@@ -42,6 +49,13 @@ type Expr struct {
 
 	Type     *Type
 	Location common.Location
+}
+
+func (exp *Expr) ToExpression() common.Expression {
+	if exp.VarName != nil {
+
+	}
+	return nil // TODO ADD more
 }
 
 type Call struct {

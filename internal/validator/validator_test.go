@@ -14,7 +14,7 @@ end
 	validation := NewValidation()
 	validation.HasProgram(src)
 
-	assertValidationError(t, validation, ProgramingMissing{})
+	assertValidationError(t, validation, &ProgramingMissing{})
 	assertValidationErrorCount(t, validation, 1)
 }
 

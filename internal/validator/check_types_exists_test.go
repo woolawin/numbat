@@ -8,7 +8,7 @@ func TestTypes(t *testing.T) {
 	code := `
 program do
 	var a Int32
-	var b Ascii
+	var b Bool
 	var c FooBar
 end
 
