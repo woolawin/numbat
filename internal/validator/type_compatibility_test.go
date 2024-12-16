@@ -191,8 +191,8 @@ end
 	validation := NewValidation()
 	validation.Validate(src)
 
-	assertValidationError(t, validation, newIncompatibleType("", "Int32", loc(3, 16)))
-	assertValidationError(t, validation, newIncompatibleType("", "Int32", loc(4, 16)))
+	assertValidationError(t, validation, newUnknownObject("unknown_var", loc(3, 16)))
+	assertValidationError(t, validation, newUnknownObject("unknown_proc", loc(4, 16)))
 
-	assertValidationErrorCount(t, validation, 4)
+	assertValidationErrorCount(t, validation, 2)
 }
