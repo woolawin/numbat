@@ -28,12 +28,18 @@ func (le *LiteralExpression) GetType() Type {
 }
 
 type ProceduresExpression struct {
-	Call ProcedureCall
+	Call       ProcedureCall
+	ReturnType *Type
 }
 
 func NewProcedureExpression(call ProcedureCall) ProceduresExpression {
-	return ProceduresExpression{Call: call}
+	var rt *Type
+	if call.Object.GetType() != nil {
+		rt = &Type{Out: call.Object.GetType().Out}
+	}
+	return ProceduresExpression{Call: call, ReturnType: rt}
 }
+
 func (pe *ProceduresExpression) GetType() Type {
-	return *pe.Call.Object.GetType()
+	return *pe.ReturnType
 }

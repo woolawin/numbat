@@ -354,8 +354,11 @@ func (validation *Validation) validateExpr(expr *read.Expr, expectedType *common
 
 	if expr.Call != nil {
 		call := validation.validateCall(expr.Call, context)
-		ce := common.NewProcedureExpression(*call)
-		expression = &ce
+		if call != nil {
+			ce := common.NewProcedureExpression(*call)
+			expression = &ce
+		}
+
 	}
 
 	if expr.Boolean != nil {
@@ -398,7 +401,7 @@ func (validation *Validation) validateExpr(expr *read.Expr, expectedType *common
 	}
 	et := expression.GetType()
 	if areTypesIncompatible(expectedType, &et) {
-		validation.addError(newIncompatibleType(expr.Type.String(), "", expr.Location))
+		validation.addError(newIncompatibleType(et.Out.Value, "", expr.Location))
 	}
 
 	return expression
@@ -586,7 +589,7 @@ func (validation *Validation) checkVarTypeExists(varStmt read.Var) {
 
 func areTypesIncompatible(left, right *common.Type) bool {
 	if left == nil || right == nil {
-		return false
+		return true
 	}
 	if left.Out.Value != right.Out.Value {
 		return true

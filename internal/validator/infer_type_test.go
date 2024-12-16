@@ -2,6 +2,7 @@ package validator
 
 import (
 	"encoding/json"
+	"fmt"
 	"numbat/internal/read"
 	"testing"
 )
@@ -62,10 +63,14 @@ end
 	validation := NewValidation()
 	validation.InferTypes(src)
 
-	assertValidationError(t, validation, &NoExprToInferVariableType{VarName: "a"})
-	assertValidationError(t, validation, &CanNotInferTypeFromNull{VarName: "b"})
-	assertValidationError(t, validation, &CanNotInferTypeFromOtherVariable{VarName: "c"})
-	assertValidationError(t, validation, &CanNotInferTypeFromCall{VarName: "d"})
+	for _, verr := range validation.errors {
+		fmt.Println(verr.Message())
+	}
+
+	assertValidationError(t, validation, NoExprToInferVariableType{VarName: "a"})
+	assertValidationError(t, validation, CanNotInferTypeFromNull{VarName: "b"})
+	assertValidationError(t, validation, CanNotInferTypeFromOtherVariable{VarName: "c"})
+	assertValidationError(t, validation, CanNotInferTypeFromCall{VarName: "d"})
 	assertValidationErrorCount(t, validation, 4)
 }
 
