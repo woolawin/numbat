@@ -2,7 +2,6 @@ package validator
 
 import (
 	"encoding/json"
-	"fmt"
 	"numbat/internal/read"
 	"testing"
 )
@@ -62,10 +61,6 @@ end
 	src := readsrc(code)
 	validation := NewValidation()
 	validation.InferTypes(src)
-
-	for _, verr := range validation.errors {
-		fmt.Println(verr.Message())
-	}
 
 	assertValidationError(t, validation, NoExprToInferVariableType{VarName: "a"})
 	assertValidationError(t, validation, CanNotInferTypeFromNull{VarName: "b"})

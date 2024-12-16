@@ -130,49 +130,22 @@ func NewValidation() Validation {
 	return Validation{}
 }
 
-func Check(src *read.Source) Validation {
-	validation := Validation{}
-	validation.HasProgram(src)
-	validation.InferTypes(src)
-	validation.CheckTypesExists(src)
-	//checkCollisions
-	//checkReferences
-	//checkTypeCompatability
-	return validation
-}
-
 type Object struct {
 	Name     read.Name
 	Location common.Location
 	Type     *read.Type
 }
 
-func newProcObject(proc *read.Proc) Object {
-	return Object{Name: proc.Name, Location: proc.Location, Type: proc.Type}
-}
-
-func newParamObject(param read.Param) Object {
-	return Object{Name: param.Name, Location: param.Name.Location, Type: param.Typ}
-}
-
-func newVarObject(stmt *read.Var) Object {
-	return Object{Name: stmt.Name, Location: stmt.Name.Location, Type: stmt.VarType}
-}
-
 func (validation *Validation) Validate(src *read.Source) *common.Project {
 
 	project := common.NewProject()
 
-	//objects := make(map[string]Object)
-
 	for idx := range src.Procs {
 		proc := &src.Procs[idx]
 		object, found := project.Context.GetObject(proc.Name.Value)
-		//object, found := objects[proc.Name.Value]
 		if found {
 			validation.addError(newNameConflict(proc.Name.ToName(), object.GetName().Location))
 		} else {
-			//objects[proc.Name.Value] = newProcObject(proc)
 			t := validation.validateType(proc.Type, &project.Context, false)
 			obj := common.NewProcedureDefinition(proc.Name.ToName(), &t)
 			project.Context.AddObject(proc.Name.Value, &obj)
@@ -182,7 +155,7 @@ func (validation *Validation) Validate(src *read.Source) *common.Project {
 	if src.Program == nil {
 
 	} else {
-		project.Program.AddStatements(validation.validateStatementS(src.Program.Statements, &project.Context))
+		project.Program.AddStatements(validation.validateStatements(src.Program.Statements, &project.Context))
 	}
 
 	for idx := range src.Procs {
@@ -213,25 +186,10 @@ func (validation *Validation) validateProc(proc *read.Proc, procedure *common.Pr
 		}
 	}
 
-	/*if proc.Type != nil {
-		for _, param := range proc.Type.In {
-			object, found := objects[param.Name.Value]
-			if found {
-				validation.addError(newNameConflict(param.Name, object.Name.Location))
-			} else {
-				objects[param.Name.Value] = newParamObject(param)
-			}
-		}
-	}*/
-
-	/*for idx := range proc.Statements {
-		validation.validateStatement(objects, &proc.Statements[idx])
-	}*/
-
-	procedure.AddStatements(validation.validateStatementS(proc.Statements, procedure.Context))
+	procedure.AddStatements(validation.validateStatements(proc.Statements, procedure.Context))
 }
 
-func (validation *Validation) validateStatementS(stmts []read.Statement, context *common.Context) []common.Statement {
+func (validation *Validation) validateStatements(stmts []read.Statement, context *common.Context) []common.Statement {
 	var statements []common.Statement
 	for idx := range stmts {
 		stmt := validation.validateStatement(&stmts[idx], context)
@@ -246,13 +204,19 @@ func (validation *Validation) validateType(t *read.Type, context *common.Context
 	if t == nil {
 		return common.Type{}
 	}
-	out, found := context.GetType(t.Out.Name)
-	if !found {
-		if reportError {
-			validation.errors = append(validation.errors, UnknownType{TypeName: t.Out.Name})
+	out := common.Type{}
+	if t.Out.Name != "" {
+		outType, found := context.GetType(t.Out.Name)
+		if !found {
+			if reportError {
+				validation.errors = append(validation.errors, UnknownType{TypeName: t.Out.Name})
+			}
+			return common.Type{}
+		} else {
+			out = outType
 		}
-		return common.Type{}
 	}
+
 	var ins []common.InType
 	for _, param := range t.In {
 		in := validation.validateType(param.Typ, context, reportError)
@@ -283,12 +247,6 @@ func (validation *Validation) validateStatement(stmt *read.Statement, context *c
 
 func (validation *Validation) validateVar(stmt *read.Var, context *common.Context) *common.VariableDeclaration {
 	// Check if variable name is already taken
-	//object, found := objects[stmt.Name.Value]
-	//if found {
-	//	validation.addError(newNameConflict(stmt.Name, object.Name.Location))
-	//} else {
-	//	objects[stmt.Name.Value] = newVarObject(stmt)
-	//}
 
 	var variableDeclaration *common.VariableDeclaration
 	var variableType *common.Type
@@ -319,15 +277,6 @@ func (validation *Validation) validateVar(stmt *read.Var, context *common.Contex
 }
 
 func (validation *Validation) validateExpr(expr *read.Expr, expectedType *common.Type, context *common.Context) common.Expression {
-	//if expr.VarName != nil {
-	//	// Check if the RHS variable exists
-	//	object, found := objects[expr.VarName.Value]
-	//	if !found {
-	//		validation.addError(newUnknownObject(expr.VarName.Value, expr.VarName.Location))
-	//	} else if expr.Type == nil {
-	//		expr.Type = object.Type
-	//	}
-	//}
 
 	var expression common.Expression
 	if expr.Type != nil {
@@ -344,13 +293,6 @@ func (validation *Validation) validateExpr(expr *read.Expr, expectedType *common
 			expression = &ve
 		}
 	}
-
-	//if expr.Call != nil {
-	//	callReturnType := validation.validateCall(objects, expr.Call)
-	//	if expr.Type == nil {
-	//		expr.Type = callReturnType
-	//	}
-	//}
 
 	if expr.Call != nil {
 		call := validation.validateCall(expr.Call, context)
@@ -372,12 +314,7 @@ func (validation *Validation) validateExpr(expr *read.Expr, expectedType *common
 	}
 
 	if expr.Str != nil {
-		e := common.NewLiteralExpression(*expr.Number, "", common.NewType(common.Name{Value: common.TypeStr}, nil))
-		expression = &e
-	}
-
-	if expr.Str != nil {
-		e := common.NewLiteralExpression(*expr.Str, "", common.NewType(common.Name{Value: common.LiteralTypeString}, nil))
+		e := common.NewLiteralExpression(*expr.Str, "", common.NewType(common.Name{Value: common.TypeStr}, nil))
 		expression = &e
 	}
 
@@ -409,24 +346,12 @@ func (validation *Validation) validateExpr(expr *read.Expr, expectedType *common
 
 func (validation *Validation) validateCall(call *read.Call, context *common.Context) *common.ProcedureCall {
 	// Check if the  procedure exists
-	//object, found := objects[call.Primary.Value]
-	//if !found {
-	//	validation.addError(newUnknownObject(call.Primary.Value, call.Primary.Location))
-	//	return nil
-	//} else {
-	//	out = object.Type
-	//}
 
 	object, found := context.GetObject(call.Primary.Value)
 	if !found {
 		validation.addError(newUnknownObject(call.Primary.Value, call.Primary.Location))
 		return nil // Still validate arguments where possible
 	}
-
-	//if len(call.Exprs) != len(call.Exprs) {
-	//	validation.addError(newIncorrectArgumentCount(call.Primary.Value, call.Primary.Location, len(call.Exprs), len(call.Exprs)))
-	//	return out
-	//}
 
 	validateParamAgainstType := false
 
@@ -438,10 +363,6 @@ func (validation *Validation) validateCall(call *read.Call, context *common.Cont
 		}
 	}
 
-	//for idx := range call.Exprs {
-	//	subexpr := &call.Exprs[idx]
-	//	validation.validateExpr(objects, subexpr, object.Type.In[idx].Typ)
-	//}
 	var arguments []common.Expression
 	for idx := range call.Exprs {
 		subexpr := &call.Exprs[idx]
@@ -482,18 +403,18 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 			continue
 		}
 		if len(stmt.Var.Exprs) == 0 {
-			validation.addError(&NoExprToInferVariableType{VarName: stmt.Var.Name.Value})
+			validation.addError(NoExprToInferVariableType{VarName: stmt.Var.Name.Value})
 			continue
 		}
 		exp := stmt.Var.Exprs[0]
 
 		if exp.Null {
-			validation.addError(&CanNotInferTypeFromNull{VarName: stmt.Var.Name.Value})
+			validation.addError(CanNotInferTypeFromNull{VarName: stmt.Var.Name.Value})
 			continue
 		}
 
 		if exp.VarName != nil {
-			validation.addError(&CanNotInferTypeFromOtherVariable{VarName: stmt.Var.Name.Value})
+			validation.addError(CanNotInferTypeFromOtherVariable{VarName: stmt.Var.Name.Value})
 			continue
 		}
 
@@ -517,7 +438,7 @@ func (validation *Validation) inferProcTypes(proc *read.Proc) {
 				stmt.Var.VarType = TypeOf(exp.Call.Primary.Value)
 				continue
 			}
-			validation.addError(&CanNotInferTypeFromCall{VarName: stmt.Var.Name.Value})
+			validation.addError(CanNotInferTypeFromCall{VarName: stmt.Var.Name.Value})
 			continue
 		}
 
@@ -599,21 +520,6 @@ func areTypesIncompatible(left, right *common.Type) bool {
 	}
 	for idx := range left.In {
 		if areTypesIncompatible(&left.In[idx].Type, &right.In[idx].Type) {
-			return true
-		}
-	}
-	return false
-}
-
-func typesIncompatible(left, right *read.Type) bool {
-	if left.Out.Name != right.Out.Name {
-		return true
-	}
-	if len(left.In) != len(right.In) {
-		return true
-	}
-	for idx := range left.In {
-		if typesIncompatible(left.In[idx].Typ, right.In[idx].Typ) {
 			return true
 		}
 	}
