@@ -213,7 +213,7 @@ func (validation *Validation) expression(expr *read.Expr, expectedType common.Ty
 	}
 
 	if expr.Boolean != nil {
-		e := common.NewLiteralExpression(*expr.Boolean, "", common.BoolType{})
+		e := common.NewLiteralExpression(*expr.Boolean, "", common.NewBoolType())
 		expression = &e
 	}
 
@@ -223,7 +223,7 @@ func (validation *Validation) expression(expr *read.Expr, expectedType common.Ty
 	}
 
 	if expr.Str != nil {
-		e := common.NewLiteralExpression(*expr.Str, "", common.StringType{})
+		e := common.NewLiteralExpression(*expr.Str, "", common.NewStringType())
 		expression = &e
 	}
 
@@ -233,7 +233,7 @@ func (validation *Validation) expression(expr *read.Expr, expectedType common.Ty
 	}
 
 	if expr.Hex != nil {
-		e := common.NewLiteralExpression(*expr.Hex, "", common.ByteType{})
+		e := common.NewLiteralExpression(*expr.Hex, "", common.NewByteType())
 		expression = &e
 	}
 
@@ -274,7 +274,7 @@ func (validation *Validation) inferVarType(expr *read.Expr, varName common.Name,
 	}
 
 	if expr.Boolean != nil {
-		return common.BoolType{}, false
+		return common.NewBoolType(), false
 	}
 
 	if expr.Number != nil {
@@ -282,7 +282,7 @@ func (validation *Validation) inferVarType(expr *read.Expr, varName common.Name,
 	}
 
 	if expr.Str != nil {
-		return common.StringType{}, false
+		return common.NewStringType(), false
 	}
 
 	if expr.Null {
@@ -290,7 +290,7 @@ func (validation *Validation) inferVarType(expr *read.Expr, varName common.Name,
 	}
 
 	if expr.Hex != nil {
-		return common.ByteType{}, false
+		return common.NewByteType(), false
 	}
 
 	// Should never get here
@@ -334,13 +334,13 @@ func (validation *Validation) procedureCall(call *read.Call, context *common.Con
 
 func numericType(value string) common.Type {
 	if strings.Contains(value, "e+") {
-		return common.Float64Type{}
+		return common.NewFloat64Type()
 	}
 
 	if strings.Contains(value, ".") {
-		return common.Float64Type{}
+		return common.NewFloat64Type()
 	}
-	return common.Int32Type{}
+	return common.NewInt32Type()
 
 }
 

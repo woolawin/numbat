@@ -21,174 +21,70 @@ type Type interface {
 
 func GetStandardTypes() []Type {
 	return []Type{
-		ByteType{},
-		AsciiType{},
-		Int32Type{},
-		Int64Type{},
-		Float32Type{},
-		Float64Type{},
-		BoolType{},
+		NewByteType(),
+		NewAsciiType(),
+		NewInt32Type(),
+		NewInt64Type(),
+		NewFloat32Type(),
+		NewFloat64Type(),
+		NewBoolType(),
 	}
 }
 
 // BoolType ---------------------------------------------------
 //
 // ------------------------------------------------------------
-type BoolType struct {
-}
 
-func (t BoolType) GetOut() Name {
-	return Name{Value: TypeBool}
-}
-
-func (t BoolType) GetIn() []InType {
-	return nil
-}
-
-func (t BoolType) IsCompileError() bool {
-	return false
-}
-
-func (t BoolType) IsNeverCompatible() bool {
-	return false
+func NewBoolType() Type {
+	return StandardType{Out: Name{Value: TypeBool}}
 }
 
 // Int32Type --------------------------------------------------
 //
 // ------------------------------------------------------------
 
-type Int32Type struct {
-}
-
-func (t Int32Type) GetOut() Name {
-	return Name{Value: TypeInt32}
-}
-
-func (t Int32Type) GetIn() []InType {
-	return nil
-}
-
-func (t Int32Type) IsCompileError() bool {
-	return false
-}
-
-func (t Int32Type) IsNeverCompatible() bool {
-	return false
+func NewInt32Type() Type {
+	return StandardType{Out: Name{Value: TypeInt32}}
 }
 
 // Int64Type --------------------------------------------------
 //
 // ------------------------------------------------------------
 
-type Int64Type struct {
-}
-
-func (t Int64Type) GetOut() Name {
-	return Name{Value: TypeInt64}
-}
-
-func (t Int64Type) GetIn() []InType {
-	return nil
-}
-
-func (t Int64Type) IsCompileError() bool {
-	return false
-}
-
-func (t Int64Type) IsNeverCompatible() bool {
-	return false
+func NewInt64Type() Type {
+	return StandardType{Out: Name{Value: TypeInt64}}
 }
 
 // Float32Type ------------------------------------------------
 //
 // ------------------------------------------------------------
 
-type Float32Type struct {
-}
-
-func (t Float32Type) GetOut() Name {
-	return Name{Value: TypeFloat32}
-}
-
-func (t Float32Type) GetIn() []InType {
-	return nil
-}
-
-func (t Float32Type) IsCompileError() bool {
-	return false
-}
-
-func (t Float32Type) IsNeverCompatible() bool {
-	return false
+func NewFloat32Type() Type {
+	return StandardType{Out: Name{Value: TypeFloat32}}
 }
 
 // Float64Type ------------------------------------------------
 //
 // ------------------------------------------------------------
 
-type Float64Type struct {
-}
-
-func (t Float64Type) GetOut() Name {
-	return Name{Value: TypeFloat64}
-}
-
-func (t Float64Type) GetIn() []InType {
-	return nil
-}
-
-func (t Float64Type) IsCompileError() bool {
-	return false
-}
-
-func (t Float64Type) IsNeverCompatible() bool {
-	return false
+func NewFloat64Type() Type {
+	return StandardType{Out: Name{Value: TypeFloat64}}
 }
 
 // ByteType ---------------------------------------------------
 //
 // ------------------------------------------------------------
 
-type ByteType struct {
-}
-
-func (t ByteType) GetOut() Name {
-	return Name{Value: TypeByte}
-}
-
-func (t ByteType) GetIn() []InType {
-	return nil
-}
-
-func (t ByteType) IsCompileError() bool {
-	return false
-}
-
-func (t ByteType) IsNeverCompatible() bool {
-	return false
+func NewByteType() Type {
+	return StandardType{Out: Name{Value: TypeByte}}
 }
 
 // AsciiType --------------------------------------------------
 //
 // ------------------------------------------------------------
 
-type AsciiType struct {
-}
-
-func (t AsciiType) GetOut() Name {
-	return Name{Value: TypeAscii}
-}
-
-func (t AsciiType) GetIn() []InType {
-	return nil
-}
-
-func (t AsciiType) IsCompileError() bool {
-	return false
-}
-
-func (t AsciiType) IsNeverCompatible() bool {
-	return false
+func NewAsciiType() Type {
+	return StandardType{Out: Name{Value: TypeAscii}}
 }
 
 // NullType ---------------------------------------------------
@@ -218,23 +114,8 @@ func (t NullType) IsNeverCompatible() bool {
 //
 // ------------------------------------------------------------
 
-type StringType struct {
-}
-
-func (t StringType) GetOut() Name {
-	return Name{Value: LiteralTypeString}
-}
-
-func (t StringType) GetIn() []InType {
-	return nil
-}
-
-func (t StringType) IsCompileError() bool {
-	return false
-}
-
-func (t StringType) IsNeverCompatible() bool {
-	return false
+func NewStringType() Type {
+	return StandardType{Out: Name{Value: LiteralTypeString}}
 }
 
 // Misc -------------------------------------------------------

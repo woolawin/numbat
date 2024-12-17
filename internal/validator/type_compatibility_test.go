@@ -1,7 +1,6 @@
 package validator
 
 import (
-	"fmt"
 	"numbat/internal/common"
 	"testing"
 )
@@ -56,47 +55,43 @@ end
 	validation := NewValidation()
 	validation.Validate(src)
 
-	//for _, verr := range validation.errors {
-	//	fmt.Println(verr.Message())
-	//}
+	assertValidationError(t, validation, NewIncompatibleType(common.NewStringType(), common.NewBoolType(), loc(4, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewInt32Type(), common.NewBoolType(), loc(5, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewFloat64Type(), common.NewBoolType(), loc(6, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NullType{}, common.NewBoolType(), loc(7, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewByteType(), common.NewBoolType(), loc(8, 17)))
 
-	assertValidationError(t, validation, NewIncompatibleType(common.StringType{}, common.BoolType{}, loc(4, 17)))
-	assertValidationError(t, validation, NewIncompatibleType(common.Int32Type{}, common.BoolType{}, loc(5, 17)))
-	assertValidationError(t, validation, NewIncompatibleType(common.Float64Type{}, common.BoolType{}, loc(6, 17)))
-	assertValidationError(t, validation, NewIncompatibleType(common.NullType{}, common.BoolType{}, loc(7, 17)))
-	assertValidationError(t, validation, NewIncompatibleType(common.ByteType{}, common.BoolType{}, loc(8, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewBoolType(), common.NewInt32Type(), loc(10, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewStringType(), common.NewInt32Type(), loc(11, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewFloat64Type(), common.NewInt32Type(), loc(13, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NullType{}, common.NewInt32Type(), loc(14, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewByteType(), common.NewInt32Type(), loc(15, 18)))
 
-	assertValidationError(t, validation, NewIncompatibleType(common.BoolType{}, common.Int32Type{}, loc(10, 18)))
-	assertValidationError(t, validation, NewIncompatibleType(common.StringType{}, common.Int32Type{}, loc(11, 18)))
-	assertValidationError(t, validation, NewIncompatibleType(common.Float64Type{}, common.Int32Type{}, loc(13, 18)))
-	assertValidationError(t, validation, NewIncompatibleType(common.NullType{}, common.Int32Type{}, loc(14, 18)))
-	assertValidationError(t, validation, NewIncompatibleType(common.ByteType{}, common.Int32Type{}, loc(15, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewBoolType(), common.NewFloat64Type(), loc(17, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewStringType(), common.NewFloat64Type(), loc(18, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewInt32Type(), common.NewFloat64Type(), loc(19, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NullType{}, common.NewFloat64Type(), loc(21, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewByteType(), common.NewFloat64Type(), loc(22, 20)))
 
-	assertValidationError(t, validation, NewIncompatibleType(common.BoolType{}, common.Float64Type{}, loc(17, 20)))
-	assertValidationError(t, validation, NewIncompatibleType(common.StringType{}, common.Float64Type{}, loc(18, 20)))
-	assertValidationError(t, validation, NewIncompatibleType(common.Int32Type{}, common.Float64Type{}, loc(19, 20)))
-	assertValidationError(t, validation, NewIncompatibleType(common.NullType{}, common.Float64Type{}, loc(21, 20)))
-	assertValidationError(t, validation, NewIncompatibleType(common.ByteType{}, common.Float64Type{}, loc(22, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewBoolType(), common.NewByteType(), loc(24, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewStringType(), common.NewByteType(), loc(25, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewInt32Type(), common.NewByteType(), loc(26, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewFloat64Type(), common.NewByteType(), loc(27, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NullType{}, common.NewByteType(), loc(28, 17)))
 
-	assertValidationError(t, validation, NewIncompatibleType(common.BoolType{}, common.ByteType{}, loc(24, 17)))
-	assertValidationError(t, validation, NewIncompatibleType(common.StringType{}, common.ByteType{}, loc(25, 17)))
-	assertValidationError(t, validation, NewIncompatibleType(common.Int32Type{}, common.ByteType{}, loc(26, 17)))
-	assertValidationError(t, validation, NewIncompatibleType(common.Float64Type{}, common.ByteType{}, loc(27, 17)))
-	assertValidationError(t, validation, NewIncompatibleType(common.NullType{}, common.ByteType{}, loc(28, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewBoolType(), common.NewInt64Type(), loc(31, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewStringType(), common.NewInt64Type(), loc(32, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewInt32Type(), common.NewInt64Type(), loc(33, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewFloat64Type(), common.NewInt64Type(), loc(34, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NullType{}, common.NewInt64Type(), loc(35, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewByteType(), common.NewInt64Type(), loc(36, 18)))
 
-	assertValidationError(t, validation, NewIncompatibleType(common.BoolType{}, common.Int64Type{}, loc(31, 18)))
-	assertValidationError(t, validation, NewIncompatibleType(common.StringType{}, common.Int64Type{}, loc(32, 18)))
-	assertValidationError(t, validation, NewIncompatibleType(common.Int32Type{}, common.Int64Type{}, loc(33, 18)))
-	assertValidationError(t, validation, NewIncompatibleType(common.Float64Type{}, common.Int64Type{}, loc(34, 18)))
-	assertValidationError(t, validation, NewIncompatibleType(common.NullType{}, common.Int64Type{}, loc(35, 18)))
-	assertValidationError(t, validation, NewIncompatibleType(common.ByteType{}, common.Int64Type{}, loc(36, 18)))
-
-	assertValidationError(t, validation, NewIncompatibleType(common.BoolType{}, common.Float32Type{}, loc(38, 20)))
-	assertValidationError(t, validation, NewIncompatibleType(common.StringType{}, common.Float32Type{}, loc(39, 20)))
-	assertValidationError(t, validation, NewIncompatibleType(common.Int32Type{}, common.Float32Type{}, loc(40, 20)))
-	assertValidationError(t, validation, NewIncompatibleType(common.Float64Type{}, common.Float32Type{}, loc(41, 20)))
-	assertValidationError(t, validation, NewIncompatibleType(common.NullType{}, common.Float32Type{}, loc(42, 20)))
-	assertValidationError(t, validation, NewIncompatibleType(common.ByteType{}, common.Float32Type{}, loc(43, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewBoolType(), common.NewFloat32Type(), loc(38, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewStringType(), common.NewFloat32Type(), loc(39, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewInt32Type(), common.NewFloat32Type(), loc(40, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewFloat64Type(), common.NewFloat32Type(), loc(41, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NullType{}, common.NewFloat32Type(), loc(42, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewByteType(), common.NewFloat32Type(), loc(43, 20)))
 
 	assertValidationErrorCount(t, validation, 32)
 }
@@ -165,28 +160,25 @@ end
 	validation := NewValidation()
 	validation.Validate(src)
 
-	//fmt.Println(validation.errors[1].(IncompatibleType).Actual.(common.Int64Type))
-	fmt.Println(validation.errors[1].(IncompatibleType).Actual == common.Int64Type{})
+	assertValidationError(t, validation, NewIncompatibleType(common.NewInt32Type(), common.NewBoolType(), loc(10, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewInt64Type(), common.NewBoolType(), loc(11, 17)))
 
-	assertValidationError(t, validation, NewIncompatibleType(common.Int32Type{}, common.BoolType{}, loc(10, 17)))
-	assertValidationError(t, validation, NewIncompatibleType(common.Int64Type{}, common.BoolType{}, loc(11, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewBoolType(), common.NewInt32Type(), loc(15, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewByteType(), common.NewInt32Type(), loc(16, 18)))
 
-	/*	assertValidationError(t, validation, NewIncompatibleType(common.BoolType{}, common.Int32Type{}, loc(15, 18)))
-		assertValidationError(t, validation, NewIncompatibleType(common.ByteType{}, common.Int32Type{}, loc(16, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewBoolType(), common.NewFloat64Type(), loc(20, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewByteType(), common.NewFloat64Type(), loc(21, 20)))
 
-		assertValidationError(t, validation, NewIncompatibleType(common.BoolType{}, common.Float64Type{}, loc(20, 20)))
-		assertValidationError(t, validation, NewIncompatibleType(common.ByteType{}, common.Float64Type{}, loc(21, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewInt32Type(), common.NewByteType(), loc(25, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewFloat64Type(), common.NewByteType(), loc(26, 17)))
 
-		assertValidationError(t, validation, NewIncompatibleType(common.Int32Type{}, common.ByteType{}, loc(25, 17)))
-		assertValidationError(t, validation, NewIncompatibleType(common.Float64Type{}, common.ByteType{}, loc(26, 17)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewBoolType(), common.NewInt64Type(), loc(30, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewBoolType(), common.NewInt64Type(), loc(31, 18)))
 
-		assertValidationError(t, validation, NewIncompatibleType(common.BoolType{}, common.Int64Type{}, loc(30, 18)))
-		assertValidationError(t, validation, NewIncompatibleType(common.BoolType{}, common.Int64Type{}, loc(31, 18)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewInt32Type(), common.NewFloat32Type(), loc(35, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(common.NewBoolType(), common.NewFloat32Type(), loc(36, 20)))
 
-		assertValidationError(t, validation, NewIncompatibleType(common.Int32Type{}, common.Float32Type{}, loc(35, 20)))
-		assertValidationError(t, validation, NewIncompatibleType(common.BoolType{}, common.Float32Type{}, loc(36, 20)))
-
-		assertValidationErrorCount(t, validation, 12)*/
+	assertValidationErrorCount(t, validation, 12)
 }
 
 func TestIncompatibleWhenObjectIsNotFound(t *testing.T) {

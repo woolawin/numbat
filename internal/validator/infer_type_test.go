@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"numbat/internal/common"
 	"numbat/internal/read"
+	"reflect"
 	"testing"
 )
 
@@ -79,7 +80,7 @@ end
 
 func assertValidationError(t *testing.T, validation Validation, err ValidationError) {
 	for _, e := range validation.errors {
-		if e == err {
+		if reflect.DeepEqual(e, err) {
 			return
 		}
 	}
