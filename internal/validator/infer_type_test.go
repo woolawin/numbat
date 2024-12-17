@@ -39,7 +39,7 @@ func assertInferredType(t *testing.T, src *common.Source, name string, expected 
 			{
 				if stmt.Name.Value == name {
 					typ := stmt.Type
-					actual := typ.Out.Value
+					actual := typ.GetOut().Value
 					if actual != expected {
 						t.Fatalf("Inferred type of %s should be %s but is %s", name, expected, actual)
 					}

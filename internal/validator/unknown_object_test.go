@@ -21,7 +21,7 @@ end
 	validation := NewValidation()
 	validation.Validate(src)
 
-	assertValidationError(t, validation, newUnknownObject("watermelon", loc(9, 20)))
+	assertValidationError(t, validation, NewUnknownObject("watermelon", loc(9, 20)))
 	assertValidationErrorCount(t, validation, 1)
 }
 
@@ -44,7 +44,7 @@ end
 	validation := NewValidation()
 	validation.Validate(src)
 
-	assertValidationError(t, validation, newUnknownObject("blueberry", loc(7, 21)))
+	assertValidationError(t, validation, NewUnknownObject("blueberry", loc(7, 21)))
 	assertValidationErrorCount(t, validation, 1)
 }
 
@@ -69,7 +69,7 @@ end
 	validation := NewValidation()
 	validation.Validate(src)
 
-	assertValidationError(t, validation, newUnknownObject("orange", loc(8, 31)))
-	assertValidationError(t, validation, newUnknownObject("banana", loc(9, 13)))
+	assertValidationError(t, validation, NewUnknownObject("orange", loc(8, 31)))
+	assertValidationError(t, validation, NewUnknownObject("banana", loc(9, 13)))
 	assertValidationErrorCount(t, validation, 2)
 }

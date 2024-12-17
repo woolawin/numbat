@@ -29,17 +29,17 @@ func (le *LiteralExpression) GetType() Type {
 
 type ProceduresExpression struct {
 	Call       ProcedureCall
-	ReturnType *Type
+	ReturnType Type
 }
 
 func NewProcedureExpression(call ProcedureCall) ProceduresExpression {
-	var rt *Type
+	var rt Type
 	if call.Object.GetType() != nil {
-		rt = &Type{Out: call.Object.GetType().Out}
+		rt = NewStandardType(call.Object.GetType().GetOut(), nil)
 	}
 	return ProceduresExpression{Call: call, ReturnType: rt}
 }
 
 func (pe *ProceduresExpression) GetType() Type {
-	return *pe.ReturnType
+	return pe.ReturnType
 }

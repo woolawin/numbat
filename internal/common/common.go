@@ -16,12 +16,12 @@ type Parameter struct {
 	Type Type
 }
 
-func (param *Parameter) GetName() Name {
+func (param Parameter) GetName() Name {
 	return param.Name
 }
 
-func (param *Parameter) GetType() *Type {
-	return &param.Type
+func (param Parameter) GetType() Type {
+	return param.Type
 }
 
 type InType struct {
@@ -34,26 +34,16 @@ func NewInType(t Type, name Name, defaultValue *Expression) InType {
 	return InType{Type: t, Name: name, DefaultValue: defaultValue}
 }
 
-// TODO make this an object and have a compile error type
-type Type struct {
-	Out Name
-	In  []InType
-}
-
-func NewType(out Name, in []InType) Type {
-	return Type{Out: out, In: in}
-}
-
 type Object interface {
 	GetName() Name
-	GetType() *Type
+	GetType() Type
 }
 
 type Procedure struct {
 	Context    *Context
 	Name       Name
 	Parameters []Parameter
-	Type       *Type
+	Type       Type
 
 	Statements []Statement
 }
@@ -93,7 +83,7 @@ func NewSource() *Source {
 	}
 }
 
-func (p *Source) AddProcedure(name Name, t *Type) *Procedure {
+func (p *Source) AddProcedure(name Name, t Type) *Procedure {
 	p.Procedures = append(p.Procedures, NewProcedure(&p.Context, name))
 	param := &p.Procedures[len(p.Procedures)-1]
 	param.Type = t
@@ -127,12 +117,12 @@ func (c *Context) GetObject(name string) (Object, bool) {
 
 func (c *Context) GetType(name string) (Type, bool) {
 	for _, typ := range c.Types {
-		if typ.Out.Value == name {
+		if typ.GetOut().Value == name {
 			return typ, true
 		}
 	}
 	if c.Parent != nil {
 		return c.Parent.GetType(name)
 	}
-	return Type{}, false
+	return NewCompileErrorType(), false
 }

@@ -14,8 +14,8 @@ func (vd *VariableDeclaration) GetName() Name {
 	return vd.Name
 }
 
-func (vd *VariableDeclaration) GetType() *Type {
-	return &vd.Type
+func (vd *VariableDeclaration) GetType() Type {
+	return vd.Type
 }
 
 type ProcedureCall struct {

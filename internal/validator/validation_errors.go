@@ -106,22 +106,28 @@ func (verr UnknownObject) Message() string {
 	return fmt.Sprintf("unknown object: %s", verr.Name)
 }
 
-func newUnknownObject(name string, location common.Location) UnknownObject {
+func NewUnknownObject(name string, location common.Location) UnknownObject {
 	return UnknownObject{Name: name, Location: location}
 }
 
 type IncompatibleType struct {
 	Location common.Location
-	Actual   string
-	Expected string
+	Actual   common.Type
+	Expected common.Type
 }
 
-func newIncompatibleType(actual string, expected string, location common.Location) IncompatibleType {
+func NewIncompatibleType(actual common.Type, expected common.Type, location common.Location) IncompatibleType {
 	return IncompatibleType{Location: location, Actual: actual, Expected: expected}
 }
 
 func (verr IncompatibleType) Message() string {
-	return fmt.Sprintf("can not use type `%s` for required type `%s`", verr.Actual, verr.Expected)
+	return fmt.Sprintf(
+		"(%d,%d) can not use type `%s` for `%s`",
+		verr.Location.Line,
+		verr.Location.Column,
+		verr.Actual.GetOut().Value,
+		verr.Expected.GetOut().Value,
+	)
 }
 
 type IncorrectArgumentCount struct {
@@ -131,7 +137,7 @@ type IncorrectArgumentCount struct {
 	Expected int
 }
 
-func newIncorrectArgumentCount(name string, location common.Location, actual, expected int) IncorrectArgumentCount {
+func NewIncorrectArgumentCount(name string, location common.Location, actual, expected int) IncorrectArgumentCount {
 	return IncorrectArgumentCount{ProcName: name, Location: location, Actual: actual, Expected: expected}
 }
 
