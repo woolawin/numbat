@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"numbat/internal/common"
+	. "numbat/internal/common"
 	"numbat/internal/read"
 	"strings"
 	"unicode"
@@ -15,9 +15,9 @@ func NewValidation() Validation {
 	return Validation{}
 }
 
-func (validation *Validation) Validate(src *read.Source) *common.Source {
+func (validation *Validation) Validate(src *read.Source) *Source {
 
-	source := common.NewSource()
+	source := NewSource()
 
 	// First before validating statements, we need to find all the procedures that could be used and first register
 	// them to know they are valid references
@@ -28,7 +28,7 @@ func (validation *Validation) Validate(src *read.Source) *common.Source {
 			validation.addError(NewNameConflict(proc.Name.ToName(), object.GetName().Location))
 		} else {
 			t := validation.validateType(proc.Type, &source.Context, false)
-			obj := common.NewProcedureForwardDeclaration(proc.Name.ToName(), t)
+			obj := NewProcedureForwardDeclaration(proc.Name.ToName(), t)
 			source.Context.AddObject(proc.Name.Value, &obj)
 		}
 	}
@@ -50,11 +50,11 @@ func (validation *Validation) Validate(src *read.Source) *common.Source {
 	return source
 }
 
-func (validation *Validation) procedure(proc *read.Proc, procedure *common.Procedure) {
+func (validation *Validation) procedure(proc *read.Proc, procedure *Procedure) {
 
 	if procedure.Type != nil {
 		for _, in := range procedure.Type.GetIn() {
-			parameter := common.Parameter{
+			parameter := Parameter{
 				Name: in.Name,
 				Type: in.Type,
 			}
@@ -70,8 +70,8 @@ func (validation *Validation) procedure(proc *read.Proc, procedure *common.Proce
 	procedure.AddStatements(validation.statements(proc.Statements, procedure.Context))
 }
 
-func (validation *Validation) statements(stmts []read.Statement, context *common.Context) []common.Statement {
-	var statements []common.Statement
+func (validation *Validation) statements(stmts []read.Statement, context *Context) []Statement {
+	var statements []Statement
 	for idx := range stmts {
 		stmt := validation.statement(&stmts[idx], context)
 		if stmt != nil {
@@ -81,17 +81,17 @@ func (validation *Validation) statements(stmts []read.Statement, context *common
 	return statements
 }
 
-func (validation *Validation) validateType(t *read.Type, context *common.Context, reportError bool) common.Type {
+func (validation *Validation) validateType(t *read.Type, context *Context, reportError bool) Type {
 	if t == nil {
-		return common.NewNoType()
+		return NewNoType()
 	}
 
 	// If the type is `()`, ie no input and out then it is also a no type
 	if t.Out.Name == "" && len(t.In) == 0 {
-		return common.NewNoType()
+		return NewNoType()
 	}
 
-	var outType common.Type = common.NewNoType()
+	var outType Type = NewNoType()
 	if t.Out.Name != "" {
 		// There is an out type specified so we must validate it
 		foundType, found := context.GetType(t.Out.Name)
@@ -99,7 +99,7 @@ func (validation *Validation) validateType(t *read.Type, context *common.Context
 			if reportError {
 				validation.errors = append(validation.errors, UnknownType{TypeName: t.Out.ToName()})
 			}
-			return common.NewCompileErrorType()
+			return NewCompileErrorType()
 		}
 		outType = foundType
 	}
@@ -108,25 +108,25 @@ func (validation *Validation) validateType(t *read.Type, context *common.Context
 		return outType
 	}
 
-	var ins []common.InType
+	var ins []InType
 	for _, param := range t.In {
 		in := validation.validateType(param.Typ, context, reportError)
 		if in.IsCompileError() {
-			return common.NewCompileErrorType()
+			return NewCompileErrorType()
 		}
-		var defaultValue *common.Expression
+		var defaultValue *Expression
 		if len(param.Expr) == 1 {
 			// There is a default value to this in type so check that it is valid
 			e := validation.expression(&param.Expr[0], nil, context)
 			defaultValue = &e
 		}
-		ins = append(ins, common.NewInType(in, param.Name.ToName(), defaultValue))
+		ins = append(ins, NewInType(in, param.Name.ToName(), defaultValue))
 	}
 
-	return common.NewStandardType(outType.GetOut(), ins)
+	return NewStandardType(outType.GetOut(), ins)
 }
 
-func (validation *Validation) statement(stmt *read.Statement, context *common.Context) common.Statement {
+func (validation *Validation) statement(stmt *read.Statement, context *Context) Statement {
 	if stmt.Var != nil {
 		return validation.variable(stmt.Var, context)
 	}
@@ -138,9 +138,9 @@ func (validation *Validation) statement(stmt *read.Statement, context *common.Co
 	return nil // ERROR
 }
 
-func (validation *Validation) variable(stmt *read.Var, context *common.Context) *common.VariableDeclaration {
-	var variableDeclaration *common.VariableDeclaration
-	var variableType common.Type
+func (validation *Validation) variable(stmt *read.Var, context *Context) *VariableDeclaration {
+	var variableDeclaration *VariableDeclaration
+	var variableType Type
 
 	checkExprType := true
 
@@ -171,7 +171,7 @@ func (validation *Validation) variable(stmt *read.Var, context *common.Context) 
 			// add a placeholder object to say it exists but type is not known @TODO
 			return nil
 		}
-		a := common.NewVariableDeclaration(stmt.Name.ToName(), variableType, nil)
+		a := NewVariableDeclaration(stmt.Name.ToName(), variableType, nil)
 		variableDeclaration = &a
 		context.AddObject(stmt.Name.Value, variableDeclaration)
 	}
@@ -185,9 +185,9 @@ func (validation *Validation) variable(stmt *read.Var, context *common.Context) 
 }
 
 // @TODO merge this with inferVarType
-func (validation *Validation) expression(expr *read.Expr, expectedType common.Type, context *common.Context) common.Expression {
+func (validation *Validation) expression(expr *read.Expr, expectedType Type, context *Context) Expression {
 
-	var expression common.Expression
+	var expression Expression
 	if expr.Type != nil {
 		validation.validateType(expr.Type, context, true)
 	}
@@ -198,7 +198,7 @@ func (validation *Validation) expression(expr *read.Expr, expectedType common.Ty
 		if !found {
 			validation.addError(NewUnknownObject(expr.VarName.Value, expr.VarName.Location))
 		} else {
-			ve := common.NewVariableExpression(expr.VarName.ToName(), object.GetType())
+			ve := NewVariableExpression(expr.VarName.ToName(), object.GetType())
 			expression = &ve
 		}
 	}
@@ -206,34 +206,34 @@ func (validation *Validation) expression(expr *read.Expr, expectedType common.Ty
 	if expr.Call != nil {
 		call := validation.procedureCall(expr.Call, context)
 		if call != nil {
-			ce := common.NewProcedureExpression(*call)
+			ce := NewProcedureExpression(*call)
 			expression = &ce
 		}
 
 	}
 
 	if expr.Boolean != nil {
-		e := common.NewLiteralExpression(*expr.Boolean, "", common.NewBoolType())
+		e := NewLiteralExpression(*expr.Boolean, "", NewBoolType())
 		expression = &e
 	}
 
 	if expr.Number != nil {
-		e := common.NewLiteralExpression(*expr.Number, "", numericType(*expr.Number))
+		e := NewLiteralExpression(*expr.Number, "", numericType(*expr.Number))
 		expression = &e
 	}
 
 	if expr.Str != nil {
-		e := common.NewLiteralExpression(*expr.Str, "", common.NewStringType())
+		e := NewLiteralExpression(*expr.Str, "", NewStringType())
 		expression = &e
 	}
 
 	if expr.Null {
-		e := common.NewLiteralExpression("", "", common.NullType{})
+		e := NewLiteralExpression("", "", NullType{})
 		expression = &e
 	}
 
 	if expr.Hex != nil {
-		e := common.NewLiteralExpression(*expr.Hex, "", common.NewByteType())
+		e := NewLiteralExpression(*expr.Hex, "", NewByteType())
 		expression = &e
 	}
 
@@ -253,16 +253,16 @@ func (validation *Validation) expression(expr *read.Expr, expectedType common.Ty
 	return expression
 }
 
-func (validation *Validation) inferVarType(expr *read.Expr, varName common.Name, context *common.Context) (common.Type, bool) {
+func (validation *Validation) inferVarType(expr *read.Expr, varName Name, context *Context) (Type, bool) {
 
 	if expr.Null {
 		validation.addError(CanNotInferTypeFromNull{VarName: varName})
-		return common.NewCompileErrorType(), true
+		return NewCompileErrorType(), true
 	}
 
 	if expr.VarName != nil {
 		validation.addError(CanNotInferTypeFromOtherVariable{VarName: varName})
-		return common.NewCompileErrorType(), true
+		return NewCompileErrorType(), true
 	}
 
 	if expr.Call != nil {
@@ -270,11 +270,11 @@ func (validation *Validation) inferVarType(expr *read.Expr, varName common.Name,
 			return validation.validateType(TypeOf(expr.Call.Primary.Value), context, true), false
 		}
 		validation.addError(CanNotInferTypeFromCall{VarName: varName})
-		return common.NewCompileErrorType(), true
+		return NewCompileErrorType(), true
 	}
 
 	if expr.Boolean != nil {
-		return common.NewBoolType(), false
+		return NewBoolType(), false
 	}
 
 	if expr.Number != nil {
@@ -282,22 +282,22 @@ func (validation *Validation) inferVarType(expr *read.Expr, varName common.Name,
 	}
 
 	if expr.Str != nil {
-		return common.NewStringType(), false
+		return NewStringType(), false
 	}
 
 	if expr.Null {
-		return common.NullType{}, false
+		return NullType{}, false
 	}
 
 	if expr.Hex != nil {
-		return common.NewByteType(), false
+		return NewByteType(), false
 	}
 
 	// Should never get here
-	return common.NewCompileErrorType(), false
+	return NewCompileErrorType(), false
 }
 
-func (validation *Validation) procedureCall(call *read.Call, context *common.Context) *common.ProcedureCall {
+func (validation *Validation) procedureCall(call *read.Call, context *Context) *ProcedureCall {
 	// Check if the  procedure exists
 
 	object, found := context.GetObject(call.Primary.Value)
@@ -316,10 +316,10 @@ func (validation *Validation) procedureCall(call *read.Call, context *common.Con
 		}
 	}
 
-	var arguments []common.Expression
+	var arguments []Expression
 	for idx := range call.Exprs {
 		subexpr := &call.Exprs[idx]
-		var typeToCheckAgainst common.Type
+		var typeToCheckAgainst Type
 		if validateParamAgainstType {
 			typeToCheckAgainst = object.GetType().GetIn()[idx].Type
 		}
@@ -328,19 +328,19 @@ func (validation *Validation) procedureCall(call *read.Call, context *common.Con
 			arguments = append(arguments, e)
 		}
 	}
-	c := common.NewProcedureCall(object, arguments)
+	c := NewProcedureCall(object, arguments)
 	return &c
 }
 
-func numericType(value string) common.Type {
+func numericType(value string) Type {
 	if strings.Contains(value, "e+") {
-		return common.NewFloat64Type()
+		return NewFloat64Type()
 	}
 
 	if strings.Contains(value, ".") {
-		return common.NewFloat64Type()
+		return NewFloat64Type()
 	}
-	return common.NewInt32Type()
+	return NewInt32Type()
 
 }
 
@@ -348,7 +348,7 @@ func TypeOf(name string) *read.Type {
 	return &read.Type{Out: read.TypeOut{Name: name}}
 }
 
-func areTypesIncompatible(left, right common.Type) bool {
+func areTypesIncompatible(left, right Type) bool {
 	if left.IsNeverCompatible() || right.IsNeverCompatible() {
 		return true
 	}
