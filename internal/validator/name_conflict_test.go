@@ -70,9 +70,9 @@ end
 
 proc foo(apple Int32) do
 	var banana Int64
-	var orange Int32	// <-- conflicts with orange parameter
+	var orange Int32	// <-- conflicts with orange proc
 	var pear Bool
-	var apple Float32  	// <-- conflicts with apple proc
+	var apple Float32  	// <-- conflicts with apple parameter
 end
 
 proc orange do

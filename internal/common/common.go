@@ -65,6 +65,7 @@ type Expression interface {
 }
 
 type Statement interface {
+	GetContext() *Context
 }
 
 type Source struct {

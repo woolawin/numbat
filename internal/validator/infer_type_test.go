@@ -2,7 +2,6 @@ package validator
 
 import (
 	"encoding/json"
-	"fmt"
 	"numbat/internal/common"
 	"numbat/internal/read"
 	"reflect"
@@ -22,10 +21,6 @@ end
 	src := readsrc(code)
 	validation := NewValidation()
 	p := validation.Validate(src)
-
-	for _, verr := range validation.errors {
-		fmt.Println(verr.Message())
-	}
 
 	assertInferredType(t, p, "b", "Int32")
 	assertInferredType(t, p, "c", "Float64")

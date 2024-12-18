@@ -50,7 +50,6 @@ func (validation *Validation) Validate(src *read.Source) *Source {
 }
 
 func (validation *Validation) procedure(proc *read.Proc, procedure *Procedure) {
-
 	if procedure.Type != nil {
 		for _, in := range procedure.Type.GetIn() {
 			parameter := Parameter{
@@ -69,11 +68,13 @@ func (validation *Validation) procedure(proc *read.Proc, procedure *Procedure) {
 	procedure.AddStatements(validation.statements(proc.Statements, procedure.Context))
 }
 
-func (validation *Validation) statements(stmts []read.Statement, context *Context) []Statement {
+func (validation *Validation) statements(stmts []read.Statement, initialContext *Context) []Statement {
 	var statements []Statement
+	context := initialContext
 	for idx := range stmts {
-		stmt, ok := validation.statement(&stmts[idx], context)
+		stmt, ok := validation.statement(&stmts[idx], NewContext(context))
 		if ok {
+			context = NewContext(stmt.GetContext())
 			statements = append(statements, stmt)
 		}
 	}
@@ -144,49 +145,42 @@ func (validation *Validation) statement(stmt *read.Statement, context *Context) 
 }
 
 func (validation *Validation) variable(stmt *read.Var, context *Context) (VariableDeclaration, bool) {
+
+	object, found := context.GetObject(stmt.Name.Value)
+	if found {
+		// if there is already something with the same name, validate the expression if present and then
+		// move on to the next statement
+		validation.addError(NewNameConflict(stmt.Name.ToName(), object.GetName().Location))
+		if len(stmt.Exprs) == 1 {
+			validation.expression(&stmt.Exprs[0], nil, context, stmt.VarType == nil)
+		}
+		return VariableDeclaration{}, false
+	}
+
 	var variableDeclaration VariableDeclaration
 	var variableType Type
+	var variableValue Expression
 
 	if stmt.VarType != nil {
 		// They specified a type so make sure it is a correct type
 		variableType = validation.validateType(stmt.VarType, context, true)
-	} else {
-		// No type specified so lets try to infer it by the expression
-		if len(stmt.Exprs) == 0 {
-			// No expression to infer the type so error
-			validation.addError(NewNoExprToInferVariableType(stmt.Name.ToName()))
-		} else {
-			expr, ok := validation.expression(&stmt.Exprs[0], variableType, context, true)
-			if !ok {
-				return VariableDeclaration{}, false
-			}
-			variableDeclaration = NewVariableDeclaration(stmt.Name.ToName(), expr.GetType(), expr)
-			context.AddObject(stmt.Name.Value, &variableDeclaration)
-			return variableDeclaration, true
-		}
 	}
 
-	// Check if variable name is already taken
-	object, found := context.GetObject(stmt.Name.Value)
-	if found {
-		validation.addError(NewNameConflict(stmt.Name.ToName(), object.GetName().Location))
-	} else {
+	if len(stmt.Exprs) == 0 {
 		if variableType == nil {
-			// if we do not know the variable type, we can not work with it so skip, we should
-			// add a placeholder object to say it exists but type is not known @TODO
-			return VariableDeclaration{}, false
+			// If they did not specify a type, then they must specify an expression to infer the type
+			validation.addError(NewNoExprToInferVariableType(stmt.Name.ToName()))
 		}
-		variableDeclaration = NewVariableDeclaration(stmt.Name.ToName(), variableType, nil)
-		context.AddObject(stmt.Name.Value, &variableDeclaration)
+	} else {
+		expr, ok := validation.expression(&stmt.Exprs[0], variableType, context, variableType == nil)
+		if ok {
+			variableValue = expr
+			variableType = expr.GetType()
+		}
 	}
 
-	if len(stmt.Exprs) == 1 {
-		expr, ok := validation.expression(&stmt.Exprs[0], variableType, context, false)
-		if !ok {
-			return VariableDeclaration{}, false
-		}
-		variableDeclaration.Value = expr
-	}
+	variableDeclaration = NewVariableDeclaration(context, stmt.Name.ToName(), variableType, variableValue)
+	context.AddObject(stmt.Name.Value, &variableDeclaration)
 
 	return variableDeclaration, true
 }
@@ -220,6 +214,12 @@ func (validation *Validation) expression(expr *read.Expr, expectedType Type, con
 			// By design, we only support inferring a type from a procedure call
 			validation.addError(NewCanNotInferTypeFromCall(expr.Location))
 		}
+
+		//fmt.Println("proc expr")
+		//for o := range context.Objects {
+		//	fmt.Println("proc obj", o)
+		//}
+		//fmt.Println("don")
 
 		call, ok := validation.procedureCall(expr.Call, context)
 		if ok {
@@ -306,7 +306,7 @@ func (validation *Validation) procedureCall(call *read.Call, context *Context) (
 		}
 		arguments = append(arguments, e)
 	}
-	return NewProcedureCall(object, arguments), argumentsOk
+	return NewProcedureCall(context, object, arguments), argumentsOk
 }
 
 func numericType(value string) Type {
