@@ -113,11 +113,17 @@ func (validation *Validation) validateType(t *read.Type, context *Context, repor
 		if in.IsCompileError() {
 			return NewCompileErrorType()
 		}
-		var defaultValue *Expression
+		var defaultValue Expression
 		if len(param.Expr) == 1 {
 			// There is a default value to this in type so check that it is valid
-			e := validation.expression(&param.Expr[0], nil, context, false)
-			defaultValue = &e
+			e, ok := validation.expression(&param.Expr[0], nil, context, false)
+			if ok {
+				defaultValue = e
+			} else {
+				// Assign a null expression just as a placeholder so follow on code knows this parameter is
+				// optional
+				defaultValue = NewLiteralExpression("", "", NullType{})
+			}
 		}
 		ins = append(ins, NewInType(in, param.Name.ToName(), defaultValue))
 	}
@@ -131,7 +137,7 @@ func (validation *Validation) statement(stmt *read.Statement, context *Context) 
 	}
 
 	if stmt.Call != nil {
-		return validation.procedureCall(stmt.Call, context), true
+		return validation.procedureCall(stmt.Call, context)
 	}
 
 	return nil, false // ERROR
@@ -150,8 +156,8 @@ func (validation *Validation) variable(stmt *read.Var, context *Context) (Variab
 			// No expression to infer the type so error
 			validation.addError(NewNoExprToInferVariableType(stmt.Name.ToName()))
 		} else {
-			expr := validation.expression(&stmt.Exprs[0], variableType, context, true)
-			if expr == nil {
+			expr, ok := validation.expression(&stmt.Exprs[0], variableType, context, true)
+			if !ok {
 				return VariableDeclaration{}, false
 			}
 			variableDeclaration = NewVariableDeclaration(stmt.Name.ToName(), expr.GetType(), expr)
@@ -175,14 +181,17 @@ func (validation *Validation) variable(stmt *read.Var, context *Context) (Variab
 	}
 
 	if len(stmt.Exprs) == 1 {
-		expr := validation.expression(&stmt.Exprs[0], variableType, context, false)
+		expr, ok := validation.expression(&stmt.Exprs[0], variableType, context, false)
+		if !ok {
+			return VariableDeclaration{}, false
+		}
 		variableDeclaration.Value = expr
 	}
 
 	return variableDeclaration, true
 }
 
-func (validation *Validation) expression(expr *read.Expr, expectedType Type, context *Context, forInference bool) Expression {
+func (validation *Validation) expression(expr *read.Expr, expectedType Type, context *Context, forInference bool) (Expression, bool) {
 
 	var expression Expression
 	if expr.Type != nil {
@@ -193,7 +202,7 @@ func (validation *Validation) expression(expr *read.Expr, expectedType Type, con
 		if forInference {
 			// Not allowed to infer types from other variables
 			validation.addError(NewCanNotInferTypeFromOtherVariable(expr.Location))
-			return nil
+			return nil, false
 		}
 
 		// Check if the RHS variable exists
@@ -212,10 +221,12 @@ func (validation *Validation) expression(expr *read.Expr, expectedType Type, con
 			validation.addError(NewCanNotInferTypeFromCall(expr.Location))
 		}
 
-		call := validation.procedureCall(expr.Call, context)
-		if call != nil {
-			ce := NewProcedureExpression(*call)
+		call, ok := validation.procedureCall(expr.Call, context)
+		if ok {
+			ce := NewProcedureExpression(call)
 			expression = &ce
+		} else {
+			return expression, false
 		}
 	}
 
@@ -237,7 +248,7 @@ func (validation *Validation) expression(expr *read.Expr, expectedType Type, con
 	if expr.Null {
 		if forInference {
 			validation.addError(NewCanNotInferTypeFromNull(expr.Location))
-			return nil
+			return nil, false
 		}
 		e := NewLiteralExpression("", "", NullType{})
 		expression = &e
@@ -250,27 +261,25 @@ func (validation *Validation) expression(expr *read.Expr, expectedType Type, con
 
 	if expression == nil {
 		// TODO return error
-		return expression
+		return expression, false
 	}
 
 	if expectedType == nil {
-		return expression
+		return expression, true
 	}
 	et := expression.GetType()
 	if areTypesIncompatible(expectedType, et) {
 		validation.addError(NewIncompatibleType(et, expectedType, expr.Location))
 	}
-
-	return expression
+	return expression, true
 }
 
-func (validation *Validation) procedureCall(call *read.Call, context *Context) *ProcedureCall {
+func (validation *Validation) procedureCall(call *read.Call, context *Context) (ProcedureCall, bool) {
 	// Check if the  procedure exists
-
 	object, found := context.GetObject(call.Primary.Value)
 	if !found {
 		validation.addError(NewUnknownObject(call.Primary.Value, call.Primary.Location))
-		return nil // Still validate arguments where possible
+		return ProcedureCall{}, false // TODO Still validate arguments where possible
 	}
 
 	validateParamAgainstType := false
@@ -284,19 +293,20 @@ func (validation *Validation) procedureCall(call *read.Call, context *Context) *
 	}
 
 	var arguments []Expression
+	argumentsOk := true
 	for idx := range call.Exprs {
 		subexpr := &call.Exprs[idx]
 		var typeToCheckAgainst Type
 		if validateParamAgainstType {
 			typeToCheckAgainst = object.GetType().GetIn()[idx].Type
 		}
-		e := validation.expression(subexpr, typeToCheckAgainst, context, false)
-		if e != nil {
-			arguments = append(arguments, e)
+		e, ok := validation.expression(subexpr, typeToCheckAgainst, context, false)
+		if !ok && argumentsOk {
+			argumentsOk = false
 		}
+		arguments = append(arguments, e)
 	}
-	c := NewProcedureCall(object, arguments)
-	return &c
+	return NewProcedureCall(object, arguments), argumentsOk
 }
 
 func numericType(value string) Type {
@@ -309,10 +319,6 @@ func numericType(value string) Type {
 	}
 	return NewInt32Type()
 
-}
-
-func TypeOf(name string) *read.Type {
-	return &read.Type{Out: read.TypeOut{Name: name}}
 }
 
 func areTypesIncompatible(left, right Type) bool {

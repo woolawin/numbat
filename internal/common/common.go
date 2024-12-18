@@ -27,10 +27,10 @@ func (param Parameter) GetType() Type {
 type InType struct {
 	Type         Type
 	Name         Name
-	DefaultValue *Expression
+	DefaultValue Expression
 }
 
-func NewInType(t Type, name Name, defaultValue *Expression) InType {
+func NewInType(t Type, name Name, defaultValue Expression) InType {
 	return InType{Type: t, Name: name, DefaultValue: defaultValue}
 }
 

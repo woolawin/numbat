@@ -23,7 +23,7 @@ func NewLiteralExpression(value string, unit string, t Type) LiteralExpression {
 	return LiteralExpression{Value: value, Unit: unit, Type: t}
 }
 
-func (le *LiteralExpression) GetType() Type {
+func (le LiteralExpression) GetType() Type {
 	return le.Type
 }
 
