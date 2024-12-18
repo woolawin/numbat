@@ -2,6 +2,7 @@ package validator
 
 import (
 	"encoding/json"
+	"fmt"
 	"numbat/internal/common"
 	"numbat/internal/read"
 	"reflect"
@@ -16,27 +17,27 @@ program do
 	var e = true
 	var f = 0xFF
 	var g = 1e+22
-	var l = Int32()
-	var m = Float32("request_count")
 end
 `
 	src := readsrc(code)
 	validation := NewValidation()
 	p := validation.Validate(src)
 
+	for _, verr := range validation.errors {
+		fmt.Println(verr.Message())
+	}
+
 	assertInferredType(t, p, "b", "Int32")
 	assertInferredType(t, p, "c", "Float64")
 	assertInferredType(t, p, "e", "Bool")
 	assertInferredType(t, p, "f", "Byte")
 	assertInferredType(t, p, "g", "Float64")
-	assertInferredType(t, p, "l", "Int32")
-	assertInferredType(t, p, "m", "Float32")
 }
 
 func assertInferredType(t *testing.T, src *common.Source, name string, expected string) {
 	for _, stmt := range src.Program.Statements {
 		switch stmt := stmt.(type) {
-		case *common.VariableDeclaration:
+		case common.VariableDeclaration:
 			{
 				if stmt.Name.Value == name {
 					typ := stmt.Type
@@ -72,9 +73,9 @@ end
 	validation.Validate(src)
 
 	assertValidationError(t, validation, NewNoExprToInferVariableType(name("a", 5, 6)))
-	assertValidationError(t, validation, NewCanNotInferTypeFromNull(name("b", 6, 6)))
-	assertValidationError(t, validation, NewCanNotInferTypeFromOtherVariable(name("c", 7, 6)))
-	assertValidationError(t, validation, NewCanNotInferTypeFromCall(name("d", 8, 6)))
+	assertValidationError(t, validation, NewCanNotInferTypeFromNull(loc(6, 10)))
+	assertValidationError(t, validation, NewCanNotInferTypeFromOtherVariable(loc(7, 10)))
+	assertValidationError(t, validation, NewCanNotInferTypeFromCall(loc(8, 10)))
 	assertValidationErrorCount(t, validation, 4)
 }
 

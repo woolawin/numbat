@@ -42,39 +42,39 @@ func (verr NoExprToInferVariableType) Message() string {
 }
 
 type CanNotInferTypeFromNull struct {
-	VarName common.Name
+	Location common.Location
 }
 
-func NewCanNotInferTypeFromNull(name common.Name) CanNotInferTypeFromNull {
-	return CanNotInferTypeFromNull{VarName: name}
+func NewCanNotInferTypeFromNull(location common.Location) CanNotInferTypeFromNull {
+	return CanNotInferTypeFromNull{Location: location}
 }
 
 func (verr CanNotInferTypeFromNull) Message() string {
-	return fmt.Sprintf("can not infer type for variable `%s` with null expression", verr.VarName.Value)
+	return fmt.Sprintf("(%d,%d) can not infer type from null", verr.Location.Line, verr.Location.Column)
 }
 
 type CanNotInferTypeFromOtherVariable struct {
-	VarName common.Name
+	Location common.Location
 }
 
-func NewCanNotInferTypeFromOtherVariable(name common.Name) CanNotInferTypeFromOtherVariable {
-	return CanNotInferTypeFromOtherVariable{VarName: name}
+func NewCanNotInferTypeFromOtherVariable(location common.Location) CanNotInferTypeFromOtherVariable {
+	return CanNotInferTypeFromOtherVariable{Location: location}
 }
 
 func (verr CanNotInferTypeFromOtherVariable) Message() string {
-	return fmt.Sprintf("infering type for variable `%s` from variable is not supported", verr.VarName.Value)
+	return fmt.Sprintf("(%d,%d) not permitted to infer type from other variable", verr.Location.Line, verr.Location.Column)
 }
 
 type CanNotInferTypeFromCall struct {
-	VarName common.Name
+	Location common.Location
 }
 
-func NewCanNotInferTypeFromCall(varName common.Name) CanNotInferTypeFromCall {
-	return CanNotInferTypeFromCall{VarName: varName}
+func NewCanNotInferTypeFromCall(location common.Location) CanNotInferTypeFromCall {
+	return CanNotInferTypeFromCall{Location: location}
 }
 
 func (verr CanNotInferTypeFromCall) Message() string {
-	return fmt.Sprintf("infering type for variable `%s` from procedure call is not supported", verr.VarName.Value)
+	return fmt.Sprintf("(%d,%d) not permitted to infer type from procedure call", verr.Location.Line, verr.Location.Column)
 }
 
 type ProgramingMissing struct {
@@ -103,7 +103,7 @@ type UnknownObject struct {
 }
 
 func (verr UnknownObject) Message() string {
-	return fmt.Sprintf("unknown object: %s", verr.Name)
+	return fmt.Sprintf("(%d,%d) unknown object: %s", verr.Location.Line, verr.Location.Column, verr.Name)
 }
 
 func NewUnknownObject(name string, location common.Location) UnknownObject {
