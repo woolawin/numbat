@@ -286,7 +286,14 @@ func (validation *Validation) procedureCall(call *read.Call, context *Context) (
 
 	if object.GetType() != nil {
 		if len(call.Exprs) != len(object.GetType().GetIn()) {
-			validation.addError(NewIncorrectArgumentCount(call.Primary.Value, call.Primary.Location, len(call.Exprs), len(call.Exprs)))
+			validation.addError(
+				NewIncorrectArgumentCount(
+					call.Primary.Value,
+					call.Primary.Location,
+					len(call.Exprs),
+					len(object.GetType().GetIn()),
+				),
+			)
 		} else {
 			validateParamAgainstType = true
 		}

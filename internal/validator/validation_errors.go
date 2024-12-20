@@ -142,5 +142,12 @@ func NewIncorrectArgumentCount(name string, location common.Location, actual, ex
 }
 
 func (verr IncorrectArgumentCount) Message() string {
-	return fmt.Sprintf("procedure expected %d,  %d provided", verr.Expected, verr.Actual)
+	return fmt.Sprintf(
+		"(%d,%d) incorrect number of arguments to `%s`, %d expected, %d provided",
+		verr.Location.Line,
+		verr.Location.Column,
+		verr.ProcName,
+		verr.Expected,
+		verr.Actual,
+	)
 }

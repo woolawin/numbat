@@ -128,9 +128,5 @@ end
 	validation := NewValidation()
 	validation.Validate(src)
 
-	for _, verr := range validation.errors {
-		fmt.Println(verr.Message())
-	}
-
 	assertValidationErrorCount(t, validation, 0)
 }
