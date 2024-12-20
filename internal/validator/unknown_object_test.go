@@ -1,7 +1,6 @@
 package validator
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -85,10 +84,6 @@ end
 	src := readsrc(code)
 	validation := NewValidation()
 	validation.Validate(src)
-
-	for _, verr := range validation.errors {
-		fmt.Println(verr.Message())
-	}
 
 	assertValidationError(t, validation, NewUnknownObject("orange", loc(3, 21)))
 	assertValidationErrorCount(t, validation, 1)

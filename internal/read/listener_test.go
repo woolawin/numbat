@@ -61,6 +61,9 @@ PROC map
 	IN fn (a Int) Int
 	OUT Array
 	DO
+
+PROC hello
+	DO
 `
 	assert(t, src, expected)
 }

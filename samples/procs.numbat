@@ -22,3 +22,6 @@ end
 proc map(arr Array, fn (a Int) Int) Array do
 
 end
+
+proc hello() do
+end

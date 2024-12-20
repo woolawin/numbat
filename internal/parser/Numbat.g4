@@ -19,8 +19,8 @@ param: NON_TYPE_NAME param_type param_expr?;
 
 
 type_out: TYPE_NAME;
-type_in: '(' param (',' param)* ')';
-type: (type_in? type_out | type_in type_out?);
+type_in: ('(' ')' | '(' param (',' param)* ')');
+type: ((type_in)? type_out | type_in type_out?);
 
 proc_body: 'do' (WS | NEWLINE | statement)* 'end';
 proc_name: NON_TYPE_NAME;

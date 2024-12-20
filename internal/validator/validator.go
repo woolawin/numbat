@@ -222,12 +222,6 @@ func (validation *Validation) expression(expr *read.Expr, expectedType Type, con
 			validation.addError(NewCanNotInferTypeFromCall(expr.Location))
 		}
 
-		//fmt.Println("proc expr")
-		//for o := range context.Objects {
-		//	fmt.Println("proc obj", o)
-		//}
-		//fmt.Println("don")
-
 		call, ok := validation.procedureCall(expr.Call, context)
 		if ok {
 			ce := NewProcedureExpression(call)
