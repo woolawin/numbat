@@ -124,6 +124,29 @@ func readSample(sample string) *Source {
 	return listener.Source()
 }
 
+func TestMultiplePrograms(t *testing.T) {
+	code := `
+program do
+	var a = 1
+end
+
+program do
+	var b = 2
+end
+`
+	src := readSample(code).String()
+	expected := `
+PROGRAM
+	DO
+	VAR a 1
+
+PROGRAM
+	DO
+	VAR b 2
+`
+	assert(t, src, expected)
+}
+
 func assert(t *testing.T, a, b string) {
 	diff := cmp.Diff(strings.TrimSpace(a), strings.TrimSpace(b))
 	if diff != "" {

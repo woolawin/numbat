@@ -15,13 +15,13 @@ func (listener *ErrorListener) SyntaxError(recognizer antlr.Recognizer, offendin
 }
 
 type Source struct {
-	Program *Proc
+	Programs []Proc
 	Procs   []Proc
 }
 
 func (reader *SourceReader) Source() *Source {
 	src := &Source{
-		Program: reader.program,
+		Programs: reader.programs,
 		Procs:   reader.procs,
 	}
 	return src
@@ -29,9 +29,9 @@ func (reader *SourceReader) Source() *Source {
 
 func (src *Source) String() string {
 	var str strings.Builder
-	if src.Program != nil {
+	for _, prog := range src.Programs {
 		str.WriteString("PROGRAM")
-		str.WriteString(src.Program.String())
+		str.WriteString(prog.String())
 	}
 	for _, proc := range src.Procs {
 		str.WriteString("PROC ")

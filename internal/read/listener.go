@@ -10,10 +10,11 @@ type SourceReader struct {
 	*parser.BaseNumbatListener
 	fileName string
 
-	program *Proc
+	programs []Proc
 
 	procs []Proc
 
+	program   *Proc
 	proc      *Proc
 	statement *Statement
 	call      *Call
@@ -108,13 +109,14 @@ func (reader *SourceReader) UnsetType() {
 // ============================================================================================================
 
 func (reader *SourceReader) EnterProgram(ctx *parser.ProgramContext) {
-	reader.program = &Proc{
+	reader.programs = append(reader.programs, Proc{
 		Location: common.Location{
 			File:   reader.fileName,
 			Line:   ctx.GetStart().GetLine(),
 			Column: ctx.GetStart().GetColumn(),
 		},
-	}
+	})
+	reader.program = &reader.programs[len(reader.programs)-1]
 	reader.proc = reader.program
 }
 

@@ -32,10 +32,17 @@ func (validation *Validation) Validate(src *read.Source) *Source {
 		}
 	}
 
-	if src.Program == nil {
-		validation.addError(&ProgramingMissing{})
+	if len(src.Programs) == 0 {
+		validation.addError(NewMissingProgram())
 	} else {
-		source.Program.AddStatements(validation.statements(src.Program.Statements, &source.Context))
+		if len(src.Programs) > 1 {
+			for i := 1; i < len(src.Programs); i++ {
+				validation.addError(NewProgramRedefined(src.Programs[i].Location))
+			}
+		}
+		for _, prog := range src.Programs {
+			source.Program.AddStatements(validation.statements(prog.Statements, &source.Context))
+		}
 	}
 
 	for idx := range src.Procs {
