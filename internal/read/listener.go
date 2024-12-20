@@ -159,6 +159,10 @@ func (reader *SourceReader) EnterProc_type(ctx *parser.Proc_typeContext) {
 // TYPE
 // ============================================================================================================
 
+func (reader *SourceReader) EnterType(ctx *parser.TypeContext) {
+	reader.typ.Location = reader.location(ctx.BaseParserRuleContext)
+}
+
 func (reader *SourceReader) ExitType(ctx *parser.TypeContext) {
 	reader.UnsetType()
 }

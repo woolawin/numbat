@@ -35,6 +35,8 @@ type Type struct {
 	Out TypeOut
 	In  []Param
 
+	Location common.Location
+
 	Param *Param
 }
 

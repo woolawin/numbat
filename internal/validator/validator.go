@@ -104,7 +104,7 @@ func (validation *Validation) validateType(t *read.Type, context *Context, repor
 		foundType, found := context.GetType(t.Out.Name)
 		if !found {
 			if reportError {
-				validation.errors = append(validation.errors, UnknownType{TypeName: t.Out.ToName()})
+				validation.errors = append(validation.errors, NewUnknownType(t.Out.ToName()))
 			}
 			return NewCompileErrorType()
 		}

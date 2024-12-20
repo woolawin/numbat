@@ -37,19 +37,16 @@ type UnknownType struct {
 }
 
 func NewUnknownType(name Name) UnknownType {
-	return UnknownType{name}
+	return UnknownType{TypeName: name}
 }
 
 func (verr UnknownType) Message() string {
-	return fmt.Sprintf("unknown type `%s`", verr.TypeName.Value)
-}
-
-type UnInferrableVar struct {
-	VarName string
-}
-
-func (verr UnInferrableVar) Message() string {
-	return fmt.Sprintf("can not infer type for variable: %s", verr.VarName)
+	return fmt.Sprintf(
+		"(%d,%d) unknown type `%s`",
+		verr.TypeName.Location.Line,
+		verr.TypeName.Location.Column,
+		verr.TypeName.Value,
+	)
 }
 
 type NoExprToInferVariableType struct {
