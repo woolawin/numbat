@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -72,4 +73,64 @@ end
 	assertValidationError(t, validation, NewUnknownObject("orange", loc(8, 31)))
 	assertValidationError(t, validation, NewUnknownObject("banana", loc(9, 13)))
 	assertValidationErrorCount(t, validation, 2)
+}
+
+func TestCanNotForwardReferenceVariable(t *testing.T) {
+	code := `
+program do
+	var banana Int32 = orange
+	var orange = 1
+end
+`
+	src := readsrc(code)
+	validation := NewValidation()
+	validation.Validate(src)
+
+	for _, verr := range validation.errors {
+		fmt.Println(verr.Message())
+	}
+
+	assertValidationError(t, validation, NewUnknownObject("orange", loc(3, 21)))
+	assertValidationErrorCount(t, validation, 1)
+}
+
+func TestCanReferenceParameter(t *testing.T) {
+	code := `
+program do
+end
+
+proc foo(apple Int64) do
+	var pear Int64 = apple
+end
+`
+	src := readsrc(code)
+	validation := NewValidation()
+	validation.Validate(src)
+
+	assertValidationErrorCount(t, validation, 0)
+}
+
+func TestCanReferenceProcedures(t *testing.T) {
+	code := `
+program do
+	foo(4)
+end
+
+proc grape Int32 do
+
+end
+
+proc foo(apple Int32) do
+	var pear Int32 = grape()
+end
+`
+	src := readsrc(code)
+	validation := NewValidation()
+	validation.Validate(src)
+
+	for _, verr := range validation.errors {
+		fmt.Println(verr.Message())
+	}
+
+	assertValidationErrorCount(t, validation, 0)
 }
