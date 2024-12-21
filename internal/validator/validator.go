@@ -57,7 +57,6 @@ func (validation *Validation) Validate(src *read.Source) *Source {
 }
 
 func (validation *Validation) procedure(proc *read.Proc, procedure *Procedure) {
-	//if procedure.Type.IsNoType() {
 	for _, in := range procedure.Type.In {
 		paramType := NoInOutType()
 		if in.Type != nil {
@@ -74,7 +73,6 @@ func (validation *Validation) procedure(proc *read.Proc, procedure *Procedure) {
 			procedure.Context.AddObject(in.Name.Value, parameter)
 		}
 	}
-	//}
 
 	procedure.AddStatements(validation.statements(proc.Statements, procedure.Context))
 
@@ -152,9 +150,6 @@ func (validation *Validation) validateType(t *read.Type, context *Context, repor
 	var ins []InInType
 	for _, param := range t.In {
 		in := validation.validateType(param.Typ, context, reportError)
-		//if in.IsCompileError() {
-		//	return NewInOutType(nil, NewSuperAtomicType(NewCompileErrorType()))
-		//}
 		var defaultValue Expression
 		if len(param.Expr) == 1 {
 			// There is a default value to this in type so check that it is valid
@@ -314,7 +309,6 @@ func (validation *Validation) procedureCall(call *read.Call, context *Context) (
 
 	validateParamAgainstType := false
 
-	//	if object.GetType() != nil {
 	if len(call.Exprs) != len(object.GetType().In) {
 		validation.addError(
 			NewIncorrectArgumentCount(
@@ -327,7 +321,6 @@ func (validation *Validation) procedureCall(call *read.Call, context *Context) (
 	} else {
 		validateParamAgainstType = true
 	}
-	//	}
 
 	var arguments []Expression
 	argumentsOk := true
