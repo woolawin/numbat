@@ -171,3 +171,41 @@ func (verr IncorrectArgumentCount) Message() string {
 		verr.Actual,
 	)
 }
+
+type DoesNotReturnValue struct {
+	ObjectName string
+	Location   Location
+}
+
+func NewDoesNotReturnValue(objectName string, location Location) DoesNotReturnValue {
+	return DoesNotReturnValue{ObjectName: objectName, Location: location}
+}
+
+func (verr DoesNotReturnValue) Message() string {
+	return fmt.Sprintf(
+		"(%d,%d) `%s` does not return a value",
+		verr.Location.Line,
+		verr.Location.Column,
+		verr.ObjectName,
+	)
+}
+
+type ReturnValueRequired struct {
+	ObjectName       string
+	Location         Location
+	ExpectedTypeName string
+}
+
+func NewReturnValueRequired(objectName string, location Location, expectedTypeName string) ReturnValueRequired {
+	return ReturnValueRequired{ObjectName: objectName, Location: location, ExpectedTypeName: expectedTypeName}
+}
+
+func (verr ReturnValueRequired) Message() string {
+	return fmt.Sprintf(
+		"(%d,%d) `%s` must return value of type `%s`",
+		verr.Location.Line,
+		verr.Location.Column,
+		verr.ObjectName,
+		verr.ExpectedTypeName,
+	)
+}

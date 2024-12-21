@@ -41,7 +41,7 @@ func (validation *Validation) Validate(src *read.Source) *Source {
 			}
 		}
 		for _, prog := range src.Programs {
-			source.Program.AddStatements(validation.statements(prog.Statements, &source.Context))
+			source.Program.AddStatements(validation.statements(prog.Statements, NewProgramContext(&source.Context)))
 		}
 	}
 
@@ -146,6 +146,10 @@ func (validation *Validation) statement(stmt *read.Statement, context *Context) 
 
 	if stmt.Call != nil {
 		return validation.procedureCall(stmt.Call, context)
+	}
+
+	if stmt.Ret != nil {
+		validation.returnStatement(stmt.Ret, stmt.Location, context)
 	}
 
 	return nil, false // ERROR
@@ -315,6 +319,20 @@ func (validation *Validation) procedureCall(call *read.Call, context *Context) (
 		arguments = append(arguments, e)
 	}
 	return NewProcedureCall(context, object, arguments), argumentsOk
+}
+
+func (validation *Validation) returnStatement(ret *read.Return, location Location, context *Context) {
+	if context.ReturnType.IsNoType() {
+		if len(ret.Exprs) != 0 {
+			validation.addError(NewDoesNotReturnValue(context.CurrentObjectName, ret.Exprs[0].Location))
+			return
+		}
+	}
+
+	if len(ret.Exprs) == 0 {
+		validation.addError(NewReturnValueRequired(context.CurrentObjectName, location, context.ReturnType.GetOut().Value))
+		return
+	}
 }
 
 func numericType(value string) Type {

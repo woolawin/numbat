@@ -86,19 +86,41 @@ func NewSource() *Source {
 
 func (p *Source) AddProcedure(name Name, t Type) *Procedure {
 	p.Procedures = append(p.Procedures, NewProcedure(&p.Context, name))
-	param := &p.Procedures[len(p.Procedures)-1]
-	param.Type = t
-	return param
+	procedure := &p.Procedures[len(p.Procedures)-1]
+	procedure.Type = t
+	procedure.Context.ReturnType = t
+	procedure.Context.CurrentObjectName = name.Value
+	return procedure
 }
 
 type Context struct {
 	Parent  *Context
 	Types   []Type
 	Objects map[string]Object
+
+	InProgram         bool
+	CurrentObjectName string
+	ReturnType        Type
 }
 
 func NewContext(parent *Context) *Context {
-	return &Context{Parent: parent, Types: GetStandardTypes(), Objects: make(map[string]Object)}
+	return &Context{
+		Parent: parent,
+		Types:  GetStandardTypes(), Objects: make(map[string]Object),
+		InProgram:         parent.InProgram,
+		CurrentObjectName: parent.CurrentObjectName,
+		ReturnType:        parent.ReturnType,
+	}
+}
+
+func NewProgramContext(sourceContext *Context) *Context {
+	return &Context{
+		Parent: sourceContext,
+		Types:  GetStandardTypes(), Objects: make(map[string]Object),
+		InProgram:         true,
+		CurrentObjectName: "program",
+		ReturnType:        NewNoType(),
+	}
 }
 
 func (c *Context) AddObject(name string, object Object) {

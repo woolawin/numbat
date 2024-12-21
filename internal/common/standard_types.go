@@ -17,6 +17,7 @@ type Type interface {
 
 	IsCompileError() bool
 	IsNeverCompatible() bool
+	IsNoType() bool
 }
 
 func GetStandardTypes() []Type {
@@ -110,6 +111,10 @@ func (t NullType) IsNeverCompatible() bool {
 	return false
 }
 
+func (t NullType) IsNoType() bool {
+	return false
+}
+
 // StringType -------------------------------------------------
 //
 // ------------------------------------------------------------
@@ -147,6 +152,10 @@ func (t StandardType) IsNeverCompatible() bool {
 	return false
 }
 
+func (t StandardType) IsNoType() bool {
+	return false
+}
+
 type NoType struct {
 }
 
@@ -167,6 +176,10 @@ func (n NoType) IsCompileError() bool {
 }
 
 func (t NoType) IsNeverCompatible() bool {
+	return true
+}
+
+func (t NoType) IsNoType() bool {
 	return true
 }
 
@@ -191,4 +204,8 @@ func (e CompileErrorType) IsCompileError() bool {
 
 func (e CompileErrorType) IsNeverCompatible() bool {
 	return true
+}
+
+func (t CompileErrorType) IsNoType() bool {
+	return false
 }
