@@ -24,7 +24,7 @@ end
 	validation := NewValidation()
 	validation.Validate(src)
 
-	assertValidationError(t, validation, NewIncompatibleType(NewBoolType(), NewInt32Type(), loc(3, 8)))
+	assertValidationError(t, validation, NewIncompatibleType(NewBoolInOutType(), NewInt32InOutType(), loc(3, 8)))
 	assertValidationError(t, validation, NewIncorrectArgumentCount("pear", loc(4, 2), 0, 1))
 	assertValidationErrorCount(t, validation, 2)
 }

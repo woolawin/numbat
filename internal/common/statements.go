@@ -12,12 +12,12 @@ type Statement interface {
 
 type VariableDeclaration struct {
 	Name    Name
-	Type    Type
+	Type    InOutType
 	Value   Expression
 	Context *Context
 }
 
-func NewVariableDeclaration(context *Context, name Name, t Type, val Expression) VariableDeclaration {
+func NewVariableDeclaration(context *Context, name Name, t InOutType, val Expression) VariableDeclaration {
 	return VariableDeclaration{Context: context, Name: name, Type: t, Value: val}
 }
 
@@ -29,7 +29,7 @@ func (vd *VariableDeclaration) GetName() Name {
 	return vd.Name
 }
 
-func (vd *VariableDeclaration) GetType() Type {
+func (vd *VariableDeclaration) GetType() InOutType {
 	return vd.Type
 }
 

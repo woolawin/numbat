@@ -1,2 +1,3 @@
 Check Number Literal Ranges
 Make sure variables are initialzed before usage
+Add test to make sure var i IntX = some_expressions validates expression

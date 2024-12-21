@@ -2,10 +2,10 @@ package common
 
 type ProcedureForwardDeclaration struct {
 	Name Name
-	Type Type
+	Type InOutType
 }
 
-func NewProcedureForwardDeclaration(name Name, t Type) ProcedureForwardDeclaration {
+func NewProcedureForwardDeclaration(name Name, t InOutType) ProcedureForwardDeclaration {
 	return ProcedureForwardDeclaration{Name: name, Type: t}
 }
 
@@ -13,7 +13,7 @@ func (p *ProcedureForwardDeclaration) GetName() Name {
 	return p.Name
 }
 
-func (p *ProcedureForwardDeclaration) GetType() Type {
+func (p *ProcedureForwardDeclaration) GetType() InOutType {
 	return p.Type
 }
 

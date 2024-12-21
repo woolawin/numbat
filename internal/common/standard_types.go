@@ -1,5 +1,7 @@
 package common
 
+import "strings"
+
 const TypeAscii = "Ascii"
 const TypeInt32 = "Int32"
 const TypeInt64 = "Int64"
@@ -10,6 +12,83 @@ const TypeByte = "Byte"
 
 const LiteralTypeNull = "Null"
 const LiteralTypeString = "String"
+
+type AtomicType interface {
+	GetName() string
+
+	IsNoType() bool
+	IsCompileError() bool
+	IsNeverCompatible() bool
+}
+
+type SuperAtomicType struct {
+	Type       AtomicType
+	IsOptional bool
+	IsError    bool
+}
+
+func (s *SuperAtomicType) IsNoType() bool {
+	return s.Type.IsNoType()
+}
+
+func (s *SuperAtomicType) IsNeverCompatible() bool {
+	return s.Type.IsNeverCompatible()
+}
+
+func (s *SuperAtomicType) IsCompileError() bool {
+	return s.Type.IsCompileError()
+}
+
+func (s *SuperAtomicType) String() string {
+	return s.Type.GetName()
+}
+
+func NewSuperAtomicType(t AtomicType) SuperAtomicType {
+	return SuperAtomicType{Type: t}
+}
+
+type InInType struct {
+	Type         *InOutType
+	Name         Name
+	DefaultValue Expression
+}
+
+func NewInInType(t InOutType, name Name, defaultValue Expression) InInType {
+	return InInType{Type: &t, Name: name, DefaultValue: defaultValue}
+}
+
+type InOutType struct {
+	In  []InInType
+	Out SuperAtomicType
+}
+
+func NewInOutType(in []InInType, out SuperAtomicType) InOutType {
+	return InOutType{In: in, Out: out}
+}
+
+func NewAtomicInOutType(atomic AtomicType) InOutType {
+	return InOutType{Out: NewSuperAtomicType(atomic)}
+}
+
+func NoInOutType() InOutType {
+	return NewInOutType(nil, NewSuperAtomicType(NewNoType()))
+}
+
+func (t *InOutType) String() string {
+	var builder strings.Builder
+	if len(t.In) > 0 {
+		builder.WriteString("(")
+		for idx, in := range t.In {
+			builder.WriteString(in.Type.String())
+			if idx < len(t.In)-1 {
+				builder.WriteString(", ")
+			}
+		}
+		builder.WriteString(") ")
+	}
+	builder.WriteString(t.Out.String())
+	return builder.String()
+}
 
 type Type interface {
 	GetOut() Name
@@ -32,59 +111,97 @@ func GetStandardTypes() []Type {
 	}
 }
 
+func GetStandardTypes2() []AtomicType {
+	return []AtomicType{
+		NewByteType(),
+		NewAsciiType(),
+		NewInt32Type(),
+		NewInt64Type(),
+		NewFloat32Type(),
+		NewFloat64Type(),
+		NewBoolType(),
+	}
+}
+
 // BoolType ---------------------------------------------------
 //
 // ------------------------------------------------------------
 
-func NewBoolType() Type {
+func NewBoolType() StandardType {
 	return StandardType{Out: Name{Value: TypeBool}}
+}
+
+func NewBoolInOutType() InOutType {
+	return NewAtomicInOutType(NewBoolType())
 }
 
 // Int32Type --------------------------------------------------
 //
 // ------------------------------------------------------------
 
-func NewInt32Type() Type {
+func NewInt32Type() StandardType {
 	return StandardType{Out: Name{Value: TypeInt32}}
 }
+
+func NewInt32InOutType() InOutType {
+	return NewAtomicInOutType(NewInt32Type())
+}
+
 
 // Int64Type --------------------------------------------------
 //
 // ------------------------------------------------------------
 
-func NewInt64Type() Type {
+func NewInt64Type() StandardType {
 	return StandardType{Out: Name{Value: TypeInt64}}
 }
+
+func NewInt64InOutType() InOutType {
+	return NewAtomicInOutType(NewInt64Type())
+}
+
 
 // Float32Type ------------------------------------------------
 //
 // ------------------------------------------------------------
 
-func NewFloat32Type() Type {
+func NewFloat32Type() StandardType {
 	return StandardType{Out: Name{Value: TypeFloat32}}
+}
+
+func NewFloat32InOutType() InOutType {
+	return NewAtomicInOutType(NewFloat32Type())
 }
 
 // Float64Type ------------------------------------------------
 //
 // ------------------------------------------------------------
 
-func NewFloat64Type() Type {
+func NewFloat64Type() StandardType {
 	return StandardType{Out: Name{Value: TypeFloat64}}
+}
+
+func NewFloat64InOutType() InOutType {
+	return NewAtomicInOutType(NewFloat64Type())
 }
 
 // ByteType ---------------------------------------------------
 //
 // ------------------------------------------------------------
 
-func NewByteType() Type {
+func NewByteType() StandardType {
 	return StandardType{Out: Name{Value: TypeByte}}
+}
+
+func NewByteInOutType() InOutType {
+	return NewAtomicInOutType(NewByteType())
 }
 
 // AsciiType --------------------------------------------------
 //
 // ------------------------------------------------------------
 
-func NewAsciiType() Type {
+func NewAsciiType() StandardType {
 	return StandardType{Out: Name{Value: TypeAscii}}
 }
 
@@ -97,6 +214,10 @@ type NullType struct {
 
 func (t NullType) GetOut() Name {
 	return Name{Value: LiteralTypeNull}
+}
+
+func (t NullType) GetName() string {
+	return "<null>"
 }
 
 func (t NullType) GetIn() []InType {
@@ -119,8 +240,12 @@ func (t NullType) IsNoType() bool {
 //
 // ------------------------------------------------------------
 
-func NewStringType() Type {
+func NewStringType() StandardType {
 	return StandardType{Out: Name{Value: LiteralTypeString}}
+}
+
+func NewStringInOutType() InOutType {
+	return NewAtomicInOutType(NewStringType())
 }
 
 // Misc -------------------------------------------------------
@@ -134,6 +259,10 @@ type StandardType struct {
 
 func NewStandardType(out Name, in []InType) StandardType {
 	return StandardType{Out: out, In: in}
+}
+
+func (st StandardType) GetName() string {
+	return st.Out.Value
 }
 
 func (st StandardType) GetOut() Name {
@@ -156,6 +285,10 @@ func (t StandardType) IsNoType() bool {
 	return false
 }
 
+// NoType -----------------------------------------------------
+//
+// ------------------------------------------------------------
+
 type NoType struct {
 }
 
@@ -163,15 +296,19 @@ func NewNoType() NoType {
 	return NoType{}
 }
 
-func (n NoType) GetOut() Name {
+func (t NoType) GetName() string {
+	return ""
+}
+
+func (t NoType) GetOut() Name {
 	return Name{}
 }
 
-func (n NoType) GetIn() []InType {
+func (t NoType) GetIn() []InType {
 	return nil
 }
 
-func (n NoType) IsCompileError() bool {
+func (t NoType) IsCompileError() bool {
 	return false
 }
 
@@ -183,11 +320,19 @@ func (t NoType) IsNoType() bool {
 	return true
 }
 
+// CompileErrorType -------------------------------------------
+//
+// ------------------------------------------------------------
+
 type CompileErrorType struct {
 }
 
 func NewCompileErrorType() CompileErrorType {
 	return CompileErrorType{}
+}
+
+func (e CompileErrorType) GetName() string {
+	return "<error>"
 }
 
 func (e CompileErrorType) GetOut() Name {
@@ -206,6 +351,6 @@ func (e CompileErrorType) IsNeverCompatible() bool {
 	return true
 }
 
-func (t CompileErrorType) IsNoType() bool {
+func (e CompileErrorType) IsNoType() bool {
 	return false
 }

@@ -13,14 +13,14 @@ type Name struct {
 
 type Parameter struct {
 	Name Name
-	Type Type
+	Type InOutType
 }
 
 func (param Parameter) GetName() Name {
 	return param.Name
 }
 
-func (param Parameter) GetType() Type {
+func (param Parameter) GetType() InOutType {
 	return param.Type
 }
 
@@ -36,20 +36,20 @@ func NewInType(t Type, name Name, defaultValue Expression) InType {
 
 type Object interface {
 	GetName() Name
-	GetType() Type
+	GetType() InOutType
 }
 
 type Procedure struct {
 	Context    *Context
 	Name       Name
 	Parameters []Parameter
-	Type       Type
+	Type       InOutType
 
 	Statements []Statement
 }
 
 func NewProcedure(parent *Context, name Name) Procedure {
-	return Procedure{Context: NewContext(parent), Name: name, Type: nil}
+	return Procedure{Context: NewContext(parent), Name: name, Type: NoInOutType()}
 }
 
 func (p *Procedure) AddStatement(stmt Statement) {
@@ -61,7 +61,7 @@ func (p *Procedure) AddStatements(stmt []Statement) {
 }
 
 type Expression interface {
-	GetType() Type
+	GetType() InOutType
 }
 
 type Source struct {
@@ -75,16 +75,17 @@ func NewSource() *Source {
 		Context: Context{
 			Parent:  nil,
 			Types:   GetStandardTypes(),
+			Types2:  GetStandardTypes2(),
 			Objects: make(map[string]Object),
 		},
 	}
 }
 
-func (p *Source) AddProcedure(name Name, t Type) *Procedure {
+func (p *Source) AddProcedure(name Name, t InOutType) *Procedure {
 	p.Procedures = append(p.Procedures, NewProcedure(&p.Context, name))
 	procedure := &p.Procedures[len(p.Procedures)-1]
 	procedure.Type = t
-	procedure.Context.ReturnType = t
+	procedure.Context.ReturnType = t.Out
 	procedure.Context.CurrentObjectName = name.Value
 	return procedure
 }
@@ -92,17 +93,20 @@ func (p *Source) AddProcedure(name Name, t Type) *Procedure {
 type Context struct {
 	Parent  *Context
 	Types   []Type
+	Types2  []AtomicType
 	Objects map[string]Object
 
 	InProgram         bool
 	CurrentObjectName string
-	ReturnType        Type
+	ReturnType        SuperAtomicType
 }
 
 func NewContext(parent *Context) *Context {
 	return &Context{
-		Parent: parent,
-		Types:  GetStandardTypes(), Objects: make(map[string]Object),
+		Parent:            parent,
+		Types:             GetStandardTypes(),
+		Types2:            GetStandardTypes2(),
+		Objects:           make(map[string]Object),
 		InProgram:         parent.InProgram,
 		CurrentObjectName: parent.CurrentObjectName,
 		ReturnType:        parent.ReturnType,
@@ -111,11 +115,13 @@ func NewContext(parent *Context) *Context {
 
 func NewProgramContext(sourceContext *Context) *Context {
 	return &Context{
-		Parent: sourceContext,
-		Types:  GetStandardTypes(), Objects: make(map[string]Object),
+		Parent:            sourceContext,
+		Types:             GetStandardTypes(),
+		Types2:            GetStandardTypes2(),
+		Objects:           make(map[string]Object),
 		InProgram:         true,
 		CurrentObjectName: "program",
-		ReturnType:        NewNoType(),
+		ReturnType:        NewSuperAtomicType(NewNoType()),
 	}
 }
 
@@ -142,6 +148,18 @@ func (c *Context) GetType(name string) (Type, bool) {
 	}
 	if c.Parent != nil {
 		return c.Parent.GetType(name)
+	}
+	return NewCompileErrorType(), false
+}
+
+func (c *Context) GetType2(name string) (AtomicType, bool) {
+	for _, typ := range c.Types2 {
+		if typ.GetName() == name {
+			return typ, true
+		}
+	}
+	if c.Parent != nil {
+		return c.Parent.GetType2(name)
 	}
 	return NewCompileErrorType(), false
 }

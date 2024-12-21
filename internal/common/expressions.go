@@ -2,44 +2,41 @@ package common
 
 type VariableExpression struct {
 	Name Name
-	Type Type
+	Type InOutType
 }
 
-func NewVariableExpression(name Name, t Type) VariableExpression {
+func NewVariableExpression(name Name, t InOutType) VariableExpression {
 	return VariableExpression{Name: name, Type: t}
 }
 
-func (ve *VariableExpression) GetType() Type {
+func (ve *VariableExpression) GetType() InOutType {
 	return ve.Type
 }
 
 type LiteralExpression struct {
 	Value string
 	Unit  string
-	Type  Type
+	Type  InOutType
 }
 
-func NewLiteralExpression(value string, unit string, t Type) LiteralExpression {
+func NewLiteralExpression(value string, unit string, t InOutType) LiteralExpression {
 	return LiteralExpression{Value: value, Unit: unit, Type: t}
 }
 
-func (le LiteralExpression) GetType() Type {
+func (le LiteralExpression) GetType() InOutType {
 	return le.Type
 }
 
 type ProceduresExpression struct {
 	Call       ProcedureCall
-	ReturnType Type
+	ReturnType InOutType
 }
 
 func NewProcedureExpression(call ProcedureCall) ProceduresExpression {
-	var rt Type
-	if call.Object.GetType() != nil {
-		rt = NewStandardType(call.Object.GetType().GetOut(), nil)
-	}
-	return ProceduresExpression{Call: call, ReturnType: rt}
+
+	return ProceduresExpression{Call: call, ReturnType: NewInOutType(nil, call.Object.GetType().Out)}
 }
 
-func (pe *ProceduresExpression) GetType() Type {
+func (pe *ProceduresExpression) GetType() InOutType {
 	return pe.ReturnType
 }

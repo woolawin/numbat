@@ -132,11 +132,11 @@ func NewUnknownObject(name string, location Location) UnknownObject {
 
 type IncompatibleType struct {
 	Location Location
-	Actual   Type
-	Expected Type
+	Actual   InOutType
+	Expected InOutType
 }
 
-func NewIncompatibleType(actual Type, expected Type, location Location) IncompatibleType {
+func NewIncompatibleType(actual InOutType, expected InOutType, location Location) IncompatibleType {
 	return IncompatibleType{Location: location, Actual: actual, Expected: expected}
 }
 
@@ -145,8 +145,8 @@ func (verr IncompatibleType) Message() string {
 		"(%d,%d) can not use type `%s` for `%s`",
 		verr.Location.Line,
 		verr.Location.Column,
-		verr.Actual.GetOut().Value,
-		verr.Expected.GetOut().Value,
+		verr.Actual.String(),
+		verr.Expected.String(),
 	)
 }
 
@@ -211,8 +211,8 @@ func (verr ReturnValueRequired) Message() string {
 }
 
 type MissingReturnStatement struct {
-	ObjectName       string
-	Location         Location
+	ObjectName string
+	Location   Location
 }
 
 func NewMissingReturnStatement(objectName string, location Location) MissingReturnStatement {

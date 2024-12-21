@@ -26,7 +26,7 @@ func (validation *Validation) Validate(src *read.Source) *Source {
 		if found {
 			validation.addError(NewNameConflict(proc.Name.ToName(), object.GetName().Location))
 		} else {
-			t := validation.validateType(proc.Type, &source.Context, false)
+			t := validation.validateType2(proc.Type, &source.Context, false)
 			obj := NewProcedureForwardDeclaration(proc.Name.ToName(), t)
 			source.Context.AddObject(proc.Name.Value, &obj)
 		}
@@ -48,7 +48,7 @@ func (validation *Validation) Validate(src *read.Source) *Source {
 	for idx := range src.Procs {
 		proc := &src.Procs[idx]
 		source.Context.GetObject(proc.Name.Value)
-		t := validation.validateType(proc.Type, &source.Context, true)
+		t := validation.validateType2(proc.Type, &source.Context, true)
 		procedure := source.AddProcedure(proc.Name.ToName(), t)
 		validation.procedure(proc, procedure)
 	}
@@ -57,24 +57,28 @@ func (validation *Validation) Validate(src *read.Source) *Source {
 }
 
 func (validation *Validation) procedure(proc *read.Proc, procedure *Procedure) {
-	if !procedure.Type.IsNoType() {
-		for _, in := range procedure.Type.GetIn() {
-			parameter := Parameter{
-				Name: in.Name,
-				Type: in.Type,
-			}
-			object, found := procedure.Context.GetObject(in.Name.Value)
-			if found {
-				validation.addError(NewNameConflict(in.Name, object.GetName().Location))
-			} else {
-				procedure.Context.AddObject(in.Name.Value, parameter)
-			}
+	//if procedure.Type.IsNoType() {
+	for _, in := range procedure.Type.In {
+		paramType := NoInOutType()
+		if in.Type != nil {
+			paramType = *in.Type
+		}
+		parameter := Parameter{
+			Name: in.Name,
+			Type: paramType,
+		}
+		object, found := procedure.Context.GetObject(in.Name.Value)
+		if found {
+			validation.addError(NewNameConflict(in.Name, object.GetName().Location))
+		} else {
+			procedure.Context.AddObject(in.Name.Value, parameter)
 		}
 	}
+	//}
 
 	procedure.AddStatements(validation.statements(proc.Statements, procedure.Context))
 
-	if !procedure.Type.IsNoType() {
+	if !procedure.Type.Out.IsNoType() {
 		// The procedure has a return type so we need to check that there is a value returned
 		missingReturn := true
 		for _, stmt := range procedure.Statements {
@@ -118,39 +122,39 @@ func (validation *Validation) statement(stmt *read.Statement, context *Context) 
 	return nil, false // ERROR
 }
 
-func (validation *Validation) validateType(t *read.Type, context *Context, reportError bool) Type {
+func (validation *Validation) validateType2(t *read.Type, context *Context, reportError bool) InOutType {
 	if t == nil {
-		return NewNoType()
+		return NoInOutType()
 	}
 
 	// If the type is `()`, ie no input and out then it is also a no type
 	if t.Out.Name == "" && len(t.In) == 0 {
-		return NewNoType()
+		return NoInOutType()
 	}
 
-	var outType Type = NewNoType()
+	var outType AtomicType = NewNoType()
 	if t.Out.Name != "" {
 		// There is an out type specified so we must validate it
-		foundType, found := context.GetType(t.Out.Name)
+		foundType, found := context.GetType2(t.Out.Name)
 		if !found {
 			if reportError {
 				validation.errors = append(validation.errors, NewUnknownType(t.Out.ToName()))
 			}
-			return NewCompileErrorType()
+			return NewInOutType(nil, NewSuperAtomicType(NewCompileErrorType()))
 		}
 		outType = foundType
 	}
 
 	if len(t.In) == 0 {
-		return outType
+		return NewAtomicInOutType(outType)
 	}
 
-	var ins []InType
+	var ins []InInType
 	for _, param := range t.In {
-		in := validation.validateType(param.Typ, context, reportError)
-		if in.IsCompileError() {
-			return NewCompileErrorType()
-		}
+		in := validation.validateType2(param.Typ, context, reportError)
+		//if in.IsCompileError() {
+		//	return NewInOutType(nil, NewSuperAtomicType(NewCompileErrorType()))
+		//}
 		var defaultValue Expression
 		if len(param.Expr) == 1 {
 			// There is a default value to this in type so check that it is valid
@@ -160,13 +164,13 @@ func (validation *Validation) validateType(t *read.Type, context *Context, repor
 			} else {
 				// Assign a null expression just as a placeholder so follow on code knows this parameter is
 				// optional
-				defaultValue = NewLiteralExpression("", "", NullType{})
+				defaultValue = NewLiteralExpression("", "", NewAtomicInOutType(NullType{}))
 			}
 		}
-		ins = append(ins, NewInType(in, param.Name.ToName(), defaultValue))
+		ins = append(ins, NewInInType(in, param.Name.ToName(), defaultValue))
 	}
 
-	return NewStandardType(outType.GetOut(), ins)
+	return NewInOutType(ins, NewSuperAtomicType(outType))
 }
 
 func (validation *Validation) variable(stmt *read.Var, context *Context) (VariableDeclaration, bool) {
@@ -183,12 +187,13 @@ func (validation *Validation) variable(stmt *read.Var, context *Context) (Variab
 	}
 
 	var variableDeclaration VariableDeclaration
-	var variableType Type
+	var variableType *InOutType
 	var variableValue Expression
 
 	if stmt.VarType != nil {
 		// They specified a type so make sure it is a correct type
-		variableType = validation.validateType(stmt.VarType, context, true)
+		t := validation.validateType2(stmt.VarType, context, true)
+		variableType = &t
 	}
 
 	if len(stmt.Exprs) == 0 {
@@ -200,21 +205,27 @@ func (validation *Validation) variable(stmt *read.Var, context *Context) (Variab
 		expr, ok := validation.expression(&stmt.Exprs[0], variableType, context, variableType == nil)
 		if ok {
 			variableValue = expr
-			variableType = expr.GetType()
+			t := expr.GetType()
+			variableType = &t
 		}
 	}
 
-	variableDeclaration = NewVariableDeclaration(context, stmt.Name.ToName(), variableType, variableValue)
+	if variableType == nil {
+		t := NewAtomicInOutType(NewCompileErrorType())
+		variableType = &t
+	}
+
+	variableDeclaration = NewVariableDeclaration(context, stmt.Name.ToName(), *variableType, variableValue)
 	context.AddObject(stmt.Name.Value, &variableDeclaration)
 
 	return variableDeclaration, true
 }
 
-func (validation *Validation) expression(expr *read.Expr, expectedType Type, context *Context, forInference bool) (Expression, bool) {
+func (validation *Validation) expression(expr *read.Expr, expectedType *InOutType, context *Context, forInference bool) (Expression, bool) {
 
 	var expression Expression
 	if expr.Type != nil {
-		validation.validateType(expr.Type, context, true)
+		validation.validateType2(expr.Type, context, true)
 	}
 
 	if expr.VarName != nil {
@@ -250,17 +261,17 @@ func (validation *Validation) expression(expr *read.Expr, expectedType Type, con
 	}
 
 	if expr.Boolean != nil {
-		e := NewLiteralExpression(*expr.Boolean, "", NewBoolType())
+		e := NewLiteralExpression(*expr.Boolean, "", NewAtomicInOutType(NewBoolType()))
 		expression = &e
 	}
 
 	if expr.Number != nil {
-		e := NewLiteralExpression(*expr.Number, "", numericType(*expr.Number))
+		e := NewLiteralExpression(*expr.Number, "", NewAtomicInOutType(numericType(*expr.Number)))
 		expression = &e
 	}
 
 	if expr.Str != nil {
-		e := NewLiteralExpression(*expr.Str, "", NewStringType())
+		e := NewLiteralExpression(*expr.Str, "", NewAtomicInOutType(NewStringType()))
 		expression = &e
 	}
 
@@ -269,12 +280,12 @@ func (validation *Validation) expression(expr *read.Expr, expectedType Type, con
 			validation.addError(NewCanNotInferTypeFromNull(expr.Location))
 			return nil, false
 		}
-		e := NewLiteralExpression("", "", NullType{})
+		e := NewLiteralExpression("", "", NewAtomicInOutType(NullType{}))
 		expression = &e
 	}
 
 	if expr.Hex != nil {
-		e := NewLiteralExpression(*expr.Hex, "", NewByteType())
+		e := NewLiteralExpression(*expr.Hex, "", NewAtomicInOutType(NewByteType()))
 		expression = &e
 	}
 
@@ -287,8 +298,8 @@ func (validation *Validation) expression(expr *read.Expr, expectedType Type, con
 		return expression, true
 	}
 	et := expression.GetType()
-	if areTypesIncompatible(expectedType, et) {
-		validation.addError(NewIncompatibleType(et, expectedType, expr.Location))
+	if areTypesIncompatible(*expectedType, et) {
+		validation.addError(NewIncompatibleType(et, *expectedType, expr.Location))
 	}
 	return expression, true
 }
@@ -303,28 +314,28 @@ func (validation *Validation) procedureCall(call *read.Call, context *Context) (
 
 	validateParamAgainstType := false
 
-	if object.GetType() != nil {
-		if len(call.Exprs) != len(object.GetType().GetIn()) {
-			validation.addError(
-				NewIncorrectArgumentCount(
-					call.Primary.Value,
-					call.Primary.Location,
-					len(call.Exprs),
-					len(object.GetType().GetIn()),
-				),
-			)
-		} else {
-			validateParamAgainstType = true
-		}
+	//	if object.GetType() != nil {
+	if len(call.Exprs) != len(object.GetType().In) {
+		validation.addError(
+			NewIncorrectArgumentCount(
+				call.Primary.Value,
+				call.Primary.Location,
+				len(call.Exprs),
+				len(object.GetType().In),
+			),
+		)
+	} else {
+		validateParamAgainstType = true
 	}
+	//	}
 
 	var arguments []Expression
 	argumentsOk := true
 	for idx := range call.Exprs {
 		subexpr := &call.Exprs[idx]
-		var typeToCheckAgainst Type
+		var typeToCheckAgainst *InOutType
 		if validateParamAgainstType {
-			typeToCheckAgainst = object.GetType().GetIn()[idx].Type
+			typeToCheckAgainst = object.GetType().In[idx].Type
 		}
 		e, ok := validation.expression(subexpr, typeToCheckAgainst, context, false)
 		if !ok && argumentsOk {
@@ -349,14 +360,14 @@ func (validation *Validation) returnStatement(ret *read.Return, location Locatio
 	}
 
 	if len(ret.Exprs) == 0 {
-		validation.addError(NewReturnValueRequired(context.CurrentObjectName, location, context.ReturnType.GetOut().Value))
+		validation.addError(NewReturnValueRequired(context.CurrentObjectName, location, context.ReturnType.String()))
 		return NewReturnStatement(context)
 	}
 
 	return NewReturnStatement(context)
 }
 
-func numericType(value string) Type {
+func numericType(value string) AtomicType {
 	if strings.Contains(value, "e+") {
 		return NewFloat64Type()
 	}
@@ -368,18 +379,27 @@ func numericType(value string) Type {
 
 }
 
-func areTypesIncompatible(left, right Type) bool {
-	if left.IsNeverCompatible() || right.IsNeverCompatible() {
+func areTypesIncompatible(left, right InOutType) bool {
+	if left.Out.IsNeverCompatible() || right.Out.IsNeverCompatible() {
 		return true
 	}
-	if left.GetOut().Value != right.GetOut().Value {
+
+	if left.Out.IsOptional != right.Out.IsOptional {
+		return false
+	}
+
+	if left.Out.IsError != right.Out.IsError {
+		return false
+	}
+
+	if left.Out.Type.GetName() != right.Out.Type.GetName() {
 		return true
 	}
-	if len(left.GetIn()) != len(right.GetIn()) {
+	if len(left.In) != len(right.In) {
 		return true
 	}
-	for idx := range left.GetIn() {
-		if areTypesIncompatible(left.GetIn()[idx].Type, right.GetIn()[idx].Type) {
+	for idx := range left.In {
+		if areTypesIncompatible(*left.In[idx].Type, *right.In[idx].Type) {
 			return true
 		}
 	}
