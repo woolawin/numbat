@@ -227,3 +227,23 @@ func (verr MissingReturnStatement) Message() string {
 		verr.ObjectName,
 	)
 }
+
+type IncompatibleReturnValueType struct {
+	Location Location
+	Actual   InOutType
+	Expected InOutType
+}
+
+func NewIncompatibleReturnValueType(location Location, actual, expected InOutType) IncompatibleReturnValueType {
+	return IncompatibleReturnValueType{Location: location, Actual: actual, Expected: expected}
+}
+
+func (verr IncompatibleReturnValueType) Message() string {
+	return fmt.Sprintf(
+		"(%d,%d) can not use return value of type `%s` for `%s`",
+		verr.Location.Line,
+		verr.Location.Column,
+		verr.Actual.String(),
+		verr.Expected.String(),
+	)
+}

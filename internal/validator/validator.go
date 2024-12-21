@@ -342,22 +342,32 @@ func (validation *Validation) procedureCall(call *read.Call, context *Context) (
 func (validation *Validation) returnStatement(ret *read.Return, location Location, context *Context) ReturnStatement {
 
 	if context.ReturnType.IsCompileError() {
-		return NewReturnStatement(context)
+		return NewReturnStatement(context, nil)
 	}
 
 	if context.ReturnType.IsNoType() {
 		if len(ret.Exprs) != 0 {
 			validation.addError(NewDoesNotReturnValue(context.CurrentObjectName, ret.Exprs[0].Location))
-			return NewReturnStatement(context)
+			return NewReturnStatement(context, nil)
 		}
+		return NewReturnStatement(context, nil)
 	}
 
 	if len(ret.Exprs) == 0 {
 		validation.addError(NewReturnValueRequired(context.CurrentObjectName, location, context.ReturnType.String()))
-		return NewReturnStatement(context)
+		return NewReturnStatement(context, nil)
 	}
 
-	return NewReturnStatement(context)
+	expr, ok := validation.expression(&ret.Exprs[0], nil, context, false)
+	if !ok {
+		return NewReturnStatement(context, nil)
+	}
+
+	returnType := NewInOutType(nil, context.ReturnType)
+	if areTypesIncompatible(returnType, expr.GetType()) {
+		validation.addError(NewIncompatibleReturnValueType(ret.Exprs[0].Location, expr.GetType(), returnType))
+	}
+	return NewReturnStatement(context, expr)
 }
 
 func numericType(value string) AtomicType {

@@ -1,7 +1,6 @@
 package validator
 
 import (
-	"encoding/json"
 	"numbat/internal/common"
 	"numbat/internal/read"
 	"reflect"
@@ -80,8 +79,7 @@ func assertValidationError(t *testing.T, validation Validation, err ValidationEr
 			return
 		}
 	}
-	b, _ := json.Marshal(err)
-	t.Fatalf("did not find validation error %s", string(b))
+	t.Fatalf("did not find validation error: %s", err.Message())
 }
 
 func assertValidationErrorCount(t *testing.T, validation Validation, expected int) {

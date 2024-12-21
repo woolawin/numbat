@@ -65,10 +65,11 @@ func (pc ProcedureCall) GuaranteedReturn() bool {
 
 type ReturnStatement struct {
 	Context *Context
+	Value   Expression
 }
 
-func NewReturnStatement(context *Context) ReturnStatement {
-	return ReturnStatement{Context: context}
+func NewReturnStatement(context *Context, value Expression) ReturnStatement {
+	return ReturnStatement{Context: context, Value: value}
 }
 
 func (rs ReturnStatement) GetContext() *Context {

@@ -1,6 +1,7 @@
 package validator
 
 import (
+	. "numbat/internal/common"
 	"testing"
 )
 
@@ -80,4 +81,44 @@ end
 	validation.Validate(readsrc(code))
 
 	assertValidationErrorCount(t, validation, 0)
+}
+
+func TestProcedureCanNotReturnValueOfWrongType(t *testing.T) {
+	code := `
+program do
+end
+
+proc banana Int32 do
+	return 1
+end
+
+proc orange Int32 do
+	return true
+end
+
+proc apple(a Bool) Bool do
+	return a
+end
+
+proc pineapple(a Int32) Bool do
+	return a
+end
+
+proc pear() Int64 do
+	var num Int64
+	return num
+end
+
+proc blueberry Int64 do
+	var num Bool
+	return num
+end
+`
+	validation := NewValidation()
+	validation.Validate(readsrc(code))
+
+	assertValidationError(t, validation, NewIncompatibleReturnValueType(loc(10, 9), NewBoolInOutType(), NewInt32InOutType()))
+	assertValidationError(t, validation, NewIncompatibleReturnValueType(loc(18, 9), NewInt32InOutType(), NewBoolInOutType()))
+	assertValidationError(t, validation, NewIncompatibleReturnValueType(loc(28, 9), NewBoolInOutType(), NewInt64InOutType()))
+	assertValidationErrorCount(t, validation, 3)
 }

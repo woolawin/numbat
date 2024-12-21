@@ -229,11 +229,11 @@ type StandardType struct {
 	Out Name
 }
 
-func (st StandardType) GetName() string {
-	return st.Out.Value
+func (t StandardType) GetName() string {
+	return t.Out.Value
 }
 
-func (st StandardType) IsCompileError() bool {
+func (t StandardType) IsCompileError() bool {
 	return false
 }
 

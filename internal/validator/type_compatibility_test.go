@@ -142,7 +142,8 @@ proc i32 Int32 do
 end
 
 proc i64 Int64 do
-	return 1
+	var v Int64
+	return v
 end
 
 proc bool Bool do
@@ -154,7 +155,8 @@ proc byte Byte do
 end
 
 proc f32 Float32 do
-	return 1.0
+	var f Float32
+	return f
 end
 
 proc f64 Float64 do
@@ -165,7 +167,7 @@ end
 	src := readsrc(code)
 	validation := NewValidation()
 	validation.Validate(src)
-	
+
 	assertValidationError(t, validation, NewIncompatibleType(NewInt32InOutType(), NewBoolInOutType(), loc(10, 17)))
 	assertValidationError(t, validation, NewIncompatibleType(NewInt64InOutType(), NewBoolInOutType(), loc(11, 17)))
 
