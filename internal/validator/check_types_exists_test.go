@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -17,11 +18,15 @@ proc foo(f Foo) do
 end
 
 proc multiply(num Int32) IntX do
-
+	return 1
 end
 `
 	validation := NewValidation()
 	validation.Validate(readsrc(code))
+
+	for _, verr := range validation.errors {
+		fmt.Println(verr.Message())
+	}
 
 	assertValidationError(t, validation, NewUnknownType(name("FooBar", 5, 8)))
 	assertValidationError(t, validation, NewUnknownType(name("Foo", 8, 12)))

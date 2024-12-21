@@ -37,7 +37,7 @@ proc foo do
 end
 
 proc strawberry Int32 do
-
+	return 0
 end
 `
 	src := readsrc(code)
@@ -112,7 +112,7 @@ program do
 end
 
 proc grape Int32 do
-
+	return 1
 end
 
 proc foo(apple Int32) do

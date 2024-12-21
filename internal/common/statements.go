@@ -1,5 +1,15 @@
 package common
 
+type Statement interface {
+	GetContext() *Context
+
+	GuaranteedReturn() bool
+}
+
+// VariableDeclaration ----------------------------------------
+//
+// ------------------------------------------------------------
+
 type VariableDeclaration struct {
 	Name    Name
 	Type    Type
@@ -23,6 +33,14 @@ func (vd *VariableDeclaration) GetType() Type {
 	return vd.Type
 }
 
+func (vd VariableDeclaration) GuaranteedReturn() bool {
+	return false
+}
+
+// ProcedureCall ----------------------------------------------
+//
+// ------------------------------------------------------------
+
 type ProcedureCall struct {
 	Object    Object
 	Arguments []Expression
@@ -35,4 +53,28 @@ func NewProcedureCall(context *Context, object Object, arguments []Expression) P
 
 func (pc ProcedureCall) GetContext() *Context {
 	return pc.Context
+}
+
+func (pc ProcedureCall) GuaranteedReturn() bool {
+	return false
+}
+
+// ReturnStatement --------------------------------------------
+//
+// ------------------------------------------------------------
+
+type ReturnStatement struct {
+	Context *Context
+}
+
+func NewReturnStatement(context *Context) ReturnStatement {
+	return ReturnStatement{Context: context}
+}
+
+func (rs ReturnStatement) GetContext() *Context {
+	return rs.Context
+}
+
+func (rs ReturnStatement) GuaranteedReturn() bool {
+	return true
 }

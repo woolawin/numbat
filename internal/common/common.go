@@ -64,10 +64,6 @@ type Expression interface {
 	GetType() Type
 }
 
-type Statement interface {
-	GetContext() *Context
-}
-
 type Source struct {
 	Context    Context
 	Program    Procedure

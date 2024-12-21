@@ -57,7 +57,7 @@ func (validation *Validation) Validate(src *read.Source) *Source {
 }
 
 func (validation *Validation) procedure(proc *read.Proc, procedure *Procedure) {
-	if procedure.Type != nil {
+	if !procedure.Type.IsNoType() {
 		for _, in := range procedure.Type.GetIn() {
 			parameter := Parameter{
 				Name: in.Name,
@@ -73,6 +73,20 @@ func (validation *Validation) procedure(proc *read.Proc, procedure *Procedure) {
 	}
 
 	procedure.AddStatements(validation.statements(proc.Statements, procedure.Context))
+
+	if !procedure.Type.IsNoType() {
+		// The procedure has a return type so we need to check that there is a value returned
+		missingReturn := true
+		for _, stmt := range procedure.Statements {
+			if stmt.GuaranteedReturn() {
+				missingReturn = false
+				break
+			}
+		}
+		if missingReturn {
+			validation.addError(NewMissingReturnStatement(procedure.Name.Value, proc.Name.Location))
+		}
+	}
 }
 
 func (validation *Validation) statements(stmts []read.Statement, initialContext *Context) []Statement {
@@ -86,6 +100,22 @@ func (validation *Validation) statements(stmts []read.Statement, initialContext 
 		}
 	}
 	return statements
+}
+
+func (validation *Validation) statement(stmt *read.Statement, context *Context) (Statement, bool) {
+	if stmt.Var != nil {
+		return validation.variable(stmt.Var, context)
+	}
+
+	if stmt.Call != nil {
+		return validation.procedureCall(stmt.Call, context)
+	}
+
+	if stmt.Ret != nil {
+		return validation.returnStatement(stmt.Ret, stmt.Location, context), true
+	}
+
+	return nil, false // ERROR
 }
 
 func (validation *Validation) validateType(t *read.Type, context *Context, reportError bool) Type {
@@ -137,22 +167,6 @@ func (validation *Validation) validateType(t *read.Type, context *Context, repor
 	}
 
 	return NewStandardType(outType.GetOut(), ins)
-}
-
-func (validation *Validation) statement(stmt *read.Statement, context *Context) (Statement, bool) {
-	if stmt.Var != nil {
-		return validation.variable(stmt.Var, context)
-	}
-
-	if stmt.Call != nil {
-		return validation.procedureCall(stmt.Call, context)
-	}
-
-	if stmt.Ret != nil {
-		validation.returnStatement(stmt.Ret, stmt.Location, context)
-	}
-
-	return nil, false // ERROR
 }
 
 func (validation *Validation) variable(stmt *read.Var, context *Context) (VariableDeclaration, bool) {
@@ -321,18 +335,25 @@ func (validation *Validation) procedureCall(call *read.Call, context *Context) (
 	return NewProcedureCall(context, object, arguments), argumentsOk
 }
 
-func (validation *Validation) returnStatement(ret *read.Return, location Location, context *Context) {
+func (validation *Validation) returnStatement(ret *read.Return, location Location, context *Context) ReturnStatement {
+
+	if context.ReturnType.IsCompileError() {
+		return NewReturnStatement(context)
+	}
+
 	if context.ReturnType.IsNoType() {
 		if len(ret.Exprs) != 0 {
 			validation.addError(NewDoesNotReturnValue(context.CurrentObjectName, ret.Exprs[0].Location))
-			return
+			return NewReturnStatement(context)
 		}
 	}
 
 	if len(ret.Exprs) == 0 {
 		validation.addError(NewReturnValueRequired(context.CurrentObjectName, location, context.ReturnType.GetOut().Value))
-		return
+		return NewReturnStatement(context)
 	}
+
+	return NewReturnStatement(context)
 }
 
 func numericType(value string) Type {

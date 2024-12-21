@@ -138,21 +138,27 @@ program do
 end
 
 proc i32 Int32 do
+	return 0
 end
 
 proc i64 Int64 do
+	return 1
 end
 
 proc bool Bool do
+	return true
 end
 
 proc byte Byte do
+	return 0xFF
 end
 
 proc f32 Float32 do
+	return 1.0
 end
 
 proc f64 Float64 do
+	return 1.0
 end
 
 `

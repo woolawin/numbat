@@ -48,3 +48,36 @@ end
 	assertValidationError(t, validation, NewReturnValueRequired("banana", loc(6, 2), "Int32"))
 	assertValidationErrorCount(t, validation, 1)
 }
+
+func TestProcedureWithReturnTypeMustReturnAValue(t *testing.T) {
+	code := `
+program do
+end
+
+proc banana Int32 do
+end
+`
+	validation := NewValidation()
+	validation.Validate(readsrc(code))
+
+	assertValidationError(t, validation, NewMissingReturnStatement("banana", loc(5, 6)))
+	assertValidationErrorCount(t, validation, 1)
+}
+
+func TestProcedureWithReturnTypeDoesNotNeedReturnStatement(t *testing.T) {
+	code := `
+program do
+end
+
+proc banana do
+end
+
+proc apple(a Bool) do
+
+end
+`
+	validation := NewValidation()
+	validation.Validate(readsrc(code))
+
+	assertValidationErrorCount(t, validation, 0)
+}

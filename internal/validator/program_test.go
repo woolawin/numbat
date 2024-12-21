@@ -7,7 +7,7 @@ import (
 
 func TestMustContainProgram(t *testing.T) {
 	code := `
-proc apple(a Int32) do
+proc apple do
 
 end
 `
@@ -25,7 +25,7 @@ program do
 
 end
 
-proc apple(a Int32) do
+proc apple do
 
 end
 

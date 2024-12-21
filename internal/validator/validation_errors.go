@@ -209,3 +209,21 @@ func (verr ReturnValueRequired) Message() string {
 		verr.ExpectedTypeName,
 	)
 }
+
+type MissingReturnStatement struct {
+	ObjectName       string
+	Location         Location
+}
+
+func NewMissingReturnStatement(objectName string, location Location) MissingReturnStatement {
+	return MissingReturnStatement{ObjectName: objectName, Location: location}
+}
+
+func (verr MissingReturnStatement) Message() string {
+	return fmt.Sprintf(
+		"(%d,%d) `%s` does not return a value on all paths",
+		verr.Location.Line,
+		verr.Location.Column,
+		verr.ObjectName,
+	)
+}

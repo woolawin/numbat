@@ -60,7 +60,7 @@ program do
 end
 
 proc baz Int32 do
-
+	return 0
 end
 `
 	src := readsrc(code)
