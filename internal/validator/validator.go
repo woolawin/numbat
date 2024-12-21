@@ -147,7 +147,7 @@ func (validation *Validation) validateType(t *read.Type, context *Context, repor
 		return NewAtomicInOutType(outType)
 	}
 
-	var ins []InInType
+	var ins []InType
 	for _, param := range t.In {
 		in := validation.validateType(param.Typ, context, reportError)
 		var defaultValue Expression
@@ -162,7 +162,7 @@ func (validation *Validation) validateType(t *read.Type, context *Context, repor
 				defaultValue = NewLiteralExpression("", "", NewAtomicInOutType(NullType{}))
 			}
 		}
-		ins = append(ins, NewInInType(in, param.Name.ToName(), defaultValue))
+		ins = append(ins, NewInType(in, param.Name.ToName(), defaultValue))
 	}
 
 	return NewInOutType(ins, NewSuperAtomicType(outType))

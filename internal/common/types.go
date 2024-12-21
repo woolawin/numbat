@@ -47,22 +47,22 @@ func NewSuperAtomicType(t AtomicType) SuperAtomicType {
 	return SuperAtomicType{Type: t}
 }
 
-type InInType struct {
+type InType struct {
 	Type         *InOutType
 	Name         Name
 	DefaultValue Expression
 }
 
-func NewInInType(t InOutType, name Name, defaultValue Expression) InInType {
-	return InInType{Type: &t, Name: name, DefaultValue: defaultValue}
+func NewInType(t InOutType, name Name, defaultValue Expression) InType {
+	return InType{Type: &t, Name: name, DefaultValue: defaultValue}
 }
 
 type InOutType struct {
-	In  []InInType
+	In  []InType
 	Out SuperAtomicType
 }
 
-func NewInOutType(in []InInType, out SuperAtomicType) InOutType {
+func NewInOutType(in []InType, out SuperAtomicType) InOutType {
 	return InOutType{In: in, Out: out}
 }
 
