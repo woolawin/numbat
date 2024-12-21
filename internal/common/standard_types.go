@@ -90,28 +90,7 @@ func (t *InOutType) String() string {
 	return builder.String()
 }
 
-type Type interface {
-	GetOut() Name
-	GetIn() []InType
-
-	IsCompileError() bool
-	IsNeverCompatible() bool
-	IsNoType() bool
-}
-
-func GetStandardTypes() []Type {
-	return []Type{
-		NewByteType(),
-		NewAsciiType(),
-		NewInt32Type(),
-		NewInt64Type(),
-		NewFloat32Type(),
-		NewFloat64Type(),
-		NewBoolType(),
-	}
-}
-
-func GetStandardTypes2() []AtomicType {
+func GetStandardTypes() []AtomicType {
 	return []AtomicType{
 		NewByteType(),
 		NewAsciiType(),
@@ -147,7 +126,6 @@ func NewInt32InOutType() InOutType {
 	return NewAtomicInOutType(NewInt32Type())
 }
 
-
 // Int64Type --------------------------------------------------
 //
 // ------------------------------------------------------------
@@ -159,7 +137,6 @@ func NewInt64Type() StandardType {
 func NewInt64InOutType() InOutType {
 	return NewAtomicInOutType(NewInt64Type())
 }
-
 
 // Float32Type ------------------------------------------------
 //
@@ -220,10 +197,6 @@ func (t NullType) GetName() string {
 	return "<null>"
 }
 
-func (t NullType) GetIn() []InType {
-	return nil
-}
-
 func (t NullType) IsCompileError() bool {
 	return false
 }
@@ -254,23 +227,10 @@ func NewStringInOutType() InOutType {
 
 type StandardType struct {
 	Out Name
-	In  []InType
-}
-
-func NewStandardType(out Name, in []InType) StandardType {
-	return StandardType{Out: out, In: in}
 }
 
 func (st StandardType) GetName() string {
 	return st.Out.Value
-}
-
-func (st StandardType) GetOut() Name {
-	return st.Out
-}
-
-func (st StandardType) GetIn() []InType {
-	return st.In
 }
 
 func (st StandardType) IsCompileError() bool {
@@ -300,14 +260,6 @@ func (t NoType) GetName() string {
 	return ""
 }
 
-func (t NoType) GetOut() Name {
-	return Name{}
-}
-
-func (t NoType) GetIn() []InType {
-	return nil
-}
-
 func (t NoType) IsCompileError() bool {
 	return false
 }
@@ -333,14 +285,6 @@ func NewCompileErrorType() CompileErrorType {
 
 func (e CompileErrorType) GetName() string {
 	return "<error>"
-}
-
-func (e CompileErrorType) GetOut() Name {
-	return Name{}
-}
-
-func (e CompileErrorType) GetIn() []InType {
-	return nil
 }
 
 func (e CompileErrorType) IsCompileError() bool {

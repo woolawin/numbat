@@ -26,7 +26,7 @@ func (validation *Validation) Validate(src *read.Source) *Source {
 		if found {
 			validation.addError(NewNameConflict(proc.Name.ToName(), object.GetName().Location))
 		} else {
-			t := validation.validateType2(proc.Type, &source.Context, false)
+			t := validation.validateType(proc.Type, &source.Context, false)
 			obj := NewProcedureForwardDeclaration(proc.Name.ToName(), t)
 			source.Context.AddObject(proc.Name.Value, &obj)
 		}
@@ -48,7 +48,7 @@ func (validation *Validation) Validate(src *read.Source) *Source {
 	for idx := range src.Procs {
 		proc := &src.Procs[idx]
 		source.Context.GetObject(proc.Name.Value)
-		t := validation.validateType2(proc.Type, &source.Context, true)
+		t := validation.validateType(proc.Type, &source.Context, true)
 		procedure := source.AddProcedure(proc.Name.ToName(), t)
 		validation.procedure(proc, procedure)
 	}
@@ -122,7 +122,7 @@ func (validation *Validation) statement(stmt *read.Statement, context *Context) 
 	return nil, false // ERROR
 }
 
-func (validation *Validation) validateType2(t *read.Type, context *Context, reportError bool) InOutType {
+func (validation *Validation) validateType(t *read.Type, context *Context, reportError bool) InOutType {
 	if t == nil {
 		return NoInOutType()
 	}
@@ -135,7 +135,7 @@ func (validation *Validation) validateType2(t *read.Type, context *Context, repo
 	var outType AtomicType = NewNoType()
 	if t.Out.Name != "" {
 		// There is an out type specified so we must validate it
-		foundType, found := context.GetType2(t.Out.Name)
+		foundType, found := context.GetType(t.Out.Name)
 		if !found {
 			if reportError {
 				validation.errors = append(validation.errors, NewUnknownType(t.Out.ToName()))
@@ -151,7 +151,7 @@ func (validation *Validation) validateType2(t *read.Type, context *Context, repo
 
 	var ins []InInType
 	for _, param := range t.In {
-		in := validation.validateType2(param.Typ, context, reportError)
+		in := validation.validateType(param.Typ, context, reportError)
 		//if in.IsCompileError() {
 		//	return NewInOutType(nil, NewSuperAtomicType(NewCompileErrorType()))
 		//}
@@ -192,7 +192,7 @@ func (validation *Validation) variable(stmt *read.Var, context *Context) (Variab
 
 	if stmt.VarType != nil {
 		// They specified a type so make sure it is a correct type
-		t := validation.validateType2(stmt.VarType, context, true)
+		t := validation.validateType(stmt.VarType, context, true)
 		variableType = &t
 	}
 
@@ -225,7 +225,7 @@ func (validation *Validation) expression(expr *read.Expr, expectedType *InOutTyp
 
 	var expression Expression
 	if expr.Type != nil {
-		validation.validateType2(expr.Type, context, true)
+		validation.validateType(expr.Type, context, true)
 	}
 
 	if expr.VarName != nil {

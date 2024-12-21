@@ -24,16 +24,6 @@ func (param Parameter) GetType() InOutType {
 	return param.Type
 }
 
-type InType struct {
-	Type         Type
-	Name         Name
-	DefaultValue Expression
-}
-
-func NewInType(t Type, name Name, defaultValue Expression) InType {
-	return InType{Type: t, Name: name, DefaultValue: defaultValue}
-}
-
 type Object interface {
 	GetName() Name
 	GetType() InOutType
@@ -75,7 +65,6 @@ func NewSource() *Source {
 		Context: Context{
 			Parent:  nil,
 			Types:   GetStandardTypes(),
-			Types2:  GetStandardTypes2(),
 			Objects: make(map[string]Object),
 		},
 	}
@@ -92,8 +81,7 @@ func (p *Source) AddProcedure(name Name, t InOutType) *Procedure {
 
 type Context struct {
 	Parent  *Context
-	Types   []Type
-	Types2  []AtomicType
+	Types   []AtomicType
 	Objects map[string]Object
 
 	InProgram         bool
@@ -105,7 +93,6 @@ func NewContext(parent *Context) *Context {
 	return &Context{
 		Parent:            parent,
 		Types:             GetStandardTypes(),
-		Types2:            GetStandardTypes2(),
 		Objects:           make(map[string]Object),
 		InProgram:         parent.InProgram,
 		CurrentObjectName: parent.CurrentObjectName,
@@ -117,7 +104,6 @@ func NewProgramContext(sourceContext *Context) *Context {
 	return &Context{
 		Parent:            sourceContext,
 		Types:             GetStandardTypes(),
-		Types2:            GetStandardTypes2(),
 		Objects:           make(map[string]Object),
 		InProgram:         true,
 		CurrentObjectName: "program",
@@ -140,26 +126,14 @@ func (c *Context) GetObject(name string) (Object, bool) {
 	return obj, true
 }
 
-func (c *Context) GetType(name string) (Type, bool) {
+func (c *Context) GetType(name string) (AtomicType, bool) {
 	for _, typ := range c.Types {
-		if typ.GetOut().Value == name {
-			return typ, true
-		}
-	}
-	if c.Parent != nil {
-		return c.Parent.GetType(name)
-	}
-	return NewCompileErrorType(), false
-}
-
-func (c *Context) GetType2(name string) (AtomicType, bool) {
-	for _, typ := range c.Types2 {
 		if typ.GetName() == name {
 			return typ, true
 		}
 	}
 	if c.Parent != nil {
-		return c.Parent.GetType2(name)
+		return c.Parent.GetType(name)
 	}
 	return NewCompileErrorType(), false
 }
