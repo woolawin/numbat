@@ -15,6 +15,7 @@ func NewCTranspiler() CTranspiler {
 }
 
 func (transpiler *CTranspiler) Transpile(src *Source) {
+	transpiler.program(src.Program)
 	for _, procedure := range src.Procedures {
 		transpiler.procedure(procedure)
 	}
@@ -24,36 +25,10 @@ func (transpiler *CTranspiler) String() string {
 	return transpiler.builder.String()
 }
 
-func (transpiler *CTranspiler) indent() {
-	transpiler.indentation++
-}
-
-func (transpiler *CTranspiler) unindent() {
-	transpiler.indentation--
-}
-
-func (transpiler *CTranspiler) newline() {
-	transpiler.builder.WriteString("\n")
-}
-
-func (transpiler *CTranspiler) write(values ...string) {
-	transpiler.builder.WriteString(strings.Repeat(" ", transpiler.indentation))
-	for _, value := range values {
-		transpiler.builder.WriteString(value)
-		transpiler.builder.WriteRune(' ')
-	}
-}
-
-func (transpiler *CTranspiler) writenl(values ...string) {
-	transpiler.builder.WriteString(strings.Repeat(" ", transpiler.indentation))
-	for idx, value := range values {
-		transpiler.builder.WriteString(value)
-		if idx != len(values)-1 {
-			transpiler.builder.WriteRune(' ')
-		} else {
-			transpiler.newline()
-		}
-	}
+func (transpiler *CTranspiler) program(procedure Procedure) {
+	transpiler.newline()
+	transpiler.writenl("int main(int argc, char** argv) {")
+	transpiler.write("}")
 }
 
 func (transpiler *CTranspiler) procedure(procedure Procedure) {
@@ -104,5 +79,37 @@ func (transpiler *CTranspiler) atomicType(atomic AtomicType) {
 
 	if atomic.GetName() == TypeByte {
 		transpiler.write("char")
+	}
+}
+
+func (transpiler *CTranspiler) indent() {
+	transpiler.indentation++
+}
+
+func (transpiler *CTranspiler) unindent() {
+	transpiler.indentation--
+}
+
+func (transpiler *CTranspiler) newline() {
+	transpiler.builder.WriteString("\n")
+}
+
+func (transpiler *CTranspiler) write(values ...string) {
+	transpiler.builder.WriteString(strings.Repeat(" ", transpiler.indentation))
+	for _, value := range values {
+		transpiler.builder.WriteString(value)
+		transpiler.builder.WriteRune(' ')
+	}
+}
+
+func (transpiler *CTranspiler) writenl(values ...string) {
+	transpiler.builder.WriteString(strings.Repeat(" ", transpiler.indentation))
+	for idx, value := range values {
+		transpiler.builder.WriteString(value)
+		if idx != len(values)-1 {
+			transpiler.builder.WriteRune(' ')
+		} else {
+			transpiler.newline()
+		}
 	}
 }

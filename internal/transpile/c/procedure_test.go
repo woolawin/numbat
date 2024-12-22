@@ -4,6 +4,22 @@ import (
 	"testing"
 )
 
+func TestProgram(t *testing.T) {
+	src := `
+program do
+
+end
+`
+	transpiler := NewCTranspiler()
+	transpiler.Transpile(readsrc(src))
+
+	actual := transpiler.String()
+	expected := `
+int main(int argc, char** argv) {
+}`
+	assert(t, actual, expected)
+}
+
 func TestProcedureNoParamsNoReturn(t *testing.T) {
 
 	src := `
