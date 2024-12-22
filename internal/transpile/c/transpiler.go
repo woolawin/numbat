@@ -62,9 +62,12 @@ func (transpiler *CTranspiler) statements(statements []Statement) {
 }
 
 func (transpiler *CTranspiler) statement(statement Statement) {
+
 	switch statement.(type) {
 	case VariableDeclaration:
 		transpiler.variableDeclaration(statement.(VariableDeclaration))
+	case ProcedureCall:
+		transpiler.procedureCall(statement.(ProcedureCall))
 	}
 }
 
@@ -80,10 +83,24 @@ func (transpiler *CTranspiler) variableDeclaration(statement VariableDeclaration
 	transpiler.endline()
 }
 
+func (transpiler *CTranspiler) procedureCall(call ProcedureCall) {
+	transpiler.write(MangleProcedureName(call.Object.GetName().Value))
+	transpiler.write("(")
+	for idx, arg := range call.Arguments {
+		transpiler.expression(arg)
+		if idx < len(call.Arguments)-1 {
+			transpiler.write(",")
+		}
+	}
+	transpiler.write(")")
+}
+
 func (transpiler *CTranspiler) expression(expression Expression) {
 	switch expression.(type) {
 	case *LiteralExpression:
 		transpiler.write(literal(expression.(*LiteralExpression)))
+	case *ProceduresExpression:
+		transpiler.procedureCall(expression.(*ProceduresExpression).Call)
 	}
 }
 
