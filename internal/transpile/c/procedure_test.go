@@ -40,11 +40,11 @@ int __prog_proc_apple ( ) {
 	assert(t, actual, expected)
 }
 
-func TestProcedureParams(t *testing.T) {
+func TestProcedureParamsAndReturn(t *testing.T) {
 
 	src := `
-proc apple(a Int32, b Bool) do
-
+proc apple(a Int32, b Bool) Float64 do
+	return 1.0
 end
 `
 	transpiler := NewCTranspiler()
@@ -52,7 +52,7 @@ end
 
 	actual := transpiler.String()
 	expected := `
-void __prog_proc_apple ( a int , b int ) {
+double __prog_proc_apple ( a int , b int ) {
 }
 `
 	assert(t, actual, expected)

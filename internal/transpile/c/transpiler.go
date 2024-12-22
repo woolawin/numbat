@@ -1,7 +1,6 @@
 package c
 
 import (
-	"fmt"
 	. "numbat/internal/common"
 	"strings"
 )
@@ -62,8 +61,8 @@ func (transpiler *CTranspiler) procedure(procedure Procedure) {
 	transpiler.atomicType(procedure.Type.Out.Type)
 	transpiler.write(MangleProcedureName(procedure.Name.Value), "(")
 	for idx, param := range procedure.Parameters {
-		fmt.Println("paramater")
 		transpiler.write(param.Name.Value)
+		transpiler.atomicType(param.Type.Out.Type)
 		if idx < len(procedure.Parameters)-1 {
 			transpiler.write(",")
 		}
