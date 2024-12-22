@@ -26,5 +26,5 @@ func assert(t *testing.T, actual, expected string) {
 	if len(diffs) == 1 && diffs[0].Type == diffmatchpatch.DiffEqual {
 		return
 	}
-	t.Fatal(dmp.DiffPrettyText(diffs))
+	t.Fatalf("\n%s\n", dmp.DiffPrettyText(diffs))
 }

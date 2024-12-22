@@ -43,13 +43,11 @@ end
 int main(int argc, char** argv) {
 }
 
-void __prog_proc_apple ( ) {
-}
+void __prog_proc_apple() {}
 
-int __prog_proc_pear ( ) {
-}
+int __prog_proc_pear() {}
 
-double __prog_proc_orange ( a int , b int ) {
-}`
+double __prog_proc_orange(a int ,b int ) {}
+`
 	assert(t, actual, expected)
 }
