@@ -11,5 +11,6 @@ require (
 
 require (
 	github.com/google/go-cmp v0.6.0 // indirect
+	github.com/sergi/go-diff v1.3.1 // indirect
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
 )

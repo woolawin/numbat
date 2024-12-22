@@ -1,3 +1,5 @@
 Check Number Literal Ranges
 Make sure variables are initialzed before usage
+Enforce reserved names
 Add test to make sure var i IntX = some_expressions validates expression
+Support Float128
