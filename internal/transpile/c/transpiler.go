@@ -72,8 +72,49 @@ func (transpiler *CTranspiler) variableDeclaration(statement VariableDeclaration
 	transpiler.startline()
 	transpiler.atomicType(statement.Type.Out.Type)
 	transpiler.write(MangleVariableName(statement.Name.Value))
+	if statement.Value != nil {
+		transpiler.write(" ", "=", " ")
+		transpiler.expression(statement.Value)
+	}
 	transpiler.write(";")
 	transpiler.endline()
+}
+
+func (transpiler *CTranspiler) expression(expression Expression) {
+	switch expression.(type) {
+	case *LiteralExpression:
+		transpiler.write(literal(expression.(*LiteralExpression)))
+	}
+}
+
+func literal(value *LiteralExpression) string {
+	atomic := value.GetType().Out.Type
+	if atomic.GetName() == TypeBool {
+		if value.Value == "true" {
+			return "1"
+		}
+		return "0"
+	}
+	if atomic.GetName() == TypeAscii {
+		return "'" + value.Value + "'"
+	}
+
+	if atomic.GetName() == TypeInt32 {
+		return value.Value
+	}
+
+	if atomic.GetName() == TypeInt64 {
+		return value.Value
+	}
+
+	if atomic.GetName() == TypeFloat32 {
+		return value.Value
+	}
+
+	if atomic.GetName() == TypeFloat64 {
+		return value.Value
+	}
+	return ""
 }
 
 func (transpiler *CTranspiler) atomicType(atomic AtomicType) {

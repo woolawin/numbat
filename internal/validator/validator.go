@@ -201,8 +201,10 @@ func (validation *Validation) variable(stmt *read.Var, context *Context) (Variab
 		expr, ok := validation.expression(&stmt.Exprs[0], variableType, context, variableType == nil)
 		if ok {
 			variableValue = expr
-			t := expr.GetType()
-			variableType = &t
+			if variableType == nil {
+				t := expr.GetType()
+				variableType = &t
+			}
 		}
 	}
 
