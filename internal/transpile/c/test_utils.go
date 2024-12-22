@@ -20,7 +20,9 @@ func readsrc(sample string) *common.Source {
 func assert(t *testing.T, actual, expected string) {
 	dmp := diffmatchpatch.New()
 
-	diffs := dmp.DiffMain(strings.TrimSpace(actual), strings.TrimSpace(expected), false)
+	a := strings.ReplaceAll(strings.TrimSpace(actual), " ", "•")
+	b := strings.ReplaceAll(strings.TrimSpace(expected), " ", "•")
+	diffs := dmp.DiffMain(a, b, false)
 	if len(diffs) == 1 && diffs[0].Type == diffmatchpatch.DiffEqual {
 		return
 	}

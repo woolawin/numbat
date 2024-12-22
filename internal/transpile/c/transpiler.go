@@ -28,7 +28,10 @@ func (transpiler *CTranspiler) String() string {
 func (transpiler *CTranspiler) program(procedure Procedure) {
 	transpiler.newline()
 	transpiler.writenl("int main(int argc, char** argv) {")
-	transpiler.write("}")
+	transpiler.indent()
+	transpiler.statements()
+	transpiler.unindent()
+	transpiler.writenl("}")
 }
 
 func (transpiler *CTranspiler) procedure(procedure Procedure) {
@@ -43,9 +46,18 @@ func (transpiler *CTranspiler) procedure(procedure Procedure) {
 		}
 	}
 	transpiler.writenl(")", "{")
-	//transpiler.indent()
-	//transpiler.unindent()
-	transpiler.write("}")
+	transpiler.indent()
+	transpiler.statements()
+	transpiler.unindent()
+	transpiler.writenl("}")
+}
+
+func (transpiler *CTranspiler) statements() {
+
+}
+
+func (transpiler *CTranspiler) statement() {
+
 }
 
 func (transpiler *CTranspiler) atomicType(atomic AtomicType) {

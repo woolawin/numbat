@@ -32,9 +32,11 @@ end
 
 	actual := transpiler.String()
 	expected := `
-void __prog_proc_apple ( ) {
+int main(int argc, char** argv) {
 }
-`
+
+void __prog_proc_apple ( ) {
+}`
 	assert(t, actual, expected)
 }
 
@@ -50,6 +52,9 @@ end
 
 	actual := transpiler.String()
 	expected := `
+int main(int argc, char** argv) {
+}
+
 int __prog_proc_apple ( ) {
 }
 `
@@ -68,6 +73,9 @@ end
 
 	actual := transpiler.String()
 	expected := `
+int main(int argc, char** argv) {
+}
+
 double __prog_proc_apple ( a int , b int ) {
 }
 `
