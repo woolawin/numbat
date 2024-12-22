@@ -70,6 +70,7 @@ func (validation *Validation) procedure(proc *read.Proc, procedure *Procedure) {
 		if found {
 			validation.addError(NewNameConflict(in.Name, object.GetName().Location))
 		} else {
+			procedure.AddParameter(parameter)
 			procedure.Context.AddObject(in.Name.Value, parameter)
 		}
 	}

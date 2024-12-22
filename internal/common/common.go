@@ -50,6 +50,10 @@ func (p *Procedure) AddStatements(stmt []Statement) {
 	p.Statements = append(p.Statements, stmt...)
 }
 
+func (p *Procedure) AddParameter(param Parameter) {
+	p.Parameters = append(p.Parameters, param)
+}
+
 type Expression interface {
 	GetType() InOutType
 }
