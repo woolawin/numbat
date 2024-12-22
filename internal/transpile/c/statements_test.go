@@ -51,9 +51,9 @@ int main(int argc, char** argv) {
 
 int __prog_proc_apple() {}
 
-int __prog_proc_banana(a int ) {}
+int __prog_proc_banana(int a) {}
 
-int __prog_proc_pear(a int ,b long int ,c double ) {}
+int __prog_proc_pear(int a,long int b,double c) {}
 `
 	assert(t, actual, expected)
 }

@@ -47,7 +47,7 @@ void __prog_proc_apple() {}
 
 int __prog_proc_pear() {}
 
-double __prog_proc_orange(a int ,b int ) {}
+double __prog_proc_orange(int a,int b) {}
 `
 	assert(t, actual, expected)
 }
