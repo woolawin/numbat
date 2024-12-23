@@ -37,22 +37,22 @@ end
 
 	actual := transpile(src)
 	expected := `
-void __prog_proc_apple();
-int __prog_proc_pear();
-double __prog_proc_orange(int __va,int __vb);
+void __prog_papple();
+int __prog_ppear();
+double __prog_porange(int __va,int __vb);
 
 int main(int argc,char** argv) {
     return 0;
 }
 
-void __prog_proc_apple() {
+void __prog_papple() {
 }
 
-int __prog_proc_pear() {
+int __prog_ppear() {
     return 1;
 }
 
-double __prog_proc_orange(int __va,int __vb) {
+double __prog_porange(int __va,int __vb) {
     return 1.0;
 }
 `
