@@ -17,6 +17,11 @@ func (printer *CSourcePrinter) reset() {
 }
 
 func (printer *CSourcePrinter) Print(src *CSource) string {
+	printer.newline()
+	for _, cfunc := range src.Functions {
+		printer.forwardFunctionDeclaration(&cfunc)
+	}
+	printer.newline()
 	printer.function(&src.Main)
 	for _, cfunc := range src.Functions {
 		printer.function(&cfunc)
@@ -42,6 +47,21 @@ func (printer *CSourcePrinter) function(cfunc *CFunc) {
 	printer.unindent()
 	printer.write("}")
 	printer.endline()
+}
+
+func (printer *CSourcePrinter) forwardFunctionDeclaration(cfunc *CFunc) {
+	printer.newline()
+	printer.write(cfunc.Type, " ")
+	printer.write(cfunc.Name, "(")
+	for idx, param := range cfunc.Parameters {
+		printer.write(param.Type, " ")
+		printer.write(param.Name)
+
+		if idx < len(cfunc.Parameters)-1 {
+			printer.write(",")
+		}
+	}
+	printer.write(");")
 }
 
 func (printer *CSourcePrinter) statements(statements []CStatement) {
