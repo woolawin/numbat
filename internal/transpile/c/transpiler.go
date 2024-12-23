@@ -35,6 +35,7 @@ func (transpiler *CTranspiler) program(procedure Procedure) CFunc {
 		},
 	}
 	cfunc.Statements = transpiler.statements(procedure.Statements)
+	cfunc.Statements = append(cfunc.Statements, CReturn{Value: CLiteral{Value: "0"}})
 	return cfunc
 }
 
@@ -67,6 +68,8 @@ func (transpiler *CTranspiler) statement(statement Statement) CStatement {
 		return transpiler.variableDeclaration(statement.(VariableDeclaration))
 	case ProcedureCall:
 		return transpiler.procedureCall(statement.(ProcedureCall))
+	case ReturnStatement:
+		return transpiler.returnStatement(statement.(ReturnStatement))
 	}
 	return nil // TODO ADD ERROR
 }
@@ -92,6 +95,13 @@ func (transpiler *CTranspiler) procedureCall(call ProcedureCall) CFuncCall {
 		FunctionName: MangleProcedureName(call.Object.GetName().Value),
 		Arguments:    args,
 	}
+}
+
+func (transpiler *CTranspiler) returnStatement(stmt ReturnStatement) CReturn {
+	if stmt.Value == nil {
+		return CReturn{}
+	}
+	return CReturn{Value: transpiler.expression(stmt.Value)}
 }
 
 func (transpiler *CTranspiler) expression(expression Expression) CExpression {

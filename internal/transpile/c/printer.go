@@ -82,6 +82,10 @@ func (printer *CSourcePrinter) statement(statement CStatement) {
 		printer.startline()
 		ok = true
 		printer.functionCall(statement.(CFuncCall))
+	case CReturn:
+		printer.startline()
+		ok = true
+		printer.returnStatement(statement.(CReturn))
 	}
 	if ok {
 		printer.write(";")
@@ -108,6 +112,14 @@ func (printer *CSourcePrinter) functionCall(call CFuncCall) {
 		}
 	}
 	printer.write(")")
+}
+
+func (printer *CSourcePrinter) returnStatement(stmt CReturn) {
+	printer.write("return")
+	if stmt.Value != nil {
+		printer.write(" ")
+		printer.expression(stmt.Value)
+	}
 }
 
 func (printer *CSourcePrinter) expression(expression CExpression) {

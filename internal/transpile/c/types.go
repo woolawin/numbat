@@ -1,5 +1,10 @@
 package c
 
+type CSource struct {
+	Main      CFunc
+	Functions []CFunc
+}
+
 type CFunc struct {
 	Type       string
 	Name       string
@@ -42,7 +47,8 @@ type CVariableDeclaration struct {
 
 func (CVariableDeclaration) isCStatement() {}
 
-type CSource struct {
-	Main      CFunc
-	Functions []CFunc
+type CReturn struct {
+	Value CExpression
 }
+
+func (CReturn) isCStatement() {}

@@ -54,15 +54,19 @@ int main(int argc,char** argv) {
     int __vj = __prog_proc_pear(0,-4,-4.12);
     __prog_proc_apple();
     __prog_proc_pear(0,-4,-4.12);
+    return 0;
 }
 
 int __prog_proc_apple() {
+    return 1;
 }
 
 int __prog_proc_banana(int __va) {
+    return 1;
 }
 
 int __prog_proc_pear(int __va,long int __vb,double __vc) {
+    return 1;
 }
 `
 	assert(t, actual, expected)
