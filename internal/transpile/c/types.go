@@ -32,6 +32,7 @@ type CFuncCall struct {
 }
 
 func (CFuncCall) isCExpression() {}
+func (CFuncCall) isCStatement()  {}
 
 type CVariableDeclaration struct {
 	Type  string

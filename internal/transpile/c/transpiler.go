@@ -66,7 +66,7 @@ func (transpiler *CTranspiler) statement(statement Statement) CStatement {
 	case VariableDeclaration:
 		return transpiler.variableDeclaration(statement.(VariableDeclaration))
 	case ProcedureCall:
-		transpiler.procedureCall(statement.(ProcedureCall))
+		return transpiler.procedureCall(statement.(ProcedureCall))
 	}
 	return nil // TODO ADD ERROR
 }

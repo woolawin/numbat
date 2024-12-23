@@ -78,6 +78,10 @@ func (printer *CSourcePrinter) statement(statement CStatement) {
 		printer.startline()
 		ok = true
 		printer.variableDeclaration(statement.(CVariableDeclaration))
+	case CFuncCall:
+		printer.startline()
+		ok = true
+		printer.functionCall(statement.(CFuncCall))
 	}
 	if ok {
 		printer.write(";")

@@ -17,6 +17,9 @@ program do
 	var h Int32 = apple() 
 	var i Int32 = banana(true)
     var j Int32 = pear(false, -4, -4.12)
+
+	apple()
+	pear(false, -4, -4.12)
 end
 
 proc apple Int32 do
@@ -49,6 +52,8 @@ int main(int argc,char** argv) {
     int __vh = __prog_proc_apple();
     int __vi = __prog_proc_banana(1);
     int __vj = __prog_proc_pear(0,-4,-4.12);
+    __prog_proc_apple();
+    __prog_proc_pear(0,-4,-4.12);
 }
 
 int __prog_proc_apple() {
