@@ -31,12 +31,10 @@ proc pear(a Bool, b Int64, c Float64) Int32 do
 	return 1
 end
 `
-	transpiler := NewCTranspiler()
-	transpiler.Transpile(readsrc(src))
+	actual := transpile(src)
 
-	actual := transpiler.String()
 	expected := `
-int main(int argc, char** argv) {
+int main(int argc,char** argv) {
     int __va;
     int __vb = 1;
     int __vc = 0;
@@ -49,11 +47,14 @@ int main(int argc, char** argv) {
     int __vj = __prog_proc_pear(0,-4,-4.12);
 }
 
-int __prog_proc_apple() {}
+int __prog_proc_apple() {
+}
 
-int __prog_proc_banana(int a) {}
+int __prog_proc_banana(int __va) {
+}
 
-int __prog_proc_pear(int a,long int b,double c) {}
+int __prog_proc_pear(int __va,long int __vb,double __vc) {
+}
 `
 	assert(t, actual, expected)
 }

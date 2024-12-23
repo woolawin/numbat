@@ -10,13 +10,11 @@ program do
 
 end
 `
-	transpiler := NewCTranspiler()
-	transpiler.Transpile(readsrc(src))
-
-	actual := transpiler.String()
+	actual := transpile(src)
 	expected := `
-int main(int argc, char** argv) {
-}`
+int main(int argc,char** argv) {
+}
+`
 	assert(t, actual, expected)
 }
 
@@ -28,26 +26,27 @@ proc apple do
 end
 
 proc pear Int32 do
-
+	return 1
 end
 
 proc orange(a Int32, b Bool) Float64 do
 	return 1.0
 end
 `
-	transpiler := NewCTranspiler()
-	transpiler.Transpile(readsrc(src))
 
-	actual := transpiler.String()
+	actual := transpile(src)
 	expected := `
-int main(int argc, char** argv) {
+int main(int argc,char** argv) {
 }
 
-void __prog_proc_apple() {}
+void __prog_proc_apple() {
+}
 
-int __prog_proc_pear() {}
+int __prog_proc_pear() {
+}
 
-double __prog_proc_orange(int a,int b) {}
+double __prog_proc_orange(int __va,int __vb) {
+}
 `
 	assert(t, actual, expected)
 }
