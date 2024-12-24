@@ -17,8 +17,9 @@ param_expr: '=' expr_constant;
 param_type: type;
 param: NON_TYPE_NAME param_type param_expr?;
 
-
-type_out: TYPE_NAME;
+type_super_atomic_seq: '['NUMBER?']';
+type_super_atomic: TYPE_NAME type_super_atomic_seq?;
+type_out: type_super_atomic;
 type_in: ('(' ')' | '(' param (',' param)* ')');
 type: ((type_in)? type_out | type_in type_out?);
 

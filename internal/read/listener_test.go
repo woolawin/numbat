@@ -86,6 +86,9 @@ PROC foo
 	VAR k 1#kg/m^3
 	VAR l 2#m^3/kg
 	VAR m &(baz.bar)
+	VAR n Int32[]
+	VAR o Ascii[]
+	VAR p Int64[10]
 `
 	assert(t, src, expected)
 }

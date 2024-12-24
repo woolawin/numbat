@@ -99,6 +99,18 @@ func (s *BaseNumbatListener) EnterParam(ctx *ParamContext) {}
 // ExitParam is called when production param is exited.
 func (s *BaseNumbatListener) ExitParam(ctx *ParamContext) {}
 
+// EnterType_super_atomic_seq is called when production type_super_atomic_seq is entered.
+func (s *BaseNumbatListener) EnterType_super_atomic_seq(ctx *Type_super_atomic_seqContext) {}
+
+// ExitType_super_atomic_seq is called when production type_super_atomic_seq is exited.
+func (s *BaseNumbatListener) ExitType_super_atomic_seq(ctx *Type_super_atomic_seqContext) {}
+
+// EnterType_super_atomic is called when production type_super_atomic is entered.
+func (s *BaseNumbatListener) EnterType_super_atomic(ctx *Type_super_atomicContext) {}
+
+// ExitType_super_atomic is called when production type_super_atomic is exited.
+func (s *BaseNumbatListener) ExitType_super_atomic(ctx *Type_super_atomicContext) {}
+
 // EnterType_out is called when production type_out is entered.
 func (s *BaseNumbatListener) EnterType_out(ctx *Type_outContext) {}
 

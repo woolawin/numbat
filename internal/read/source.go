@@ -16,13 +16,13 @@ func (listener *ErrorListener) SyntaxError(recognizer antlr.Recognizer, offendin
 
 type Source struct {
 	Programs []Proc
-	Procs   []Proc
+	Procs    []Proc
 }
 
 func (reader *SourceReader) Source() *Source {
 	src := &Source{
 		Programs: reader.programs,
-		Procs:   reader.procs,
+		Procs:    reader.procs,
 	}
 	return src
 }
@@ -149,6 +149,11 @@ func (typ *Type) String() string {
 		str.WriteString(") ")
 	}
 	str.WriteString(typ.Out.Name)
+	if typ.Out.Sequence {
+		str.WriteString("[")
+		str.WriteString(typ.Out.SequenceSize)
+		str.WriteString("]")
+	}
 	return str.String()
 }
 

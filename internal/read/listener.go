@@ -167,9 +167,16 @@ func (reader *SourceReader) ExitType(ctx *parser.TypeContext) {
 	reader.UnsetType()
 }
 
-func (reader *SourceReader) EnterType_out(ctx *parser.Type_outContext) {
+func (reader *SourceReader) EnterType_super_atomic(ctx *parser.Type_super_atomicContext) {
 	reader.typ.Out.Name = ctx.TYPE_NAME().GetText()
 	reader.typ.Out.Location = reader.location(ctx.BaseParserRuleContext)
+}
+
+func (reader *SourceReader) EnterType_super_atomic_seq(ctx *parser.Type_super_atomic_seqContext) {
+	reader.typ.Out.Sequence = true
+	if ctx.NUMBER() != nil {
+		reader.typ.Out.SequenceSize = ctx.NUMBER().GetText()
+	}
 }
 
 // ============================================================================================================

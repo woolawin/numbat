@@ -47,6 +47,12 @@ type NumbatListener interface {
 	// EnterParam is called when entering the param production.
 	EnterParam(c *ParamContext)
 
+	// EnterType_super_atomic_seq is called when entering the type_super_atomic_seq production.
+	EnterType_super_atomic_seq(c *Type_super_atomic_seqContext)
+
+	// EnterType_super_atomic is called when entering the type_super_atomic production.
+	EnterType_super_atomic(c *Type_super_atomicContext)
+
 	// EnterType_out is called when entering the type_out production.
 	EnterType_out(c *Type_outContext)
 
@@ -166,6 +172,12 @@ type NumbatListener interface {
 
 	// ExitParam is called when exiting the param production.
 	ExitParam(c *ParamContext)
+
+	// ExitType_super_atomic_seq is called when exiting the type_super_atomic_seq production.
+	ExitType_super_atomic_seq(c *Type_super_atomic_seqContext)
+
+	// ExitType_super_atomic is called when exiting the type_super_atomic production.
+	ExitType_super_atomic(c *Type_super_atomicContext)
 
 	// ExitType_out is called when exiting the type_out production.
 	ExitType_out(c *Type_outContext)

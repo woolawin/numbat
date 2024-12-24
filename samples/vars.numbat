@@ -14,5 +14,8 @@ proc foo do
     var k = 1#kg/m^3
     var l = 2#m^3/kg
     var m = baz:bar()
+    var n Int32[]
+    var o Ascii[]
+    var p Int64[10]
 end
 

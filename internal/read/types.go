@@ -3,8 +3,10 @@ package read
 import "numbat/internal/common"
 
 type TypeOut struct {
-	Name     string
-	Location common.Location
+	Name         string
+	Sequence     bool
+	SequenceSize string
+	Location     common.Location
 }
 
 func (to *TypeOut) ToName() common.Name {
