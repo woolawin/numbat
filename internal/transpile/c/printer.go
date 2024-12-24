@@ -128,6 +128,8 @@ func (printer *CSourcePrinter) expression(expression CExpression) {
 		printer.write(expression.(CLiteral).Value)
 	case CFuncCall:
 		printer.functionCall(expression.(CFuncCall))
+	case CVariable:
+		printer.write(expression.(CVariable).Name)
 	}
 }
 

@@ -110,8 +110,14 @@ func (transpiler *CTranspiler) expression(expression Expression) CExpression {
 		return literal(expression.(*LiteralExpression))
 	case *ProceduresExpression:
 		return transpiler.procedureCall(expression.(*ProceduresExpression).Call)
+	case *VariableExpression:
+		return transpiler.variable(expression.(*VariableExpression))
 	}
 	return nil
+}
+
+func (transpiler *CTranspiler) variable(expression *VariableExpression) CVariable {
+	return CVariable{Name: MangleVariableName(expression.Name.Value)}
 }
 
 func literal(value *LiteralExpression) CLiteral {

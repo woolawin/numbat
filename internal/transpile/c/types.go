@@ -31,6 +31,12 @@ type CLiteral struct {
 
 func (CLiteral) isCExpression() {}
 
+type CVariable struct {
+	Name string
+}
+
+func (CVariable) isCExpression() {}
+
 type CFuncCall struct {
 	FunctionName string
 	Arguments    []CExpression

@@ -16,7 +16,7 @@ program do
     var g Int64 = 3
 	var h Int32 = apple() 
 	var i Int32 = banana(true)
-    var j Int32 = pear(false, -4, -4.12)
+    var j Int32 = pear(b, -4, -4.12)
 
 	apple()
 	pear(false, -4, -4.12)
@@ -51,7 +51,7 @@ int main(int argc,char** argv) {
     long int __vg = 3;
     int __vh = __prog_papple();
     int __vi = __prog_pbanana(1);
-    int __vj = __prog_ppear(0,-4,-4.12);
+    int __vj = __prog_ppear(__vb,-4,-4.12);
     __prog_papple();
     __prog_ppear(0,-4,-4.12);
     return 0;
