@@ -10,6 +10,10 @@ type Validation struct {
 	errors []ValidationError
 }
 
+func (validation *Validation) GetErrors() []ValidationError {
+	return validation.errors
+}
+
 func NewValidation() Validation {
 	return Validation{}
 }
