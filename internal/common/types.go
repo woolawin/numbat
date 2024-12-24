@@ -1,6 +1,9 @@
 package common
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 const TypeAscii = "Ascii"
 const TypeInt32 = "Int32"
@@ -22,9 +25,11 @@ type AtomicType interface {
 }
 
 type SuperAtomicType struct {
-	Type       AtomicType
-	IsOptional bool
-	IsError    bool
+	Type          AtomicType
+	IsSequence   bool
+	SequenceSize int
+	IsOptional   bool
+	IsError       bool
 }
 
 func (s *SuperAtomicType) IsNoType() bool {
@@ -40,7 +45,16 @@ func (s *SuperAtomicType) IsCompileError() bool {
 }
 
 func (s *SuperAtomicType) String() string {
-	return s.Type.GetName()
+	var builder strings.Builder
+	builder.WriteString(s.Type.GetName())
+	if s.IsSequence {
+		builder.WriteString("[")
+		if s.SequenceSize != 0 {
+			builder.WriteString(strconv.Itoa(s.SequenceSize))
+		}
+		builder.WriteString("]")
+	}
+	return builder.String()
 }
 
 func NewSuperAtomicType(t AtomicType) SuperAtomicType {
@@ -68,6 +82,10 @@ func NewInOutType(in []InType, out SuperAtomicType) InOutType {
 
 func NewAtomicInOutType(atomic AtomicType) InOutType {
 	return InOutType{Out: NewSuperAtomicType(atomic)}
+}
+
+func NewSeqType(out AtomicType, size int) InOutType {
+	return InOutType{Out: SuperAtomicType{Type: out, IsSequence: true, SequenceSize: size}}
 }
 
 func NoInOutType() InOutType {

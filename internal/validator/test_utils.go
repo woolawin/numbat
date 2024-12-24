@@ -63,6 +63,24 @@ func assertVariableType(t *testing.T, src *Source, name string, expected string)
 	t.Fatalf("did not find variable %s", name)
 }
 
+func assertVariableType2(t *testing.T, src *Source, name string, expected InOutType) {
+	for _, stmt := range src.Program.Statements {
+		switch stmt := stmt.(type) {
+		case VariableDeclaration:
+			{
+				if stmt.Name.Value == name {
+					typ := stmt.Type
+					if typesAreNotEqual(typ, expected) {
+						t.Fatalf("Inferred type of %s should be %s but is %s", name, expected.String(), typ.String())
+					}
+					return
+				}
+			}
+		}
+	}
+	t.Fatalf("did not find variable %s", name)
+}
+
 func assertValidationError(t *testing.T, validation Validation, err ValidationError) {
 	for _, e := range validation.errors {
 		if reflect.DeepEqual(e, err) {

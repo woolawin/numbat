@@ -176,6 +176,7 @@ func (reader *SourceReader) EnterType_super_atomic_seq(ctx *parser.Type_super_at
 	reader.typ.Out.Sequence = true
 	if ctx.NUMBER() != nil {
 		reader.typ.Out.SequenceSize = ctx.NUMBER().GetText()
+		reader.typ.Out.SequenceLocation = reader.location(ctx.BaseParserRuleContext)
 	}
 }
 

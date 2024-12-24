@@ -3,6 +3,7 @@ package validator
 import (
 	. "numbat/internal/common"
 	"numbat/internal/read"
+	"strconv"
 	"strings"
 )
 
@@ -135,7 +136,8 @@ func (validation *Validation) validateType(t *read.Type, context *Context, repor
 		return NoInOutType()
 	}
 
-	var outType AtomicType = NewNoType()
+	out := NewSuperAtomicType(NewNoType())
+
 	if t.Out.Name != "" {
 		// There is an out type specified so we must validate it
 		foundType, found := context.GetType(t.Out.Name)
@@ -145,11 +147,25 @@ func (validation *Validation) validateType(t *read.Type, context *Context, repor
 			}
 			return NewInOutType(nil, NewSuperAtomicType(NewCompileErrorType()))
 		}
-		outType = foundType
+		out.Type = foundType
+	}
+
+	if t.Out.Sequence {
+		out.IsSequence = true
+		if t.Out.SequenceSize != "" {
+			size, err := strconv.Atoi(t.Out.SequenceSize)
+			if err != nil {
+				validation.addError(NewInvalidSequenceSize(t.Out.SequenceLocation, t.Out.SequenceSize))
+			} else if size < 1 {
+				validation.addError(NewInvalidSequenceSize(t.Out.SequenceLocation, t.Out.SequenceSize))
+			} else {
+				out.SequenceSize = size
+			}
+		}
 	}
 
 	if len(t.In) == 0 {
-		return NewAtomicInOutType(outType)
+		return NewInOutType(nil, out)
 	}
 
 	var ins []InType
@@ -170,7 +186,7 @@ func (validation *Validation) validateType(t *read.Type, context *Context, repor
 		ins = append(ins, NewInType(in, param.Name.ToName(), defaultValue))
 	}
 
-	return NewInOutType(ins, NewSuperAtomicType(outType))
+	return NewInOutType(ins, out)
 }
 
 func (validation *Validation) variable(stmt *read.Var, context *Context) (VariableDeclaration, bool) {

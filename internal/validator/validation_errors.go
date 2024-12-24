@@ -247,3 +247,21 @@ func (verr IncompatibleReturnValueType) Message() string {
 		verr.Expected.String(),
 	)
 }
+
+type InvalidSequenceSize struct {
+	Location Location
+	Value    string
+}
+
+func NewInvalidSequenceSize(location Location, value string) InvalidSequenceSize {
+	return InvalidSequenceSize{Location: location, Value: value}
+}
+
+func (verr InvalidSequenceSize) Message() string {
+	return fmt.Sprintf(
+		"(%d,%d) invalid sequence size `%s`",
+		verr.Location.Line,
+		verr.Location.Column,
+		verr.Value,
+	)
+}
