@@ -64,6 +64,11 @@ PROC map
 
 PROC hello
 	DO
+
+PROC array
+	IN x Int32[]
+	IN y Int32[10]
+	DO
 `
 	assert(t, src, expected)
 }
@@ -89,6 +94,19 @@ PROC foo
 	VAR n Int32[]
 	VAR o Ascii[]
 	VAR p Int64[10]
+`
+	assert(t, src, expected)
+}
+
+func TestSequences(t *testing.T) {
+	src := readSample(samples.Sequences).String()
+	expected := `
+PROC foo
+	DO
+	VAR a Int32[] [1 2 3 4 5]
+	VAR b Int64[10] [true "text" 4.5 -4 &(bar) $baz 1e+56]
+	VAR c Int32[] [1 &(banana 2 [0 &(pear ["f" 9])]) -1]
+	CALL d [1 2 &(a [0 1 &(x [9])])] true
 `
 	assert(t, src, expected)
 }

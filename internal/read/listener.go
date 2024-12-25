@@ -361,3 +361,17 @@ func (reader *SourceReader) EnterExpr_call(ctx *parser.Expr_callContext) {
 func (reader *SourceReader) ExitExpr_call(ctx *parser.Expr_callContext) {
 	reader.calls.Pop()
 }
+
+func (reader *SourceReader) EnterExpr_seq(ctx *parser.Expr_seqContext) {
+	seq := Expr{
+		Seq:      &ExprGroup{},
+		Location: reader.location(ctx.BaseParserRuleContext),
+	}
+
+	reader.exprs.Current().Add(seq)
+	reader.exprs.Push(seq.Seq)
+}
+
+func (reader *SourceReader) ExitExpr_seq(ctx *parser.Expr_seqContext) {
+	reader.exprs.Pop()
+}

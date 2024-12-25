@@ -25,3 +25,7 @@ end
 
 proc hello() do
 end
+
+proc array(x Int32[], y Int32[10]) do
+
+end

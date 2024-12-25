@@ -1,0 +1,7 @@
+
+proc foo do
+    var a Int32[] = [1 2 3 4 5]
+    var b Int64[10] = [true "text" 4.5 -4 bar() baz 1e+56]
+    var c Int32[] = [1 banana(2, [0 pear(["f" 9])]) -1]
+    d([1 2 a([0 1 x([9])])], true)
+end

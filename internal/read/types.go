@@ -52,6 +52,7 @@ type Expr struct {
 	Str     *string
 	Null    bool
 	Call    *Call
+	Seq     *ExprGroup
 
 	Type     *Type
 	Location common.Location
@@ -68,8 +69,9 @@ type ExprGroup struct {
 	Exprs []Expr
 }
 
-func (grp *ExprGroup) Add(expr Expr) {
+func (grp *ExprGroup) Add(expr Expr) *Expr {
 	grp.Exprs = append(grp.Exprs, expr)
+	return &grp.Exprs[len(grp.Exprs)-1]
 }
 
 func (grp *ExprGroup) IsEmpty() bool {

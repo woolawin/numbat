@@ -50,6 +50,7 @@ func (stack *CallStack) Pop() {
 	if len(stack.calls) == 1 {
 		stack.current = nil
 		stack.calls = nil
+		stack.exprStack.Pop()
 		return
 	}
 

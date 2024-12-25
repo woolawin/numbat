@@ -21,3 +21,6 @@ var Calls string
 
 //go:embed nest_call.numbat
 var NestedCalls string
+
+//go:embed sequences.numbat
+var Sequences string

@@ -177,6 +177,15 @@ func (exp *Expr) String() string {
 		return "$" + exp.VarName.Value
 	} else if exp.Call != nil {
 		return "&(" + exp.Call.String() + ")"
+	} else if exp.Seq != nil {
+		str.WriteString("[")
+		for idx, val := range exp.Seq.Exprs {
+			str.WriteString(val.String())
+			if idx != len(exp.Seq.Exprs)-1 {
+				str.WriteString(" ")
+			}
+		}
+		str.WriteString("]")
 	}
 
 	return str.String()
