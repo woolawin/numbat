@@ -11,7 +11,8 @@ expr_null: 'null';
 expr_constant: (expr_bool | expr_num | expr_hex | expr_str | expr_null);
 expr_var: NON_TYPE_NAME;
 expr_call: call;
-expr_all: (expr_var | expr_constant | expr_call);
+expr_seq: '['(expr_var | expr_constant | expr_call)*']';
+expr_all: (expr_var | expr_constant | expr_call | expr_seq);
 
 param_expr: '=' expr_constant;
 param_type: type;

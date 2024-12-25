@@ -19,8 +19,9 @@ type SourceReader struct {
 	statement *Statement
 	call      *Call
 	callChain []*Call
-	exprs     *[]Expr
-	varStmt   *Var
+
+	exprs   *ExprGroup
+	varStmt *Var
 
 	typ       *Type
 	typeChain []*Type
@@ -64,7 +65,7 @@ func (reader *SourceReader) Reset() {
 func (reader *SourceReader) PushCall(call *Call) {
 	reader.callChain = append(reader.callChain, call)
 	reader.call = call
-	reader.exprs = &reader.call.Exprs
+	reader.exprs = &reader.call.Arguments
 }
 
 func (reader *SourceReader) PopCall() {
@@ -81,7 +82,7 @@ func (reader *SourceReader) PopCall() {
 
 	reader.callChain = reader.callChain[:len(reader.callChain)-1]
 	reader.call = reader.callChain[len(reader.callChain)-1]
-	reader.exprs = &reader.call.Exprs
+	reader.exprs = &reader.call.Arguments
 }
 
 func (reader *SourceReader) SetType(t *Type) {
@@ -199,8 +200,8 @@ func (reader *SourceReader) ExitParam(ctx *parser.ParamContext) {
 }
 
 func (reader *SourceReader) EnterParam_expr(ctx *parser.Param_exprContext) {
-	reader.typ.Param.Expr = make([]Expr, 0)
-	reader.exprs = &reader.typ.Param.Expr
+	reader.typ.Param.Value = ExprGroup{}
+	reader.exprs = &reader.typ.Param.Value
 }
 
 func (reader *SourceReader) ExitParam_expr(ctx *parser.Param_exprContext) {
@@ -230,8 +231,8 @@ func (reader *SourceReader) ExitVar_stmt(ctx *parser.Var_stmtContext) {
 }
 
 func (reader *SourceReader) EnterVar_expr(ctx *parser.Var_exprContext) {
-	reader.varStmt.Exprs = make([]Expr, 0)
-	reader.exprs = &reader.varStmt.Exprs
+	reader.varStmt.Value = ExprGroup{} // should be removed
+	reader.exprs = &reader.varStmt.Value
 }
 
 func (reader *SourceReader) ExitVar_expr(ctx *parser.Var_exprContext) {
@@ -257,7 +258,9 @@ func (reader *SourceReader) EnterVar_type(ctx *parser.Var_typeContext) {
 func (reader *SourceReader) EnterCall_stmt(ctx *parser.Call_stmtContext) {
 	reader.proc.Statements = append(reader.proc.Statements, Statement{
 		Call: &Call{
-			Exprs: make([]Expr, 0),
+			Arguments: ExprGroup{
+				Exprs: make([]Expr, 0),
+			},
 		},
 		Location: reader.location(ctx.BaseParserRuleContext),
 	})
@@ -306,8 +309,7 @@ func (reader *SourceReader) ExitReturn_stmt(ctx *parser.Return_stmtContext) {
 }
 
 func (reader *SourceReader) EnterReturn_expr(ctx *parser.Return_exprContext) {
-	reader.statement.Ret.Exprs = make([]Expr, 0)
-	reader.exprs = &reader.statement.Ret.Exprs
+	reader.exprs = &reader.statement.Ret.Value
 }
 
 func (reader *SourceReader) ExitReturn_expr(ctx *parser.Return_exprContext) {
@@ -335,8 +337,7 @@ func (reader *SourceReader) EnterAssignment_var(ctx *parser.Assignment_varContex
 }
 
 func (reader *SourceReader) EnterAssignment_expr(ctx *parser.Assignment_exprContext) {
-	reader.statement.Assignment.Exprs = make([]Expr, 0)
-	reader.exprs = &reader.statement.Assignment.Exprs
+	reader.exprs = &reader.statement.Assignment.Values
 }
 
 func (reader *SourceReader) ExitAssignment_expr(ctx *parser.Assignment_exprContext) {
@@ -350,10 +351,7 @@ func (reader *SourceReader) ExitAssignment_expr(ctx *parser.Assignment_exprConte
 func (reader *SourceReader) EnterExpr_bool(ctx *parser.Expr_boolContext) {
 	str := ctx.GetText()
 
-	*reader.exprs = append(
-		*reader.exprs,
-		Expr{Boolean: &str, Unit: "bool", Location: reader.location(ctx.BaseParserRuleContext)},
-	)
+	reader.exprs.Add(Expr{Boolean: &str, Unit: "bool", Location: reader.location(ctx.BaseParserRuleContext)})
 }
 
 func (reader *SourceReader) location(ctx antlr.BaseParserRuleContext) common.Location {
@@ -370,41 +368,28 @@ func (reader *SourceReader) EnterExpr_num(ctx *parser.Expr_numContext) {
 	if ctx.UNIT() != nil {
 		unit = ctx.UNIT().GetText()[1:]
 	}
-	*reader.exprs = append(
-		*reader.exprs,
-		Expr{Number: &value, Unit: unit, Location: reader.location(ctx.BaseParserRuleContext)},
-	)
+	reader.exprs.Add(Expr{Number: &value, Unit: unit, Location: reader.location(ctx.BaseParserRuleContext)})
 }
 
 func (reader *SourceReader) EnterExpr_hex(ctx *parser.Expr_hexContext) {
 	value := ctx.GetText()
-	*reader.exprs = append(
-		*reader.exprs,
-		Expr{Hex: &value, Unit: "hex", Location: reader.location(ctx.BaseParserRuleContext)},
-	)
+	reader.exprs.Add(Expr{Hex: &value, Unit: "hex", Location: reader.location(ctx.BaseParserRuleContext)})
 }
 
 func (reader *SourceReader) EnterExpr_str(ctx *parser.Expr_strContext) {
 	value := ctx.GetText()
-	*reader.exprs = append(
-		*reader.exprs, Expr{Str: &value, Unit: "str", Location: reader.location(ctx.BaseParserRuleContext)},
-	)
+	reader.exprs.Add(Expr{Str: &value, Unit: "str", Location: reader.location(ctx.BaseParserRuleContext)})
 }
 
 func (reader *SourceReader) EnterExpr_null(ctx *parser.Expr_nullContext) {
-	*reader.exprs = append(
-		*reader.exprs,
-		Expr{Null: true, Location: reader.location(ctx.BaseParserRuleContext)},
-	)
+	reader.exprs.Add(Expr{Null: true, Location: reader.location(ctx.BaseParserRuleContext)})
 }
 
 func (reader *SourceReader) EnterExpr_var(ctx *parser.Expr_varContext) {
-	value := ctx.GetText()
-	*reader.exprs = append(
-		*reader.exprs,
+	reader.exprs.Add(
 		Expr{
 			VarName: &Name{
-				Value:    value,
+				Value:    ctx.GetText(),
 				Location: reader.location(ctx.BaseParserRuleContext),
 			},
 			Location: reader.location(ctx.BaseParserRuleContext),
@@ -414,12 +399,11 @@ func (reader *SourceReader) EnterExpr_var(ctx *parser.Expr_varContext) {
 
 func (reader *SourceReader) EnterExpr_call(ctx *parser.Expr_callContext) {
 	call := &Call{
-		Exprs: make([]Expr, 0),
+		Arguments: ExprGroup{
+			Exprs: make([]Expr, 0),
+		},
 	}
-	*reader.exprs = append(
-		*reader.exprs,
-		Expr{Call: call, Location: reader.location(ctx.BaseParserRuleContext)},
-	)
+	reader.exprs.Add(Expr{Call: call, Location: reader.location(ctx.BaseParserRuleContext)})
 	reader.PushCall(call)
 }
 

@@ -37,6 +37,10 @@ tasks:
     cmds:
       - go build -o bin/numbat ./cmd/numbat
 
+  assemble:
+    cmds:
+      - go build -o bin/numbat ./cmd/numbat
+
   run:
     deps: [build]
     cmds:

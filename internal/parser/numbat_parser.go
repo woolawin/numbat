@@ -33,7 +33,7 @@ var NumbatParserStaticData struct {
 func numbatParserInit() {
 	staticData := &NumbatParserStaticData
 	staticData.LiteralNames = []string{
-		"", "'true'", "'false'", "'null'", "'='", "'['", "']'", "'('", "')'",
+		"", "'true'", "'false'", "'null'", "'['", "']'", "'='", "'('", "')'",
 		"','", "'do'", "'end'", "'proc'", "':'", "'var'", "'return'", "'program'",
 	}
 	staticData.SymbolicNames = []string{
@@ -43,7 +43,7 @@ func numbatParserInit() {
 	}
 	staticData.RuleNames = []string{
 		"prog", "expr_bool", "expr_num", "expr_hex", "expr_str", "expr_null",
-		"expr_constant", "expr_var", "expr_call", "expr_all", "param_expr",
+		"expr_constant", "expr_var", "expr_call", "expr_seq", "expr_all", "param_expr",
 		"param_type", "param", "type_super_atomic_seq", "type_super_atomic",
 		"type_out", "type_in", "type", "proc_body", "proc_name", "proc_type",
 		"proc_def", "proc", "call_arg", "call_args", "call_secondary", "call_primary",
@@ -53,118 +53,126 @@ func numbatParserInit() {
 	}
 	staticData.PredictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
-		4, 1, 26, 271, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
+		4, 1, 26, 285, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
 		4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2, 10, 7,
 		10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7, 15,
 		2, 16, 7, 16, 2, 17, 7, 17, 2, 18, 7, 18, 2, 19, 7, 19, 2, 20, 7, 20, 2,
 		21, 7, 21, 2, 22, 7, 22, 2, 23, 7, 23, 2, 24, 7, 24, 2, 25, 7, 25, 2, 26,
 		7, 26, 2, 27, 7, 27, 2, 28, 7, 28, 2, 29, 7, 29, 2, 30, 7, 30, 2, 31, 7,
 		31, 2, 32, 7, 32, 2, 33, 7, 33, 2, 34, 7, 34, 2, 35, 7, 35, 2, 36, 7, 36,
-		2, 37, 7, 37, 2, 38, 7, 38, 2, 39, 7, 39, 2, 40, 7, 40, 2, 41, 7, 41, 1,
-		0, 1, 0, 1, 0, 5, 0, 88, 8, 0, 10, 0, 12, 0, 91, 9, 0, 1, 1, 1, 1, 1, 2,
-		1, 2, 3, 2, 97, 8, 2, 1, 3, 1, 3, 1, 4, 1, 4, 1, 5, 1, 5, 1, 6, 1, 6, 1,
-		6, 1, 6, 1, 6, 3, 6, 110, 8, 6, 1, 7, 1, 7, 1, 8, 1, 8, 1, 9, 1, 9, 1,
-		9, 3, 9, 119, 8, 9, 1, 10, 1, 10, 1, 10, 1, 11, 1, 11, 1, 12, 1, 12, 1,
-		12, 3, 12, 129, 8, 12, 1, 13, 1, 13, 3, 13, 133, 8, 13, 1, 13, 1, 13, 1,
-		14, 1, 14, 3, 14, 139, 8, 14, 1, 15, 1, 15, 1, 16, 1, 16, 1, 16, 1, 16,
-		1, 16, 1, 16, 5, 16, 149, 8, 16, 10, 16, 12, 16, 152, 9, 16, 1, 16, 1,
-		16, 3, 16, 156, 8, 16, 1, 17, 3, 17, 159, 8, 17, 1, 17, 1, 17, 1, 17, 3,
-		17, 164, 8, 17, 3, 17, 166, 8, 17, 1, 18, 1, 18, 1, 18, 1, 18, 5, 18, 172,
-		8, 18, 10, 18, 12, 18, 175, 9, 18, 1, 18, 1, 18, 1, 19, 1, 19, 1, 20, 1,
-		20, 1, 21, 1, 21, 1, 21, 3, 21, 186, 8, 21, 1, 22, 1, 22, 1, 22, 1, 23,
-		1, 23, 3, 23, 193, 8, 23, 1, 24, 1, 24, 1, 24, 5, 24, 198, 8, 24, 10, 24,
-		12, 24, 201, 9, 24, 1, 25, 1, 25, 1, 26, 1, 26, 1, 27, 1, 27, 1, 27, 3,
-		27, 210, 8, 27, 1, 27, 1, 27, 3, 27, 214, 8, 27, 1, 27, 1, 27, 1, 28, 1,
-		28, 1, 29, 1, 29, 1, 29, 1, 30, 1, 30, 1, 31, 1, 31, 1, 32, 1, 32, 1, 32,
-		3, 32, 230, 8, 32, 1, 32, 3, 32, 233, 8, 32, 1, 33, 1, 33, 1, 33, 1, 33,
-		3, 33, 239, 8, 33, 1, 34, 1, 34, 1, 35, 1, 35, 1, 35, 3, 35, 246, 8, 35,
-		1, 35, 1, 35, 1, 36, 1, 36, 1, 37, 1, 37, 3, 37, 254, 8, 37, 1, 38, 1,
-		38, 1, 39, 1, 39, 1, 39, 1, 40, 1, 40, 1, 40, 1, 40, 3, 40, 265, 8, 40,
-		1, 41, 1, 41, 3, 41, 269, 8, 41, 1, 41, 0, 0, 42, 0, 2, 4, 6, 8, 10, 12,
-		14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48,
-		50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 0,
-		2, 1, 0, 1, 2, 1, 0, 22, 23, 263, 0, 89, 1, 0, 0, 0, 2, 92, 1, 0, 0, 0,
-		4, 94, 1, 0, 0, 0, 6, 98, 1, 0, 0, 0, 8, 100, 1, 0, 0, 0, 10, 102, 1, 0,
-		0, 0, 12, 109, 1, 0, 0, 0, 14, 111, 1, 0, 0, 0, 16, 113, 1, 0, 0, 0, 18,
-		118, 1, 0, 0, 0, 20, 120, 1, 0, 0, 0, 22, 123, 1, 0, 0, 0, 24, 125, 1,
-		0, 0, 0, 26, 130, 1, 0, 0, 0, 28, 136, 1, 0, 0, 0, 30, 140, 1, 0, 0, 0,
-		32, 155, 1, 0, 0, 0, 34, 165, 1, 0, 0, 0, 36, 167, 1, 0, 0, 0, 38, 178,
-		1, 0, 0, 0, 40, 180, 1, 0, 0, 0, 42, 182, 1, 0, 0, 0, 44, 187, 1, 0, 0,
-		0, 46, 192, 1, 0, 0, 0, 48, 194, 1, 0, 0, 0, 50, 202, 1, 0, 0, 0, 52, 204,
-		1, 0, 0, 0, 54, 206, 1, 0, 0, 0, 56, 217, 1, 0, 0, 0, 58, 219, 1, 0, 0,
-		0, 60, 222, 1, 0, 0, 0, 62, 224, 1, 0, 0, 0, 64, 226, 1, 0, 0, 0, 66, 234,
-		1, 0, 0, 0, 68, 240, 1, 0, 0, 0, 70, 242, 1, 0, 0, 0, 72, 249, 1, 0, 0,
-		0, 74, 251, 1, 0, 0, 0, 76, 255, 1, 0, 0, 0, 78, 257, 1, 0, 0, 0, 80, 264,
-		1, 0, 0, 0, 82, 268, 1, 0, 0, 0, 84, 88, 5, 24, 0, 0, 85, 88, 5, 18, 0,
-		0, 86, 88, 3, 82, 41, 0, 87, 84, 1, 0, 0, 0, 87, 85, 1, 0, 0, 0, 87, 86,
-		1, 0, 0, 0, 88, 91, 1, 0, 0, 0, 89, 87, 1, 0, 0, 0, 89, 90, 1, 0, 0, 0,
-		90, 1, 1, 0, 0, 0, 91, 89, 1, 0, 0, 0, 92, 93, 7, 0, 0, 0, 93, 3, 1, 0,
-		0, 0, 94, 96, 5, 19, 0, 0, 95, 97, 5, 17, 0, 0, 96, 95, 1, 0, 0, 0, 96,
-		97, 1, 0, 0, 0, 97, 5, 1, 0, 0, 0, 98, 99, 5, 20, 0, 0, 99, 7, 1, 0, 0,
-		0, 100, 101, 5, 21, 0, 0, 101, 9, 1, 0, 0, 0, 102, 103, 5, 3, 0, 0, 103,
-		11, 1, 0, 0, 0, 104, 110, 3, 2, 1, 0, 105, 110, 3, 4, 2, 0, 106, 110, 3,
-		6, 3, 0, 107, 110, 3, 8, 4, 0, 108, 110, 3, 10, 5, 0, 109, 104, 1, 0, 0,
-		0, 109, 105, 1, 0, 0, 0, 109, 106, 1, 0, 0, 0, 109, 107, 1, 0, 0, 0, 109,
-		108, 1, 0, 0, 0, 110, 13, 1, 0, 0, 0, 111, 112, 5, 23, 0, 0, 112, 15, 1,
-		0, 0, 0, 113, 114, 3, 54, 27, 0, 114, 17, 1, 0, 0, 0, 115, 119, 3, 14,
-		7, 0, 116, 119, 3, 12, 6, 0, 117, 119, 3, 16, 8, 0, 118, 115, 1, 0, 0,
-		0, 118, 116, 1, 0, 0, 0, 118, 117, 1, 0, 0, 0, 119, 19, 1, 0, 0, 0, 120,
-		121, 5, 4, 0, 0, 121, 122, 3, 12, 6, 0, 122, 21, 1, 0, 0, 0, 123, 124,
-		3, 34, 17, 0, 124, 23, 1, 0, 0, 0, 125, 126, 5, 23, 0, 0, 126, 128, 3,
-		22, 11, 0, 127, 129, 3, 20, 10, 0, 128, 127, 1, 0, 0, 0, 128, 129, 1, 0,
-		0, 0, 129, 25, 1, 0, 0, 0, 130, 132, 5, 5, 0, 0, 131, 133, 5, 19, 0, 0,
-		132, 131, 1, 0, 0, 0, 132, 133, 1, 0, 0, 0, 133, 134, 1, 0, 0, 0, 134,
-		135, 5, 6, 0, 0, 135, 27, 1, 0, 0, 0, 136, 138, 5, 22, 0, 0, 137, 139,
-		3, 26, 13, 0, 138, 137, 1, 0, 0, 0, 138, 139, 1, 0, 0, 0, 139, 29, 1, 0,
-		0, 0, 140, 141, 3, 28, 14, 0, 141, 31, 1, 0, 0, 0, 142, 143, 5, 7, 0, 0,
-		143, 156, 5, 8, 0, 0, 144, 145, 5, 7, 0, 0, 145, 150, 3, 24, 12, 0, 146,
-		147, 5, 9, 0, 0, 147, 149, 3, 24, 12, 0, 148, 146, 1, 0, 0, 0, 149, 152,
-		1, 0, 0, 0, 150, 148, 1, 0, 0, 0, 150, 151, 1, 0, 0, 0, 151, 153, 1, 0,
-		0, 0, 152, 150, 1, 0, 0, 0, 153, 154, 5, 8, 0, 0, 154, 156, 1, 0, 0, 0,
-		155, 142, 1, 0, 0, 0, 155, 144, 1, 0, 0, 0, 156, 33, 1, 0, 0, 0, 157, 159,
-		3, 32, 16, 0, 158, 157, 1, 0, 0, 0, 158, 159, 1, 0, 0, 0, 159, 160, 1,
-		0, 0, 0, 160, 166, 3, 30, 15, 0, 161, 163, 3, 32, 16, 0, 162, 164, 3, 30,
-		15, 0, 163, 162, 1, 0, 0, 0, 163, 164, 1, 0, 0, 0, 164, 166, 1, 0, 0, 0,
-		165, 158, 1, 0, 0, 0, 165, 161, 1, 0, 0, 0, 166, 35, 1, 0, 0, 0, 167, 173,
-		5, 10, 0, 0, 168, 172, 5, 24, 0, 0, 169, 172, 5, 18, 0, 0, 170, 172, 3,
-		80, 40, 0, 171, 168, 1, 0, 0, 0, 171, 169, 1, 0, 0, 0, 171, 170, 1, 0,
-		0, 0, 172, 175, 1, 0, 0, 0, 173, 171, 1, 0, 0, 0, 173, 174, 1, 0, 0, 0,
-		174, 176, 1, 0, 0, 0, 175, 173, 1, 0, 0, 0, 176, 177, 5, 11, 0, 0, 177,
-		37, 1, 0, 0, 0, 178, 179, 5, 23, 0, 0, 179, 39, 1, 0, 0, 0, 180, 181, 3,
-		34, 17, 0, 181, 41, 1, 0, 0, 0, 182, 183, 5, 12, 0, 0, 183, 185, 3, 38,
-		19, 0, 184, 186, 3, 40, 20, 0, 185, 184, 1, 0, 0, 0, 185, 186, 1, 0, 0,
-		0, 186, 43, 1, 0, 0, 0, 187, 188, 3, 42, 21, 0, 188, 189, 3, 36, 18, 0,
-		189, 45, 1, 0, 0, 0, 190, 193, 3, 14, 7, 0, 191, 193, 3, 12, 6, 0, 192,
-		190, 1, 0, 0, 0, 192, 191, 1, 0, 0, 0, 193, 47, 1, 0, 0, 0, 194, 199, 3,
-		18, 9, 0, 195, 196, 5, 9, 0, 0, 196, 198, 3, 18, 9, 0, 197, 195, 1, 0,
-		0, 0, 198, 201, 1, 0, 0, 0, 199, 197, 1, 0, 0, 0, 199, 200, 1, 0, 0, 0,
-		200, 49, 1, 0, 0, 0, 201, 199, 1, 0, 0, 0, 202, 203, 5, 23, 0, 0, 203,
-		51, 1, 0, 0, 0, 204, 205, 7, 1, 0, 0, 205, 53, 1, 0, 0, 0, 206, 209, 3,
-		52, 26, 0, 207, 208, 5, 13, 0, 0, 208, 210, 3, 50, 25, 0, 209, 207, 1,
-		0, 0, 0, 209, 210, 1, 0, 0, 0, 210, 211, 1, 0, 0, 0, 211, 213, 5, 7, 0,
-		0, 212, 214, 3, 48, 24, 0, 213, 212, 1, 0, 0, 0, 213, 214, 1, 0, 0, 0,
-		214, 215, 1, 0, 0, 0, 215, 216, 5, 8, 0, 0, 216, 55, 1, 0, 0, 0, 217, 218,
-		3, 54, 27, 0, 218, 57, 1, 0, 0, 0, 219, 220, 5, 4, 0, 0, 220, 221, 3, 18,
-		9, 0, 221, 59, 1, 0, 0, 0, 222, 223, 3, 34, 17, 0, 223, 61, 1, 0, 0, 0,
-		224, 225, 5, 23, 0, 0, 225, 63, 1, 0, 0, 0, 226, 227, 5, 14, 0, 0, 227,
-		229, 3, 62, 31, 0, 228, 230, 3, 60, 30, 0, 229, 228, 1, 0, 0, 0, 229, 230,
-		1, 0, 0, 0, 230, 232, 1, 0, 0, 0, 231, 233, 3, 58, 29, 0, 232, 231, 1,
-		0, 0, 0, 232, 233, 1, 0, 0, 0, 233, 65, 1, 0, 0, 0, 234, 235, 5, 4, 0,
-		0, 235, 238, 3, 18, 9, 0, 236, 237, 5, 9, 0, 0, 237, 239, 3, 18, 9, 0,
-		238, 236, 1, 0, 0, 0, 238, 239, 1, 0, 0, 0, 239, 67, 1, 0, 0, 0, 240, 241,
-		5, 23, 0, 0, 241, 69, 1, 0, 0, 0, 242, 245, 3, 68, 34, 0, 243, 244, 5,
-		9, 0, 0, 244, 246, 3, 68, 34, 0, 245, 243, 1, 0, 0, 0, 245, 246, 1, 0,
-		0, 0, 246, 247, 1, 0, 0, 0, 247, 248, 3, 66, 33, 0, 248, 71, 1, 0, 0, 0,
-		249, 250, 3, 18, 9, 0, 250, 73, 1, 0, 0, 0, 251, 253, 5, 15, 0, 0, 252,
-		254, 3, 72, 36, 0, 253, 252, 1, 0, 0, 0, 253, 254, 1, 0, 0, 0, 254, 75,
-		1, 0, 0, 0, 255, 256, 3, 74, 37, 0, 256, 77, 1, 0, 0, 0, 257, 258, 5, 16,
-		0, 0, 258, 259, 3, 36, 18, 0, 259, 79, 1, 0, 0, 0, 260, 265, 3, 56, 28,
-		0, 261, 265, 3, 64, 32, 0, 262, 265, 3, 76, 38, 0, 263, 265, 3, 70, 35,
-		0, 264, 260, 1, 0, 0, 0, 264, 261, 1, 0, 0, 0, 264, 262, 1, 0, 0, 0, 264,
-		263, 1, 0, 0, 0, 265, 81, 1, 0, 0, 0, 266, 269, 3, 78, 39, 0, 267, 269,
-		3, 44, 22, 0, 268, 266, 1, 0, 0, 0, 268, 267, 1, 0, 0, 0, 269, 83, 1, 0,
-		0, 0, 27, 87, 89, 96, 109, 118, 128, 132, 138, 150, 155, 158, 163, 165,
-		171, 173, 185, 192, 199, 209, 213, 229, 232, 238, 245, 253, 264, 268,
+		2, 37, 7, 37, 2, 38, 7, 38, 2, 39, 7, 39, 2, 40, 7, 40, 2, 41, 7, 41, 2,
+		42, 7, 42, 1, 0, 1, 0, 1, 0, 5, 0, 90, 8, 0, 10, 0, 12, 0, 93, 9, 0, 1,
+		1, 1, 1, 1, 2, 1, 2, 3, 2, 99, 8, 2, 1, 3, 1, 3, 1, 4, 1, 4, 1, 5, 1, 5,
+		1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 3, 6, 112, 8, 6, 1, 7, 1, 7, 1, 8, 1, 8,
+		1, 9, 1, 9, 1, 9, 1, 9, 5, 9, 122, 8, 9, 10, 9, 12, 9, 125, 9, 9, 1, 9,
+		1, 9, 1, 10, 1, 10, 1, 10, 1, 10, 3, 10, 133, 8, 10, 1, 11, 1, 11, 1, 11,
+		1, 12, 1, 12, 1, 13, 1, 13, 1, 13, 3, 13, 143, 8, 13, 1, 14, 1, 14, 3,
+		14, 147, 8, 14, 1, 14, 1, 14, 1, 15, 1, 15, 3, 15, 153, 8, 15, 1, 16, 1,
+		16, 1, 17, 1, 17, 1, 17, 1, 17, 1, 17, 1, 17, 5, 17, 163, 8, 17, 10, 17,
+		12, 17, 166, 9, 17, 1, 17, 1, 17, 3, 17, 170, 8, 17, 1, 18, 3, 18, 173,
+		8, 18, 1, 18, 1, 18, 1, 18, 3, 18, 178, 8, 18, 3, 18, 180, 8, 18, 1, 19,
+		1, 19, 1, 19, 1, 19, 5, 19, 186, 8, 19, 10, 19, 12, 19, 189, 9, 19, 1,
+		19, 1, 19, 1, 20, 1, 20, 1, 21, 1, 21, 1, 22, 1, 22, 1, 22, 3, 22, 200,
+		8, 22, 1, 23, 1, 23, 1, 23, 1, 24, 1, 24, 3, 24, 207, 8, 24, 1, 25, 1,
+		25, 1, 25, 5, 25, 212, 8, 25, 10, 25, 12, 25, 215, 9, 25, 1, 26, 1, 26,
+		1, 27, 1, 27, 1, 28, 1, 28, 1, 28, 3, 28, 224, 8, 28, 1, 28, 1, 28, 3,
+		28, 228, 8, 28, 1, 28, 1, 28, 1, 29, 1, 29, 1, 30, 1, 30, 1, 30, 1, 31,
+		1, 31, 1, 32, 1, 32, 1, 33, 1, 33, 1, 33, 3, 33, 244, 8, 33, 1, 33, 3,
+		33, 247, 8, 33, 1, 34, 1, 34, 1, 34, 1, 34, 3, 34, 253, 8, 34, 1, 35, 1,
+		35, 1, 36, 1, 36, 1, 36, 3, 36, 260, 8, 36, 1, 36, 1, 36, 1, 37, 1, 37,
+		1, 38, 1, 38, 3, 38, 268, 8, 38, 1, 39, 1, 39, 1, 40, 1, 40, 1, 40, 1,
+		41, 1, 41, 1, 41, 1, 41, 3, 41, 279, 8, 41, 1, 42, 1, 42, 3, 42, 283, 8,
+		42, 1, 42, 0, 0, 43, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26,
+		28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62,
+		64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 0, 2, 1, 0, 1, 2, 1, 0, 22,
+		23, 280, 0, 91, 1, 0, 0, 0, 2, 94, 1, 0, 0, 0, 4, 96, 1, 0, 0, 0, 6, 100,
+		1, 0, 0, 0, 8, 102, 1, 0, 0, 0, 10, 104, 1, 0, 0, 0, 12, 111, 1, 0, 0,
+		0, 14, 113, 1, 0, 0, 0, 16, 115, 1, 0, 0, 0, 18, 117, 1, 0, 0, 0, 20, 132,
+		1, 0, 0, 0, 22, 134, 1, 0, 0, 0, 24, 137, 1, 0, 0, 0, 26, 139, 1, 0, 0,
+		0, 28, 144, 1, 0, 0, 0, 30, 150, 1, 0, 0, 0, 32, 154, 1, 0, 0, 0, 34, 169,
+		1, 0, 0, 0, 36, 179, 1, 0, 0, 0, 38, 181, 1, 0, 0, 0, 40, 192, 1, 0, 0,
+		0, 42, 194, 1, 0, 0, 0, 44, 196, 1, 0, 0, 0, 46, 201, 1, 0, 0, 0, 48, 206,
+		1, 0, 0, 0, 50, 208, 1, 0, 0, 0, 52, 216, 1, 0, 0, 0, 54, 218, 1, 0, 0,
+		0, 56, 220, 1, 0, 0, 0, 58, 231, 1, 0, 0, 0, 60, 233, 1, 0, 0, 0, 62, 236,
+		1, 0, 0, 0, 64, 238, 1, 0, 0, 0, 66, 240, 1, 0, 0, 0, 68, 248, 1, 0, 0,
+		0, 70, 254, 1, 0, 0, 0, 72, 256, 1, 0, 0, 0, 74, 263, 1, 0, 0, 0, 76, 265,
+		1, 0, 0, 0, 78, 269, 1, 0, 0, 0, 80, 271, 1, 0, 0, 0, 82, 278, 1, 0, 0,
+		0, 84, 282, 1, 0, 0, 0, 86, 90, 5, 24, 0, 0, 87, 90, 5, 18, 0, 0, 88, 90,
+		3, 84, 42, 0, 89, 86, 1, 0, 0, 0, 89, 87, 1, 0, 0, 0, 89, 88, 1, 0, 0,
+		0, 90, 93, 1, 0, 0, 0, 91, 89, 1, 0, 0, 0, 91, 92, 1, 0, 0, 0, 92, 1, 1,
+		0, 0, 0, 93, 91, 1, 0, 0, 0, 94, 95, 7, 0, 0, 0, 95, 3, 1, 0, 0, 0, 96,
+		98, 5, 19, 0, 0, 97, 99, 5, 17, 0, 0, 98, 97, 1, 0, 0, 0, 98, 99, 1, 0,
+		0, 0, 99, 5, 1, 0, 0, 0, 100, 101, 5, 20, 0, 0, 101, 7, 1, 0, 0, 0, 102,
+		103, 5, 21, 0, 0, 103, 9, 1, 0, 0, 0, 104, 105, 5, 3, 0, 0, 105, 11, 1,
+		0, 0, 0, 106, 112, 3, 2, 1, 0, 107, 112, 3, 4, 2, 0, 108, 112, 3, 6, 3,
+		0, 109, 112, 3, 8, 4, 0, 110, 112, 3, 10, 5, 0, 111, 106, 1, 0, 0, 0, 111,
+		107, 1, 0, 0, 0, 111, 108, 1, 0, 0, 0, 111, 109, 1, 0, 0, 0, 111, 110,
+		1, 0, 0, 0, 112, 13, 1, 0, 0, 0, 113, 114, 5, 23, 0, 0, 114, 15, 1, 0,
+		0, 0, 115, 116, 3, 56, 28, 0, 116, 17, 1, 0, 0, 0, 117, 123, 5, 4, 0, 0,
+		118, 122, 3, 14, 7, 0, 119, 122, 3, 12, 6, 0, 120, 122, 3, 16, 8, 0, 121,
+		118, 1, 0, 0, 0, 121, 119, 1, 0, 0, 0, 121, 120, 1, 0, 0, 0, 122, 125,
+		1, 0, 0, 0, 123, 121, 1, 0, 0, 0, 123, 124, 1, 0, 0, 0, 124, 126, 1, 0,
+		0, 0, 125, 123, 1, 0, 0, 0, 126, 127, 5, 5, 0, 0, 127, 19, 1, 0, 0, 0,
+		128, 133, 3, 14, 7, 0, 129, 133, 3, 12, 6, 0, 130, 133, 3, 16, 8, 0, 131,
+		133, 3, 18, 9, 0, 132, 128, 1, 0, 0, 0, 132, 129, 1, 0, 0, 0, 132, 130,
+		1, 0, 0, 0, 132, 131, 1, 0, 0, 0, 133, 21, 1, 0, 0, 0, 134, 135, 5, 6,
+		0, 0, 135, 136, 3, 12, 6, 0, 136, 23, 1, 0, 0, 0, 137, 138, 3, 36, 18,
+		0, 138, 25, 1, 0, 0, 0, 139, 140, 5, 23, 0, 0, 140, 142, 3, 24, 12, 0,
+		141, 143, 3, 22, 11, 0, 142, 141, 1, 0, 0, 0, 142, 143, 1, 0, 0, 0, 143,
+		27, 1, 0, 0, 0, 144, 146, 5, 4, 0, 0, 145, 147, 5, 19, 0, 0, 146, 145,
+		1, 0, 0, 0, 146, 147, 1, 0, 0, 0, 147, 148, 1, 0, 0, 0, 148, 149, 5, 5,
+		0, 0, 149, 29, 1, 0, 0, 0, 150, 152, 5, 22, 0, 0, 151, 153, 3, 28, 14,
+		0, 152, 151, 1, 0, 0, 0, 152, 153, 1, 0, 0, 0, 153, 31, 1, 0, 0, 0, 154,
+		155, 3, 30, 15, 0, 155, 33, 1, 0, 0, 0, 156, 157, 5, 7, 0, 0, 157, 170,
+		5, 8, 0, 0, 158, 159, 5, 7, 0, 0, 159, 164, 3, 26, 13, 0, 160, 161, 5,
+		9, 0, 0, 161, 163, 3, 26, 13, 0, 162, 160, 1, 0, 0, 0, 163, 166, 1, 0,
+		0, 0, 164, 162, 1, 0, 0, 0, 164, 165, 1, 0, 0, 0, 165, 167, 1, 0, 0, 0,
+		166, 164, 1, 0, 0, 0, 167, 168, 5, 8, 0, 0, 168, 170, 1, 0, 0, 0, 169,
+		156, 1, 0, 0, 0, 169, 158, 1, 0, 0, 0, 170, 35, 1, 0, 0, 0, 171, 173, 3,
+		34, 17, 0, 172, 171, 1, 0, 0, 0, 172, 173, 1, 0, 0, 0, 173, 174, 1, 0,
+		0, 0, 174, 180, 3, 32, 16, 0, 175, 177, 3, 34, 17, 0, 176, 178, 3, 32,
+		16, 0, 177, 176, 1, 0, 0, 0, 177, 178, 1, 0, 0, 0, 178, 180, 1, 0, 0, 0,
+		179, 172, 1, 0, 0, 0, 179, 175, 1, 0, 0, 0, 180, 37, 1, 0, 0, 0, 181, 187,
+		5, 10, 0, 0, 182, 186, 5, 24, 0, 0, 183, 186, 5, 18, 0, 0, 184, 186, 3,
+		82, 41, 0, 185, 182, 1, 0, 0, 0, 185, 183, 1, 0, 0, 0, 185, 184, 1, 0,
+		0, 0, 186, 189, 1, 0, 0, 0, 187, 185, 1, 0, 0, 0, 187, 188, 1, 0, 0, 0,
+		188, 190, 1, 0, 0, 0, 189, 187, 1, 0, 0, 0, 190, 191, 5, 11, 0, 0, 191,
+		39, 1, 0, 0, 0, 192, 193, 5, 23, 0, 0, 193, 41, 1, 0, 0, 0, 194, 195, 3,
+		36, 18, 0, 195, 43, 1, 0, 0, 0, 196, 197, 5, 12, 0, 0, 197, 199, 3, 40,
+		20, 0, 198, 200, 3, 42, 21, 0, 199, 198, 1, 0, 0, 0, 199, 200, 1, 0, 0,
+		0, 200, 45, 1, 0, 0, 0, 201, 202, 3, 44, 22, 0, 202, 203, 3, 38, 19, 0,
+		203, 47, 1, 0, 0, 0, 204, 207, 3, 14, 7, 0, 205, 207, 3, 12, 6, 0, 206,
+		204, 1, 0, 0, 0, 206, 205, 1, 0, 0, 0, 207, 49, 1, 0, 0, 0, 208, 213, 3,
+		20, 10, 0, 209, 210, 5, 9, 0, 0, 210, 212, 3, 20, 10, 0, 211, 209, 1, 0,
+		0, 0, 212, 215, 1, 0, 0, 0, 213, 211, 1, 0, 0, 0, 213, 214, 1, 0, 0, 0,
+		214, 51, 1, 0, 0, 0, 215, 213, 1, 0, 0, 0, 216, 217, 5, 23, 0, 0, 217,
+		53, 1, 0, 0, 0, 218, 219, 7, 1, 0, 0, 219, 55, 1, 0, 0, 0, 220, 223, 3,
+		54, 27, 0, 221, 222, 5, 13, 0, 0, 222, 224, 3, 52, 26, 0, 223, 221, 1,
+		0, 0, 0, 223, 224, 1, 0, 0, 0, 224, 225, 1, 0, 0, 0, 225, 227, 5, 7, 0,
+		0, 226, 228, 3, 50, 25, 0, 227, 226, 1, 0, 0, 0, 227, 228, 1, 0, 0, 0,
+		228, 229, 1, 0, 0, 0, 229, 230, 5, 8, 0, 0, 230, 57, 1, 0, 0, 0, 231, 232,
+		3, 56, 28, 0, 232, 59, 1, 0, 0, 0, 233, 234, 5, 6, 0, 0, 234, 235, 3, 20,
+		10, 0, 235, 61, 1, 0, 0, 0, 236, 237, 3, 36, 18, 0, 237, 63, 1, 0, 0, 0,
+		238, 239, 5, 23, 0, 0, 239, 65, 1, 0, 0, 0, 240, 241, 5, 14, 0, 0, 241,
+		243, 3, 64, 32, 0, 242, 244, 3, 62, 31, 0, 243, 242, 1, 0, 0, 0, 243, 244,
+		1, 0, 0, 0, 244, 246, 1, 0, 0, 0, 245, 247, 3, 60, 30, 0, 246, 245, 1,
+		0, 0, 0, 246, 247, 1, 0, 0, 0, 247, 67, 1, 0, 0, 0, 248, 249, 5, 6, 0,
+		0, 249, 252, 3, 20, 10, 0, 250, 251, 5, 9, 0, 0, 251, 253, 3, 20, 10, 0,
+		252, 250, 1, 0, 0, 0, 252, 253, 1, 0, 0, 0, 253, 69, 1, 0, 0, 0, 254, 255,
+		5, 23, 0, 0, 255, 71, 1, 0, 0, 0, 256, 259, 3, 70, 35, 0, 257, 258, 5,
+		9, 0, 0, 258, 260, 3, 70, 35, 0, 259, 257, 1, 0, 0, 0, 259, 260, 1, 0,
+		0, 0, 260, 261, 1, 0, 0, 0, 261, 262, 3, 68, 34, 0, 262, 73, 1, 0, 0, 0,
+		263, 264, 3, 20, 10, 0, 264, 75, 1, 0, 0, 0, 265, 267, 5, 15, 0, 0, 266,
+		268, 3, 74, 37, 0, 267, 266, 1, 0, 0, 0, 267, 268, 1, 0, 0, 0, 268, 77,
+		1, 0, 0, 0, 269, 270, 3, 76, 38, 0, 270, 79, 1, 0, 0, 0, 271, 272, 5, 16,
+		0, 0, 272, 273, 3, 38, 19, 0, 273, 81, 1, 0, 0, 0, 274, 279, 3, 58, 29,
+		0, 275, 279, 3, 66, 33, 0, 276, 279, 3, 78, 39, 0, 277, 279, 3, 72, 36,
+		0, 278, 274, 1, 0, 0, 0, 278, 275, 1, 0, 0, 0, 278, 276, 1, 0, 0, 0, 278,
+		277, 1, 0, 0, 0, 279, 83, 1, 0, 0, 0, 280, 283, 3, 80, 40, 0, 281, 283,
+		3, 46, 23, 0, 282, 280, 1, 0, 0, 0, 282, 281, 1, 0, 0, 0, 283, 85, 1, 0,
+		0, 0, 29, 89, 91, 98, 111, 121, 123, 132, 142, 146, 152, 164, 169, 172,
+		177, 179, 185, 187, 199, 206, 213, 223, 227, 243, 246, 252, 259, 267, 278,
+		282,
 	}
 	deserializer := antlr.NewATNDeserializer(nil)
 	staticData.atn = deserializer.Deserialize(staticData.serializedATN)
@@ -242,39 +250,40 @@ const (
 	NumbatParserRULE_expr_constant         = 6
 	NumbatParserRULE_expr_var              = 7
 	NumbatParserRULE_expr_call             = 8
-	NumbatParserRULE_expr_all              = 9
-	NumbatParserRULE_param_expr            = 10
-	NumbatParserRULE_param_type            = 11
-	NumbatParserRULE_param                 = 12
-	NumbatParserRULE_type_super_atomic_seq = 13
-	NumbatParserRULE_type_super_atomic     = 14
-	NumbatParserRULE_type_out              = 15
-	NumbatParserRULE_type_in               = 16
-	NumbatParserRULE_type                  = 17
-	NumbatParserRULE_proc_body             = 18
-	NumbatParserRULE_proc_name             = 19
-	NumbatParserRULE_proc_type             = 20
-	NumbatParserRULE_proc_def              = 21
-	NumbatParserRULE_proc                  = 22
-	NumbatParserRULE_call_arg              = 23
-	NumbatParserRULE_call_args             = 24
-	NumbatParserRULE_call_secondary        = 25
-	NumbatParserRULE_call_primary          = 26
-	NumbatParserRULE_call                  = 27
-	NumbatParserRULE_call_stmt             = 28
-	NumbatParserRULE_var_expr              = 29
-	NumbatParserRULE_var_type              = 30
-	NumbatParserRULE_var_name              = 31
-	NumbatParserRULE_var_stmt              = 32
-	NumbatParserRULE_assignment_expr       = 33
-	NumbatParserRULE_assignment_var        = 34
-	NumbatParserRULE_assignment            = 35
-	NumbatParserRULE_return_expr           = 36
-	NumbatParserRULE_return                = 37
-	NumbatParserRULE_return_stmt           = 38
-	NumbatParserRULE_program               = 39
-	NumbatParserRULE_statement             = 40
-	NumbatParserRULE_object                = 41
+	NumbatParserRULE_expr_seq              = 9
+	NumbatParserRULE_expr_all              = 10
+	NumbatParserRULE_param_expr            = 11
+	NumbatParserRULE_param_type            = 12
+	NumbatParserRULE_param                 = 13
+	NumbatParserRULE_type_super_atomic_seq = 14
+	NumbatParserRULE_type_super_atomic     = 15
+	NumbatParserRULE_type_out              = 16
+	NumbatParserRULE_type_in               = 17
+	NumbatParserRULE_type                  = 18
+	NumbatParserRULE_proc_body             = 19
+	NumbatParserRULE_proc_name             = 20
+	NumbatParserRULE_proc_type             = 21
+	NumbatParserRULE_proc_def              = 22
+	NumbatParserRULE_proc                  = 23
+	NumbatParserRULE_call_arg              = 24
+	NumbatParserRULE_call_args             = 25
+	NumbatParserRULE_call_secondary        = 26
+	NumbatParserRULE_call_primary          = 27
+	NumbatParserRULE_call                  = 28
+	NumbatParserRULE_call_stmt             = 29
+	NumbatParserRULE_var_expr              = 30
+	NumbatParserRULE_var_type              = 31
+	NumbatParserRULE_var_name              = 32
+	NumbatParserRULE_var_stmt              = 33
+	NumbatParserRULE_assignment_expr       = 34
+	NumbatParserRULE_assignment_var        = 35
+	NumbatParserRULE_assignment            = 36
+	NumbatParserRULE_return_expr           = 37
+	NumbatParserRULE_return                = 38
+	NumbatParserRULE_return_stmt           = 39
+	NumbatParserRULE_program               = 40
+	NumbatParserRULE_statement             = 41
+	NumbatParserRULE_object                = 42
 )
 
 // IProgContext is an interface to support dynamic dispatch.
@@ -411,7 +420,7 @@ func (p *NumbatParser) Prog() (localctx IProgContext) {
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(89)
+	p.SetState(91)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -419,7 +428,7 @@ func (p *NumbatParser) Prog() (localctx IProgContext) {
 	_la = p.GetTokenStream().LA(1)
 
 	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&17108992) != 0 {
-		p.SetState(87)
+		p.SetState(89)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -428,7 +437,7 @@ func (p *NumbatParser) Prog() (localctx IProgContext) {
 		switch p.GetTokenStream().LA(1) {
 		case NumbatParserWS:
 			{
-				p.SetState(84)
+				p.SetState(86)
 				p.Match(NumbatParserWS)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -438,7 +447,7 @@ func (p *NumbatParser) Prog() (localctx IProgContext) {
 
 		case NumbatParserNEWLINE:
 			{
-				p.SetState(85)
+				p.SetState(87)
 				p.Match(NumbatParserNEWLINE)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -448,7 +457,7 @@ func (p *NumbatParser) Prog() (localctx IProgContext) {
 
 		case NumbatParserT__11, NumbatParserT__15:
 			{
-				p.SetState(86)
+				p.SetState(88)
 				p.Object()
 			}
 
@@ -457,7 +466,7 @@ func (p *NumbatParser) Prog() (localctx IProgContext) {
 			goto errorExit
 		}
 
-		p.SetState(91)
+		p.SetState(93)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -546,7 +555,7 @@ func (p *NumbatParser) Expr_bool() (localctx IExpr_boolContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(92)
+		p.SetState(94)
 		_la = p.GetTokenStream().LA(1)
 
 		if !(_la == NumbatParserT__0 || _la == NumbatParserT__1) {
@@ -652,14 +661,14 @@ func (p *NumbatParser) Expr_num() (localctx IExpr_numContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(94)
+		p.SetState(96)
 		p.Match(NumbatParserNUMBER)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
 		}
 	}
-	p.SetState(96)
+	p.SetState(98)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -668,7 +677,7 @@ func (p *NumbatParser) Expr_num() (localctx IExpr_numContext) {
 
 	if _la == NumbatParserUNIT {
 		{
-			p.SetState(95)
+			p.SetState(97)
 			p.Match(NumbatParserUNIT)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -766,7 +775,7 @@ func (p *NumbatParser) Expr_hex() (localctx IExpr_hexContext) {
 	p.EnterRule(localctx, 6, NumbatParserRULE_expr_hex)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(98)
+		p.SetState(100)
 		p.Match(NumbatParserHEX)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -862,7 +871,7 @@ func (p *NumbatParser) Expr_str() (localctx IExpr_strContext) {
 	p.EnterRule(localctx, 8, NumbatParserRULE_expr_str)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(100)
+		p.SetState(102)
 		p.Match(NumbatParserSTRING)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -949,7 +958,7 @@ func (p *NumbatParser) Expr_null() (localctx IExpr_nullContext) {
 	p.EnterRule(localctx, 10, NumbatParserRULE_expr_null)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(102)
+		p.SetState(104)
 		p.Match(NumbatParserT__2)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -1124,7 +1133,7 @@ func (p *NumbatParser) Expr_constant() (localctx IExpr_constantContext) {
 	localctx = NewExpr_constantContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 12, NumbatParserRULE_expr_constant)
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(109)
+	p.SetState(111)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -1133,31 +1142,31 @@ func (p *NumbatParser) Expr_constant() (localctx IExpr_constantContext) {
 	switch p.GetTokenStream().LA(1) {
 	case NumbatParserT__0, NumbatParserT__1:
 		{
-			p.SetState(104)
+			p.SetState(106)
 			p.Expr_bool()
 		}
 
 	case NumbatParserNUMBER:
 		{
-			p.SetState(105)
+			p.SetState(107)
 			p.Expr_num()
 		}
 
 	case NumbatParserHEX:
 		{
-			p.SetState(106)
+			p.SetState(108)
 			p.Expr_hex()
 		}
 
 	case NumbatParserSTRING:
 		{
-			p.SetState(107)
+			p.SetState(109)
 			p.Expr_str()
 		}
 
 	case NumbatParserT__2:
 		{
-			p.SetState(108)
+			p.SetState(110)
 			p.Expr_null()
 		}
 
@@ -1254,7 +1263,7 @@ func (p *NumbatParser) Expr_var() (localctx IExpr_varContext) {
 	p.EnterRule(localctx, 14, NumbatParserRULE_expr_var)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(111)
+		p.SetState(113)
 		p.Match(NumbatParserNON_TYPE_NAME)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -1362,8 +1371,282 @@ func (p *NumbatParser) Expr_call() (localctx IExpr_callContext) {
 	p.EnterRule(localctx, 16, NumbatParserRULE_expr_call)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(113)
+		p.SetState(115)
 		p.Call()
+	}
+
+errorExit:
+	if p.HasError() {
+		v := p.GetError()
+		localctx.SetException(v)
+		p.GetErrorHandler().ReportError(p, v)
+		p.GetErrorHandler().Recover(p, v)
+		p.SetError(nil)
+	}
+	p.ExitRule()
+	return localctx
+	goto errorExit // Trick to prevent compiler error if the label is not used
+}
+
+// IExpr_seqContext is an interface to support dynamic dispatch.
+type IExpr_seqContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllExpr_var() []IExpr_varContext
+	Expr_var(i int) IExpr_varContext
+	AllExpr_constant() []IExpr_constantContext
+	Expr_constant(i int) IExpr_constantContext
+	AllExpr_call() []IExpr_callContext
+	Expr_call(i int) IExpr_callContext
+
+	// IsExpr_seqContext differentiates from other interfaces.
+	IsExpr_seqContext()
+}
+
+type Expr_seqContext struct {
+	antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyExpr_seqContext() *Expr_seqContext {
+	var p = new(Expr_seqContext)
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
+	p.RuleIndex = NumbatParserRULE_expr_seq
+	return p
+}
+
+func InitEmptyExpr_seqContext(p *Expr_seqContext) {
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
+	p.RuleIndex = NumbatParserRULE_expr_seq
+}
+
+func (*Expr_seqContext) IsExpr_seqContext() {}
+
+func NewExpr_seqContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Expr_seqContext {
+	var p = new(Expr_seqContext)
+
+	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = NumbatParserRULE_expr_seq
+
+	return p
+}
+
+func (s *Expr_seqContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *Expr_seqContext) AllExpr_var() []IExpr_varContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IExpr_varContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]IExpr_varContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IExpr_varContext); ok {
+			tst[i] = t.(IExpr_varContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *Expr_seqContext) Expr_var(i int) IExpr_varContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IExpr_varContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IExpr_varContext)
+}
+
+func (s *Expr_seqContext) AllExpr_constant() []IExpr_constantContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IExpr_constantContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]IExpr_constantContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IExpr_constantContext); ok {
+			tst[i] = t.(IExpr_constantContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *Expr_seqContext) Expr_constant(i int) IExpr_constantContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IExpr_constantContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IExpr_constantContext)
+}
+
+func (s *Expr_seqContext) AllExpr_call() []IExpr_callContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IExpr_callContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]IExpr_callContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IExpr_callContext); ok {
+			tst[i] = t.(IExpr_callContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *Expr_seqContext) Expr_call(i int) IExpr_callContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IExpr_callContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IExpr_callContext)
+}
+
+func (s *Expr_seqContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *Expr_seqContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *Expr_seqContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(NumbatListener); ok {
+		listenerT.EnterExpr_seq(s)
+	}
+}
+
+func (s *Expr_seqContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(NumbatListener); ok {
+		listenerT.ExitExpr_seq(s)
+	}
+}
+
+func (p *NumbatParser) Expr_seq() (localctx IExpr_seqContext) {
+	localctx = NewExpr_seqContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 18, NumbatParserRULE_expr_seq)
+	var _la int
+
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(117)
+		p.Match(NumbatParserT__3)
+		if p.HasError() {
+			// Recognition error - abort rule
+			goto errorExit
+		}
+	}
+	p.SetState(123)
+	p.GetErrorHandler().Sync(p)
+	if p.HasError() {
+		goto errorExit
+	}
+	_la = p.GetTokenStream().LA(1)
+
+	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&16252942) != 0 {
+		p.SetState(121)
+		p.GetErrorHandler().Sync(p)
+		if p.HasError() {
+			goto errorExit
+		}
+
+		switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 4, p.GetParserRuleContext()) {
+		case 1:
+			{
+				p.SetState(118)
+				p.Expr_var()
+			}
+
+		case 2:
+			{
+				p.SetState(119)
+				p.Expr_constant()
+			}
+
+		case 3:
+			{
+				p.SetState(120)
+				p.Expr_call()
+			}
+
+		case antlr.ATNInvalidAltNumber:
+			goto errorExit
+		}
+
+		p.SetState(125)
+		p.GetErrorHandler().Sync(p)
+		if p.HasError() {
+			goto errorExit
+		}
+		_la = p.GetTokenStream().LA(1)
+	}
+	{
+		p.SetState(126)
+		p.Match(NumbatParserT__4)
+		if p.HasError() {
+			// Recognition error - abort rule
+			goto errorExit
+		}
 	}
 
 errorExit:
@@ -1390,6 +1673,7 @@ type IExpr_allContext interface {
 	Expr_var() IExpr_varContext
 	Expr_constant() IExpr_constantContext
 	Expr_call() IExpr_callContext
+	Expr_seq() IExpr_seqContext
 
 	// IsExpr_allContext differentiates from other interfaces.
 	IsExpr_allContext()
@@ -1475,6 +1759,22 @@ func (s *Expr_allContext) Expr_call() IExpr_callContext {
 	return t.(IExpr_callContext)
 }
 
+func (s *Expr_allContext) Expr_seq() IExpr_seqContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IExpr_seqContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IExpr_seqContext)
+}
+
 func (s *Expr_allContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
@@ -1497,31 +1797,37 @@ func (s *Expr_allContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Expr_all() (localctx IExpr_allContext) {
 	localctx = NewExpr_allContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 18, NumbatParserRULE_expr_all)
+	p.EnterRule(localctx, 20, NumbatParserRULE_expr_all)
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(118)
+	p.SetState(132)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 4, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 6, p.GetParserRuleContext()) {
 	case 1:
 		{
-			p.SetState(115)
+			p.SetState(128)
 			p.Expr_var()
 		}
 
 	case 2:
 		{
-			p.SetState(116)
+			p.SetState(129)
 			p.Expr_constant()
 		}
 
 	case 3:
 		{
-			p.SetState(117)
+			p.SetState(130)
 			p.Expr_call()
+		}
+
+	case 4:
+		{
+			p.SetState(131)
+			p.Expr_seq()
 		}
 
 	case antlr.ATNInvalidAltNumber:
@@ -1625,18 +1931,18 @@ func (s *Param_exprContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Param_expr() (localctx IParam_exprContext) {
 	localctx = NewParam_exprContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 20, NumbatParserRULE_param_expr)
+	p.EnterRule(localctx, 22, NumbatParserRULE_param_expr)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(120)
-		p.Match(NumbatParserT__3)
+		p.SetState(134)
+		p.Match(NumbatParserT__5)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
 		}
 	}
 	{
-		p.SetState(121)
+		p.SetState(135)
 		p.Expr_constant()
 	}
 
@@ -1737,10 +2043,10 @@ func (s *Param_typeContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Param_type() (localctx IParam_typeContext) {
 	localctx = NewParam_typeContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 22, NumbatParserRULE_param_type)
+	p.EnterRule(localctx, 24, NumbatParserRULE_param_type)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(123)
+		p.SetState(137)
 		p.Type_()
 	}
 
@@ -1863,12 +2169,12 @@ func (s *ParamContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Param() (localctx IParamContext) {
 	localctx = NewParamContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 24, NumbatParserRULE_param)
+	p.EnterRule(localctx, 26, NumbatParserRULE_param)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(125)
+		p.SetState(139)
 		p.Match(NumbatParserNON_TYPE_NAME)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -1876,19 +2182,19 @@ func (p *NumbatParser) Param() (localctx IParamContext) {
 		}
 	}
 	{
-		p.SetState(126)
+		p.SetState(140)
 		p.Param_type()
 	}
-	p.SetState(128)
+	p.SetState(142)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 	_la = p.GetTokenStream().LA(1)
 
-	if _la == NumbatParserT__3 {
+	if _la == NumbatParserT__5 {
 		{
-			p.SetState(127)
+			p.SetState(141)
 			p.Param_expr()
 		}
 
@@ -1979,19 +2285,19 @@ func (s *Type_super_atomic_seqContext) ExitRule(listener antlr.ParseTreeListener
 
 func (p *NumbatParser) Type_super_atomic_seq() (localctx IType_super_atomic_seqContext) {
 	localctx = NewType_super_atomic_seqContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 26, NumbatParserRULE_type_super_atomic_seq)
+	p.EnterRule(localctx, 28, NumbatParserRULE_type_super_atomic_seq)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(130)
-		p.Match(NumbatParserT__4)
+		p.SetState(144)
+		p.Match(NumbatParserT__3)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
 		}
 	}
-	p.SetState(132)
+	p.SetState(146)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -2000,7 +2306,7 @@ func (p *NumbatParser) Type_super_atomic_seq() (localctx IType_super_atomic_seqC
 
 	if _la == NumbatParserNUMBER {
 		{
-			p.SetState(131)
+			p.SetState(145)
 			p.Match(NumbatParserNUMBER)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -2010,8 +2316,8 @@ func (p *NumbatParser) Type_super_atomic_seq() (localctx IType_super_atomic_seqC
 
 	}
 	{
-		p.SetState(134)
-		p.Match(NumbatParserT__5)
+		p.SetState(148)
+		p.Match(NumbatParserT__4)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
@@ -2120,28 +2426,28 @@ func (s *Type_super_atomicContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Type_super_atomic() (localctx IType_super_atomicContext) {
 	localctx = NewType_super_atomicContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 28, NumbatParserRULE_type_super_atomic)
+	p.EnterRule(localctx, 30, NumbatParserRULE_type_super_atomic)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(136)
+		p.SetState(150)
 		p.Match(NumbatParserTYPE_NAME)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
 		}
 	}
-	p.SetState(138)
+	p.SetState(152)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 	_la = p.GetTokenStream().LA(1)
 
-	if _la == NumbatParserT__4 {
+	if _la == NumbatParserT__3 {
 		{
-			p.SetState(137)
+			p.SetState(151)
 			p.Type_super_atomic_seq()
 		}
 
@@ -2244,10 +2550,10 @@ func (s *Type_outContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Type_out() (localctx IType_outContext) {
 	localctx = NewType_outContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 30, NumbatParserRULE_type_out)
+	p.EnterRule(localctx, 32, NumbatParserRULE_type_out)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(140)
+		p.SetState(154)
 		p.Type_super_atomic()
 	}
 
@@ -2374,20 +2680,20 @@ func (s *Type_inContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Type_in() (localctx IType_inContext) {
 	localctx = NewType_inContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 32, NumbatParserRULE_type_in)
+	p.EnterRule(localctx, 34, NumbatParserRULE_type_in)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(155)
+	p.SetState(169)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 9, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 11, p.GetParserRuleContext()) {
 	case 1:
 		{
-			p.SetState(142)
+			p.SetState(156)
 			p.Match(NumbatParserT__6)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -2395,7 +2701,7 @@ func (p *NumbatParser) Type_in() (localctx IType_inContext) {
 			}
 		}
 		{
-			p.SetState(143)
+			p.SetState(157)
 			p.Match(NumbatParserT__7)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -2405,7 +2711,7 @@ func (p *NumbatParser) Type_in() (localctx IType_inContext) {
 
 	case 2:
 		{
-			p.SetState(144)
+			p.SetState(158)
 			p.Match(NumbatParserT__6)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -2413,10 +2719,10 @@ func (p *NumbatParser) Type_in() (localctx IType_inContext) {
 			}
 		}
 		{
-			p.SetState(145)
+			p.SetState(159)
 			p.Param()
 		}
-		p.SetState(150)
+		p.SetState(164)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -2425,7 +2731,7 @@ func (p *NumbatParser) Type_in() (localctx IType_inContext) {
 
 		for _la == NumbatParserT__8 {
 			{
-				p.SetState(146)
+				p.SetState(160)
 				p.Match(NumbatParserT__8)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -2433,11 +2739,11 @@ func (p *NumbatParser) Type_in() (localctx IType_inContext) {
 				}
 			}
 			{
-				p.SetState(147)
+				p.SetState(161)
 				p.Param()
 			}
 
-			p.SetState(152)
+			p.SetState(166)
 			p.GetErrorHandler().Sync(p)
 			if p.HasError() {
 				goto errorExit
@@ -2445,7 +2751,7 @@ func (p *NumbatParser) Type_in() (localctx IType_inContext) {
 			_la = p.GetTokenStream().LA(1)
 		}
 		{
-			p.SetState(153)
+			p.SetState(167)
 			p.Match(NumbatParserT__7)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -2571,19 +2877,19 @@ func (s *TypeContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Type_() (localctx ITypeContext) {
 	localctx = NewTypeContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 34, NumbatParserRULE_type)
+	p.EnterRule(localctx, 36, NumbatParserRULE_type)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(165)
+	p.SetState(179)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 12, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 14, p.GetParserRuleContext()) {
 	case 1:
-		p.SetState(158)
+		p.SetState(172)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -2592,27 +2898,27 @@ func (p *NumbatParser) Type_() (localctx ITypeContext) {
 
 		if _la == NumbatParserT__6 {
 			{
-				p.SetState(157)
+				p.SetState(171)
 				p.Type_in()
 			}
 
 		}
 		{
-			p.SetState(160)
+			p.SetState(174)
 			p.Type_out()
 		}
 
 	case 2:
 		{
-			p.SetState(161)
+			p.SetState(175)
 			p.Type_in()
 		}
-		p.SetState(163)
+		p.SetState(177)
 		p.GetErrorHandler().Sync(p)
 
-		if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 11, p.GetParserRuleContext()) == 1 {
+		if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 13, p.GetParserRuleContext()) == 1 {
 			{
-				p.SetState(162)
+				p.SetState(176)
 				p.Type_out()
 			}
 
@@ -2767,19 +3073,19 @@ func (s *Proc_bodyContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Proc_body() (localctx IProc_bodyContext) {
 	localctx = NewProc_bodyContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 36, NumbatParserRULE_proc_body)
+	p.EnterRule(localctx, 38, NumbatParserRULE_proc_body)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(167)
+		p.SetState(181)
 		p.Match(NumbatParserT__9)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
 		}
 	}
-	p.SetState(173)
+	p.SetState(187)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -2787,7 +3093,7 @@ func (p *NumbatParser) Proc_body() (localctx IProc_bodyContext) {
 	_la = p.GetTokenStream().LA(1)
 
 	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&29671424) != 0 {
-		p.SetState(171)
+		p.SetState(185)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -2796,7 +3102,7 @@ func (p *NumbatParser) Proc_body() (localctx IProc_bodyContext) {
 		switch p.GetTokenStream().LA(1) {
 		case NumbatParserWS:
 			{
-				p.SetState(168)
+				p.SetState(182)
 				p.Match(NumbatParserWS)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -2806,7 +3112,7 @@ func (p *NumbatParser) Proc_body() (localctx IProc_bodyContext) {
 
 		case NumbatParserNEWLINE:
 			{
-				p.SetState(169)
+				p.SetState(183)
 				p.Match(NumbatParserNEWLINE)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -2816,7 +3122,7 @@ func (p *NumbatParser) Proc_body() (localctx IProc_bodyContext) {
 
 		case NumbatParserT__13, NumbatParserT__14, NumbatParserTYPE_NAME, NumbatParserNON_TYPE_NAME:
 			{
-				p.SetState(170)
+				p.SetState(184)
 				p.Statement()
 			}
 
@@ -2825,7 +3131,7 @@ func (p *NumbatParser) Proc_body() (localctx IProc_bodyContext) {
 			goto errorExit
 		}
 
-		p.SetState(175)
+		p.SetState(189)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -2833,7 +3139,7 @@ func (p *NumbatParser) Proc_body() (localctx IProc_bodyContext) {
 		_la = p.GetTokenStream().LA(1)
 	}
 	{
-		p.SetState(176)
+		p.SetState(190)
 		p.Match(NumbatParserT__10)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -2926,10 +3232,10 @@ func (s *Proc_nameContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Proc_name() (localctx IProc_nameContext) {
 	localctx = NewProc_nameContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 38, NumbatParserRULE_proc_name)
+	p.EnterRule(localctx, 40, NumbatParserRULE_proc_name)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(178)
+		p.SetState(192)
 		p.Match(NumbatParserNON_TYPE_NAME)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -3034,10 +3340,10 @@ func (s *Proc_typeContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Proc_type() (localctx IProc_typeContext) {
 	localctx = NewProc_typeContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 40, NumbatParserRULE_proc_type)
+	p.EnterRule(localctx, 42, NumbatParserRULE_proc_type)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(180)
+		p.SetState(194)
 		p.Type_()
 	}
 
@@ -3155,12 +3461,12 @@ func (s *Proc_defContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Proc_def() (localctx IProc_defContext) {
 	localctx = NewProc_defContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 42, NumbatParserRULE_proc_def)
+	p.EnterRule(localctx, 44, NumbatParserRULE_proc_def)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(182)
+		p.SetState(196)
 		p.Match(NumbatParserT__11)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -3168,10 +3474,10 @@ func (p *NumbatParser) Proc_def() (localctx IProc_defContext) {
 		}
 	}
 	{
-		p.SetState(183)
+		p.SetState(197)
 		p.Proc_name()
 	}
-	p.SetState(185)
+	p.SetState(199)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -3180,7 +3486,7 @@ func (p *NumbatParser) Proc_def() (localctx IProc_defContext) {
 
 	if _la == NumbatParserT__6 || _la == NumbatParserTYPE_NAME {
 		{
-			p.SetState(184)
+			p.SetState(198)
 			p.Proc_type()
 		}
 
@@ -3300,14 +3606,14 @@ func (s *ProcContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Proc() (localctx IProcContext) {
 	localctx = NewProcContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 44, NumbatParserRULE_proc)
+	p.EnterRule(localctx, 46, NumbatParserRULE_proc)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(187)
+		p.SetState(201)
 		p.Proc_def()
 	}
 	{
-		p.SetState(188)
+		p.SetState(202)
 		p.Proc_body()
 	}
 
@@ -3425,9 +3731,9 @@ func (s *Call_argContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Call_arg() (localctx ICall_argContext) {
 	localctx = NewCall_argContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 46, NumbatParserRULE_call_arg)
+	p.EnterRule(localctx, 48, NumbatParserRULE_call_arg)
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(192)
+	p.SetState(206)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -3436,13 +3742,13 @@ func (p *NumbatParser) Call_arg() (localctx ICall_argContext) {
 	switch p.GetTokenStream().LA(1) {
 	case NumbatParserNON_TYPE_NAME:
 		{
-			p.SetState(190)
+			p.SetState(204)
 			p.Expr_var()
 		}
 
 	case NumbatParserT__0, NumbatParserT__1, NumbatParserT__2, NumbatParserNUMBER, NumbatParserHEX, NumbatParserSTRING:
 		{
-			p.SetState(191)
+			p.SetState(205)
 			p.Expr_constant()
 		}
 
@@ -3574,15 +3880,15 @@ func (s *Call_argsContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Call_args() (localctx ICall_argsContext) {
 	localctx = NewCall_argsContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 48, NumbatParserRULE_call_args)
+	p.EnterRule(localctx, 50, NumbatParserRULE_call_args)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(194)
+		p.SetState(208)
 		p.Expr_all()
 	}
-	p.SetState(199)
+	p.SetState(213)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -3591,7 +3897,7 @@ func (p *NumbatParser) Call_args() (localctx ICall_argsContext) {
 
 	for _la == NumbatParserT__8 {
 		{
-			p.SetState(195)
+			p.SetState(209)
 			p.Match(NumbatParserT__8)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -3599,11 +3905,11 @@ func (p *NumbatParser) Call_args() (localctx ICall_argsContext) {
 			}
 		}
 		{
-			p.SetState(196)
+			p.SetState(210)
 			p.Expr_all()
 		}
 
-		p.SetState(201)
+		p.SetState(215)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -3696,10 +4002,10 @@ func (s *Call_secondaryContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Call_secondary() (localctx ICall_secondaryContext) {
 	localctx = NewCall_secondaryContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 50, NumbatParserRULE_call_secondary)
+	p.EnterRule(localctx, 52, NumbatParserRULE_call_secondary)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(202)
+		p.SetState(216)
 		p.Match(NumbatParserNON_TYPE_NAME)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -3797,12 +4103,12 @@ func (s *Call_primaryContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Call_primary() (localctx ICall_primaryContext) {
 	localctx = NewCall_primaryContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 52, NumbatParserRULE_call_primary)
+	p.EnterRule(localctx, 54, NumbatParserRULE_call_primary)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(204)
+		p.SetState(218)
 		_la = p.GetTokenStream().LA(1)
 
 		if !(_la == NumbatParserTYPE_NAME || _la == NumbatParserNON_TYPE_NAME) {
@@ -3944,15 +4250,15 @@ func (s *CallContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Call() (localctx ICallContext) {
 	localctx = NewCallContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 54, NumbatParserRULE_call)
+	p.EnterRule(localctx, 56, NumbatParserRULE_call)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(206)
+		p.SetState(220)
 		p.Call_primary()
 	}
-	p.SetState(209)
+	p.SetState(223)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -3961,7 +4267,7 @@ func (p *NumbatParser) Call() (localctx ICallContext) {
 
 	if _la == NumbatParserT__12 {
 		{
-			p.SetState(207)
+			p.SetState(221)
 			p.Match(NumbatParserT__12)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -3969,35 +4275,35 @@ func (p *NumbatParser) Call() (localctx ICallContext) {
 			}
 		}
 		{
-			p.SetState(208)
+			p.SetState(222)
 			p.Call_secondary()
 		}
 
 	}
 	{
-		p.SetState(211)
+		p.SetState(225)
 		p.Match(NumbatParserT__6)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
 		}
 	}
-	p.SetState(213)
+	p.SetState(227)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 	_la = p.GetTokenStream().LA(1)
 
-	if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&16252942) != 0 {
+	if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&16252958) != 0 {
 		{
-			p.SetState(212)
+			p.SetState(226)
 			p.Call_args()
 		}
 
 	}
 	{
-		p.SetState(215)
+		p.SetState(229)
 		p.Match(NumbatParserT__7)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -4102,10 +4408,10 @@ func (s *Call_stmtContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Call_stmt() (localctx ICall_stmtContext) {
 	localctx = NewCall_stmtContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 56, NumbatParserRULE_call_stmt)
+	p.EnterRule(localctx, 58, NumbatParserRULE_call_stmt)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(217)
+		p.SetState(231)
 		p.Call()
 	}
 
@@ -4206,18 +4512,18 @@ func (s *Var_exprContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Var_expr() (localctx IVar_exprContext) {
 	localctx = NewVar_exprContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 58, NumbatParserRULE_var_expr)
+	p.EnterRule(localctx, 60, NumbatParserRULE_var_expr)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(219)
-		p.Match(NumbatParserT__3)
+		p.SetState(233)
+		p.Match(NumbatParserT__5)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
 		}
 	}
 	{
-		p.SetState(220)
+		p.SetState(234)
 		p.Expr_all()
 	}
 
@@ -4318,10 +4624,10 @@ func (s *Var_typeContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Var_type() (localctx IVar_typeContext) {
 	localctx = NewVar_typeContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 60, NumbatParserRULE_var_type)
+	p.EnterRule(localctx, 62, NumbatParserRULE_var_type)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(222)
+		p.SetState(236)
 		p.Type_()
 	}
 
@@ -4410,10 +4716,10 @@ func (s *Var_nameContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Var_name() (localctx IVar_nameContext) {
 	localctx = NewVar_nameContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 62, NumbatParserRULE_var_name)
+	p.EnterRule(localctx, 64, NumbatParserRULE_var_name)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(224)
+		p.SetState(238)
 		p.Match(NumbatParserNON_TYPE_NAME)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -4552,12 +4858,12 @@ func (s *Var_stmtContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Var_stmt() (localctx IVar_stmtContext) {
 	localctx = NewVar_stmtContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 64, NumbatParserRULE_var_stmt)
+	p.EnterRule(localctx, 66, NumbatParserRULE_var_stmt)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(226)
+		p.SetState(240)
 		p.Match(NumbatParserT__13)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -4565,31 +4871,31 @@ func (p *NumbatParser) Var_stmt() (localctx IVar_stmtContext) {
 		}
 	}
 	{
-		p.SetState(227)
+		p.SetState(241)
 		p.Var_name()
 	}
-	p.SetState(229)
+	p.SetState(243)
 	p.GetErrorHandler().Sync(p)
 
-	if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 20, p.GetParserRuleContext()) == 1 {
+	if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 22, p.GetParserRuleContext()) == 1 {
 		{
-			p.SetState(228)
+			p.SetState(242)
 			p.Var_type()
 		}
 
 	} else if p.HasError() { // JIM
 		goto errorExit
 	}
-	p.SetState(232)
+	p.SetState(246)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 	_la = p.GetTokenStream().LA(1)
 
-	if _la == NumbatParserT__3 {
+	if _la == NumbatParserT__5 {
 		{
-			p.SetState(231)
+			p.SetState(245)
 			p.Var_expr()
 		}
 
@@ -4718,23 +5024,23 @@ func (s *Assignment_exprContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Assignment_expr() (localctx IAssignment_exprContext) {
 	localctx = NewAssignment_exprContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 66, NumbatParserRULE_assignment_expr)
+	p.EnterRule(localctx, 68, NumbatParserRULE_assignment_expr)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(234)
-		p.Match(NumbatParserT__3)
+		p.SetState(248)
+		p.Match(NumbatParserT__5)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
 		}
 	}
 	{
-		p.SetState(235)
+		p.SetState(249)
 		p.Expr_all()
 	}
-	p.SetState(238)
+	p.SetState(252)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -4743,7 +5049,7 @@ func (p *NumbatParser) Assignment_expr() (localctx IAssignment_exprContext) {
 
 	if _la == NumbatParserT__8 {
 		{
-			p.SetState(236)
+			p.SetState(250)
 			p.Match(NumbatParserT__8)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -4751,7 +5057,7 @@ func (p *NumbatParser) Assignment_expr() (localctx IAssignment_exprContext) {
 			}
 		}
 		{
-			p.SetState(237)
+			p.SetState(251)
 			p.Expr_all()
 		}
 
@@ -4842,10 +5148,10 @@ func (s *Assignment_varContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Assignment_var() (localctx IAssignment_varContext) {
 	localctx = NewAssignment_varContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 68, NumbatParserRULE_assignment_var)
+	p.EnterRule(localctx, 70, NumbatParserRULE_assignment_var)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(240)
+		p.SetState(254)
 		p.Match(NumbatParserNON_TYPE_NAME)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -4993,15 +5299,15 @@ func (s *AssignmentContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Assignment() (localctx IAssignmentContext) {
 	localctx = NewAssignmentContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 70, NumbatParserRULE_assignment)
+	p.EnterRule(localctx, 72, NumbatParserRULE_assignment)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(242)
+		p.SetState(256)
 		p.Assignment_var()
 	}
-	p.SetState(245)
+	p.SetState(259)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -5010,7 +5316,7 @@ func (p *NumbatParser) Assignment() (localctx IAssignmentContext) {
 
 	if _la == NumbatParserT__8 {
 		{
-			p.SetState(243)
+			p.SetState(257)
 			p.Match(NumbatParserT__8)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -5018,13 +5324,13 @@ func (p *NumbatParser) Assignment() (localctx IAssignmentContext) {
 			}
 		}
 		{
-			p.SetState(244)
+			p.SetState(258)
 			p.Assignment_var()
 		}
 
 	}
 	{
-		p.SetState(247)
+		p.SetState(261)
 		p.Assignment_expr()
 	}
 
@@ -5125,10 +5431,10 @@ func (s *Return_exprContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Return_expr() (localctx IReturn_exprContext) {
 	localctx = NewReturn_exprContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 72, NumbatParserRULE_return_expr)
+	p.EnterRule(localctx, 74, NumbatParserRULE_return_expr)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(249)
+		p.SetState(263)
 		p.Expr_all()
 	}
 
@@ -5229,22 +5535,22 @@ func (s *ReturnContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Return_() (localctx IReturnContext) {
 	localctx = NewReturnContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 74, NumbatParserRULE_return)
+	p.EnterRule(localctx, 76, NumbatParserRULE_return)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(251)
+		p.SetState(265)
 		p.Match(NumbatParserT__14)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
 		}
 	}
-	p.SetState(253)
+	p.SetState(267)
 	p.GetErrorHandler().Sync(p)
 
-	if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 24, p.GetParserRuleContext()) == 1 {
+	if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 26, p.GetParserRuleContext()) == 1 {
 		{
-			p.SetState(252)
+			p.SetState(266)
 			p.Return_expr()
 		}
 
@@ -5349,10 +5655,10 @@ func (s *Return_stmtContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Return_stmt() (localctx IReturn_stmtContext) {
 	localctx = NewReturn_stmtContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 76, NumbatParserRULE_return_stmt)
+	p.EnterRule(localctx, 78, NumbatParserRULE_return_stmt)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(255)
+		p.SetState(269)
 		p.Return_()
 	}
 
@@ -5453,10 +5759,10 @@ func (s *ProgramContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Program() (localctx IProgramContext) {
 	localctx = NewProgramContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 78, NumbatParserRULE_program)
+	p.EnterRule(localctx, 80, NumbatParserRULE_program)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(257)
+		p.SetState(271)
 		p.Match(NumbatParserT__15)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -5464,7 +5770,7 @@ func (p *NumbatParser) Program() (localctx IProgramContext) {
 		}
 	}
 	{
-		p.SetState(258)
+		p.SetState(272)
 		p.Proc_body()
 	}
 
@@ -5616,36 +5922,36 @@ func (s *StatementContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Statement() (localctx IStatementContext) {
 	localctx = NewStatementContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 80, NumbatParserRULE_statement)
+	p.EnterRule(localctx, 82, NumbatParserRULE_statement)
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(264)
+	p.SetState(278)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 25, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 27, p.GetParserRuleContext()) {
 	case 1:
 		{
-			p.SetState(260)
+			p.SetState(274)
 			p.Call_stmt()
 		}
 
 	case 2:
 		{
-			p.SetState(261)
+			p.SetState(275)
 			p.Var_stmt()
 		}
 
 	case 3:
 		{
-			p.SetState(262)
+			p.SetState(276)
 			p.Return_stmt()
 		}
 
 	case 4:
 		{
-			p.SetState(263)
+			p.SetState(277)
 			p.Assignment()
 		}
 
@@ -5767,9 +6073,9 @@ func (s *ObjectContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *NumbatParser) Object() (localctx IObjectContext) {
 	localctx = NewObjectContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 82, NumbatParserRULE_object)
+	p.EnterRule(localctx, 84, NumbatParserRULE_object)
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(268)
+	p.SetState(282)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -5778,13 +6084,13 @@ func (p *NumbatParser) Object() (localctx IObjectContext) {
 	switch p.GetTokenStream().LA(1) {
 	case NumbatParserT__15:
 		{
-			p.SetState(266)
+			p.SetState(280)
 			p.Program()
 		}
 
 	case NumbatParserT__11:
 		{
-			p.SetState(267)
+			p.SetState(281)
 			p.Proc()
 		}
 

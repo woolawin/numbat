@@ -35,6 +35,9 @@ type NumbatListener interface {
 	// EnterExpr_call is called when entering the expr_call production.
 	EnterExpr_call(c *Expr_callContext)
 
+	// EnterExpr_seq is called when entering the expr_seq production.
+	EnterExpr_seq(c *Expr_seqContext)
+
 	// EnterExpr_all is called when entering the expr_all production.
 	EnterExpr_all(c *Expr_allContext)
 
@@ -160,6 +163,9 @@ type NumbatListener interface {
 
 	// ExitExpr_call is called when exiting the expr_call production.
 	ExitExpr_call(c *Expr_callContext)
+
+	// ExitExpr_seq is called when exiting the expr_seq production.
+	ExitExpr_seq(c *Expr_seqContext)
 
 	// ExitExpr_all is called when exiting the expr_all production.
 	ExitExpr_all(c *Expr_allContext)

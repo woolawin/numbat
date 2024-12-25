@@ -172,9 +172,9 @@ func (validation *Validation) validateType(t *read.Type, context *Context, repor
 	for _, param := range t.In {
 		in := validation.validateType(param.Typ, context, reportError)
 		var defaultValue Expression
-		if len(param.Expr) == 1 {
+		if param.Value.IsNotEmpty() {
 			// There is a default value to this in type so check that it is valid
-			e, ok := validation.expression(&param.Expr[0], nil, context, false)
+			e, ok := validation.expression(param.Value.First(), nil, context, false)
 			if ok {
 				defaultValue = e
 			} else {
@@ -196,8 +196,8 @@ func (validation *Validation) variable(stmt *read.Var, context *Context) (Variab
 		// if there is already something with the same name, validate the expression if present and then
 		// move on to the next statement
 		validation.addError(NewNameConflict(stmt.Name.ToName(), object.GetName().Location))
-		if len(stmt.Exprs) == 1 {
-			validation.expression(&stmt.Exprs[0], nil, context, stmt.VarType == nil)
+		if stmt.Value.IsNotEmpty() {
+			validation.expression(stmt.Value.First(), nil, context, stmt.VarType == nil)
 		}
 		return VariableDeclaration{}, false
 	}
@@ -212,13 +212,13 @@ func (validation *Validation) variable(stmt *read.Var, context *Context) (Variab
 		variableType = &t
 	}
 
-	if len(stmt.Exprs) == 0 {
+	if stmt.Value.IsEmpty() {
 		if variableType == nil {
 			// If they did not specify a type, then they must specify an expression to infer the type
 			validation.addError(NewNoExprToInferVariableType(stmt.Name.ToName()))
 		}
 	} else {
-		expr, ok := validation.expression(&stmt.Exprs[0], variableType, context, variableType == nil)
+		expr, ok := validation.expression(stmt.Value.First(), variableType, context, variableType == nil)
 		if ok {
 			variableValue = expr
 			if variableType == nil {
@@ -332,12 +332,12 @@ func (validation *Validation) procedureCall(call *read.Call, context *Context) (
 
 	validateParamAgainstType := false
 
-	if len(call.Exprs) != len(object.GetType().In) {
+	if call.Arguments.Count() != len(object.GetType().In) {
 		validation.addError(
 			NewIncorrectArgumentCount(
 				call.Primary.Value,
 				call.Primary.Location,
-				len(call.Exprs),
+				call.Arguments.Count(),
 				len(object.GetType().In),
 			),
 		)
@@ -347,8 +347,8 @@ func (validation *Validation) procedureCall(call *read.Call, context *Context) (
 
 	var arguments []Expression
 	argumentsOk := true
-	for idx := range call.Exprs {
-		subexpr := &call.Exprs[idx]
+	for idx := range call.Arguments.Exprs {
+		subexpr := &call.Arguments.Exprs[idx]
 		var typeToCheckAgainst *InOutType
 		if validateParamAgainstType {
 			typeToCheckAgainst = object.GetType().In[idx].Type
@@ -369,26 +369,26 @@ func (validation *Validation) returnStatement(ret *read.Return, location Locatio
 	}
 
 	if context.ReturnType.IsNoType() {
-		if len(ret.Exprs) != 0 {
-			validation.addError(NewDoesNotReturnValue(context.CurrentObjectName, ret.Exprs[0].Location))
+		if ret.Value.IsNotEmpty() {
+			validation.addError(NewDoesNotReturnValue(context.CurrentObjectName, ret.Value.First().Location))
 			return NewReturnStatement(context, nil)
 		}
 		return NewReturnStatement(context, nil)
 	}
 
-	if len(ret.Exprs) == 0 {
+	if ret.Value.IsEmpty() {
 		validation.addError(NewReturnValueRequired(context.CurrentObjectName, location, context.ReturnType.String()))
 		return NewReturnStatement(context, nil)
 	}
 
-	expr, ok := validation.expression(&ret.Exprs[0], nil, context, false)
+	expr, ok := validation.expression(ret.Value.First(), nil, context, false)
 	if !ok {
 		return NewReturnStatement(context, nil)
 	}
 
 	returnType := NewInOutType(nil, context.ReturnType)
 	if areTypesIncompatible(returnType, expr.GetType()) {
-		validation.addError(NewIncompatibleReturnValueType(ret.Exprs[0].Location, expr.GetType(), returnType))
+		validation.addError(NewIncompatibleReturnValueType(ret.Value.First().Location, expr.GetType(), returnType))
 	}
 	return NewReturnStatement(context, expr)
 }

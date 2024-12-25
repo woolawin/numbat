@@ -29,9 +29,9 @@ func (n *Name) ToName() common.Name {
 }
 
 type Param struct {
-	Name Name
-	Typ  *Type
-	Expr []Expr
+	Name  Name
+	Typ   *Type
+	Value ExprGroup
 }
 
 type Type struct {
@@ -64,25 +64,53 @@ func (exp *Expr) ToExpression() common.Expression {
 	return nil // TODO ADD more
 }
 
+type ExprGroup struct {
+	Exprs []Expr
+}
+
+func (grp *ExprGroup) Add(expr Expr) {
+	grp.Exprs = append(grp.Exprs, expr)
+}
+
+func (grp *ExprGroup) IsEmpty() bool {
+	return len(grp.Exprs) == 0
+}
+
+func (grp *ExprGroup) IsNotEmpty() bool {
+	return len(grp.Exprs) != 0
+}
+
+func (grp *ExprGroup) First() *Expr {
+	return &grp.Exprs[0]
+}
+
+func (grp *ExprGroup) Count() int {
+	return len(grp.Exprs)
+}
+
 type Call struct {
 	Primary   Name
 	Secondary Name
-	Exprs     []Expr
+	Arguments ExprGroup
+}
+
+type Seq struct {
+	Exprs ExprGroup
 }
 
 type Var struct {
 	Name    Name
 	VarType *Type
-	Exprs   []Expr
+	Value   ExprGroup
 }
 
 type Return struct {
-	Exprs []Expr
+	Value ExprGroup
 }
 
 type Assignment struct {
-	Vars  []string
-	Exprs []Expr
+	Vars   []string
+	Values ExprGroup
 }
 
 type Statement struct {

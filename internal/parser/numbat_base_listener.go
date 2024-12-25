@@ -75,6 +75,12 @@ func (s *BaseNumbatListener) EnterExpr_call(ctx *Expr_callContext) {}
 // ExitExpr_call is called when production expr_call is exited.
 func (s *BaseNumbatListener) ExitExpr_call(ctx *Expr_callContext) {}
 
+// EnterExpr_seq is called when production expr_seq is entered.
+func (s *BaseNumbatListener) EnterExpr_seq(ctx *Expr_seqContext) {}
+
+// ExitExpr_seq is called when production expr_seq is exited.
+func (s *BaseNumbatListener) ExitExpr_seq(ctx *Expr_seqContext) {}
+
 // EnterExpr_all is called when production expr_all is entered.
 func (s *BaseNumbatListener) EnterExpr_all(ctx *Expr_allContext) {}
 

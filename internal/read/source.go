@@ -51,7 +51,7 @@ func (proc *Proc) String() string {
 			str.WriteString(" ")
 			str.WriteString(in.Typ.String())
 
-			for _, expr := range in.Expr {
+			for _, expr := range in.Value.Exprs {
 				str.WriteString(" ")
 				str.WriteString(expr.String())
 			}
@@ -79,7 +79,7 @@ func (proc *Proc) String() string {
 				str.WriteString(" ")
 				str.WriteString(stmt.Var.VarType.String())
 			}
-			for _, exp := range stmt.Var.Exprs {
+			for _, exp := range stmt.Var.Value.Exprs {
 				str.WriteString(" ")
 				str.WriteString(exp.String())
 			}
@@ -88,7 +88,7 @@ func (proc *Proc) String() string {
 
 		if stmt.Ret != nil {
 			str.WriteString("\tRET")
-			for _, exp := range stmt.Ret.Exprs {
+			for _, exp := range stmt.Ret.Value.Exprs {
 				str.WriteString(" ")
 				str.WriteString(exp.String())
 			}
@@ -101,7 +101,7 @@ func (proc *Proc) String() string {
 				str.WriteString(" ")
 				str.WriteString(varName)
 			}
-			for _, exp := range stmt.Assignment.Exprs {
+			for _, exp := range stmt.Assignment.Values.Exprs {
 				str.WriteString(" ")
 				str.WriteString(exp.String())
 			}
@@ -119,7 +119,7 @@ func (call *Call) String() string {
 		str.WriteString(".")
 		str.WriteString(call.Secondary.Value)
 	}
-	for _, exp := range call.Exprs {
+	for _, exp := range call.Arguments.Exprs {
 		str.WriteString(" ")
 		str.WriteString(exp.String())
 	}
@@ -137,7 +137,7 @@ func (typ *Type) String() string {
 				str.WriteString(param.Typ.String())
 			}
 
-			for _, expr := range param.Expr {
+			for _, expr := range param.Value.Exprs {
 				str.WriteString(" ")
 				str.WriteString(expr.String())
 			}
