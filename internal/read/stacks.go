@@ -61,3 +61,32 @@ func (stack *CallStack) Pop() {
 func (stack *CallStack) Current() *Call {
 	return stack.current
 }
+
+type TypeStack struct {
+	current *Type
+	types   []*Type
+}
+
+func (stack *TypeStack) Push(t *Type) {
+	stack.types = append(stack.types, t)
+	stack.current = t
+}
+
+func (stack *TypeStack) Pop() {
+	if len(stack.types) == 0 {
+		return
+	}
+
+	if len(stack.types) == 1 {
+		stack.current = stack.types[0]
+		stack.types = nil
+		return
+	}
+
+	stack.types = stack.types[:len(stack.types)-1]
+	stack.current = stack.types[len(stack.types)-1]
+}
+
+func (stack *TypeStack) Current() *Type {
+	return stack.current
+}

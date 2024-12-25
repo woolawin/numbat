@@ -18,13 +18,10 @@ type SourceReader struct {
 	proc      *Proc
 	statement *Statement
 
-	exprs ExprGroupStack
-	calls CallStack
-	
+	exprs   ExprGroupStack
+	calls   CallStack
+	types   TypeStack
 	varStmt *Var
-
-	typ       *Type
-	typeChain []*Type
 }
 
 func NewSourceReader() *SourceReader {
@@ -56,30 +53,8 @@ func (reader *SourceReader) Reset() {
 	reader.statement = nil
 	reader.exprs = ExprGroupStack{}
 	reader.calls = CallStack{exprStack: &reader.exprs}
+	reader.types = TypeStack{}
 	reader.varStmt = nil
-
-	reader.typ = nil
-	reader.typeChain = nil
-}
-
-func (reader *SourceReader) SetType(t *Type) {
-	reader.typeChain = append(reader.typeChain, t)
-	reader.typ = t
-}
-
-func (reader *SourceReader) UnsetType() {
-	if len(reader.typeChain) == 0 {
-		return
-	}
-
-	if len(reader.typeChain) == 1 {
-		reader.typ = reader.typeChain[0]
-		reader.typeChain = nil
-		return
-	}
-
-	reader.typeChain = reader.typeChain[:len(reader.typeChain)-1]
-	reader.typ = reader.typeChain[len(reader.typeChain)-1]
 }
 
 // ============================================================================================================
@@ -130,7 +105,7 @@ func (reader *SourceReader) EnterProc_name(ctx *parser.Proc_nameContext) {
 
 func (reader *SourceReader) EnterProc_type(ctx *parser.Proc_typeContext) {
 	reader.proc.Type = &Type{}
-	reader.SetType(reader.proc.Type)
+	reader.types.Push(reader.proc.Type)
 }
 
 // ============================================================================================================
@@ -138,23 +113,23 @@ func (reader *SourceReader) EnterProc_type(ctx *parser.Proc_typeContext) {
 // ============================================================================================================
 
 func (reader *SourceReader) EnterType(ctx *parser.TypeContext) {
-	reader.typ.Location = reader.location(ctx.BaseParserRuleContext)
+	reader.types.Current().Location = reader.location(ctx.BaseParserRuleContext)
 }
 
 func (reader *SourceReader) ExitType(ctx *parser.TypeContext) {
-	reader.UnsetType()
+	reader.types.Pop()
 }
 
 func (reader *SourceReader) EnterType_super_atomic(ctx *parser.Type_super_atomicContext) {
-	reader.typ.Out.Name = ctx.TYPE_NAME().GetText()
-	reader.typ.Out.Location = reader.location(ctx.BaseParserRuleContext)
+	reader.types.Current().Out.Name = ctx.TYPE_NAME().GetText()
+	reader.types.Current().Out.Location = reader.location(ctx.BaseParserRuleContext)
 }
 
 func (reader *SourceReader) EnterType_super_atomic_seq(ctx *parser.Type_super_atomic_seqContext) {
-	reader.typ.Out.Sequence = true
+	reader.types.Current().Out.Sequence = true
 	if ctx.NUMBER() != nil {
-		reader.typ.Out.SequenceSize = ctx.NUMBER().GetText()
-		reader.typ.Out.SequenceLocation = reader.location(ctx.BaseParserRuleContext)
+		reader.types.Current().Out.SequenceSize = ctx.NUMBER().GetText()
+		reader.types.Current().Out.SequenceLocation = reader.location(ctx.BaseParserRuleContext)
 	}
 }
 
@@ -163,22 +138,22 @@ func (reader *SourceReader) EnterType_super_atomic_seq(ctx *parser.Type_super_at
 // ============================================================================================================
 
 func (reader *SourceReader) EnterParam(ctx *parser.ParamContext) {
-	reader.typ.In = append(reader.typ.In, Param{
+	reader.types.Current().In = append(reader.types.Current().In, Param{
 		Name: Name{
 			Value:    ctx.NON_TYPE_NAME().GetText(),
 			Location: reader.location(ctx.BaseParserRuleContext),
 		},
 	})
-	reader.typ.Param = &reader.typ.In[len(reader.typ.In)-1]
+	reader.types.Current().Param = &reader.types.Current().In[len(reader.types.Current().In)-1]
 }
 
 func (reader *SourceReader) ExitParam(ctx *parser.ParamContext) {
-	reader.typ.Param = nil
+	reader.types.Current().Param = nil
 }
 
 func (reader *SourceReader) EnterParam_expr(ctx *parser.Param_exprContext) {
-	reader.typ.Param.Value = ExprGroup{}
-	reader.exprs.Push(&reader.typ.Param.Value)
+	reader.types.Current().Param.Value = ExprGroup{}
+	reader.exprs.Push(&reader.types.Current().Param.Value)
 }
 
 func (reader *SourceReader) ExitParam_expr(ctx *parser.Param_exprContext) {
@@ -186,8 +161,8 @@ func (reader *SourceReader) ExitParam_expr(ctx *parser.Param_exprContext) {
 }
 
 func (reader *SourceReader) EnterParam_type(ctx *parser.Param_typeContext) {
-	reader.typ.Param.Typ = &Type{}
-	reader.SetType(reader.typ.Param.Typ)
+	reader.types.Current().Param.Typ = &Type{}
+	reader.types.Push(reader.types.Current().Param.Typ)
 }
 
 // ============================================================================================================
@@ -224,7 +199,7 @@ func (reader *SourceReader) EnterVar_name(ctx *parser.Var_nameContext) {
 
 func (reader *SourceReader) EnterVar_type(ctx *parser.Var_typeContext) {
 	reader.varStmt.VarType = &Type{}
-	reader.SetType(reader.varStmt.VarType)
+	reader.types.Push(reader.varStmt.VarType)
 }
 
 // ============================================================================================================
