@@ -28,3 +28,36 @@ func (stack *ExprGroupStack) Pop() {
 func (stack *ExprGroupStack) Current() *ExprGroup {
 	return stack.current
 }
+
+type CallStack struct {
+	current   *Call
+	calls     []*Call
+	exprStack *ExprGroupStack
+}
+
+func (stack *CallStack) Push(call *Call) {
+	stack.calls = append(stack.calls, call)
+	stack.current = call
+
+	stack.exprStack.Push(&stack.current.Arguments)
+}
+
+func (stack *CallStack) Pop() {
+	if len(stack.calls) == 0 {
+		return
+	}
+
+	if len(stack.calls) == 1 {
+		stack.current = nil
+		stack.calls = nil
+		return
+	}
+
+	stack.calls = stack.calls[:len(stack.calls)-1]
+	stack.current = stack.calls[len(stack.calls)-1]
+	stack.exprStack.Pop()
+}
+
+func (stack *CallStack) Current() *Call {
+	return stack.current
+}

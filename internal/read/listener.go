@@ -17,10 +17,10 @@ type SourceReader struct {
 	program   *Proc
 	proc      *Proc
 	statement *Statement
-	call      *Call
-	callChain []*Call
 
-	exprs   ExprGroupStack
+	exprs ExprGroupStack
+	calls CallStack
+	
 	varStmt *Var
 
 	typ       *Type
@@ -54,35 +54,12 @@ func (reader *SourceReader) Reset() {
 	reader.fileName = ""
 	reader.proc = nil
 	reader.statement = nil
-	reader.call = nil
 	reader.exprs = ExprGroupStack{}
+	reader.calls = CallStack{exprStack: &reader.exprs}
 	reader.varStmt = nil
 
 	reader.typ = nil
 	reader.typeChain = nil
-}
-
-func (reader *SourceReader) PushCall(call *Call) {
-	reader.callChain = append(reader.callChain, call)
-	reader.call = call
-
-	reader.exprs.Push(&reader.call.Arguments)
-}
-
-func (reader *SourceReader) PopCall() {
-	if len(reader.callChain) == 0 {
-		return
-	}
-
-	if len(reader.callChain) == 1 {
-		reader.call = nil
-		reader.callChain = nil
-		return
-	}
-
-	reader.callChain = reader.callChain[:len(reader.callChain)-1]
-	reader.call = reader.callChain[len(reader.callChain)-1]
-	reader.exprs.Pop()
 }
 
 func (reader *SourceReader) SetType(t *Type) {
@@ -264,11 +241,11 @@ func (reader *SourceReader) EnterCall_stmt(ctx *parser.Call_stmtContext) {
 		Location: reader.location(ctx.BaseParserRuleContext),
 	})
 	reader.statement = &reader.proc.Statements[len(reader.proc.Statements)-1]
-	reader.PushCall(reader.statement.Call)
+	reader.calls.Push(reader.statement.Call)
 }
 
 func (reader *SourceReader) ExitCall_stmt(ctx *parser.Call_stmtContext) {
-	reader.PopCall()
+	reader.calls.Pop()
 }
 
 func (reader *SourceReader) EnterCall_primary(ctx *parser.Call_primaryContext) {
@@ -278,14 +255,14 @@ func (reader *SourceReader) EnterCall_primary(ctx *parser.Call_primaryContext) {
 	} else if ctx.TYPE_NAME() != nil {
 		primary = ctx.TYPE_NAME().GetText()
 	}
-	reader.call.Primary = Name{
+	reader.calls.Current().Primary = Name{
 		Value:    primary,
 		Location: reader.location(ctx.BaseParserRuleContext),
 	}
 }
 
 func (reader *SourceReader) EnterCall_secondary(ctx *parser.Call_secondaryContext) {
-	reader.call.Secondary = Name{
+	reader.calls.Current().Secondary = Name{
 		Value:    ctx.NON_TYPE_NAME().GetText(),
 		Location: reader.location(ctx.BaseParserRuleContext),
 	}
@@ -403,9 +380,9 @@ func (reader *SourceReader) EnterExpr_call(ctx *parser.Expr_callContext) {
 		},
 	}
 	reader.exprs.Current().Add(Expr{Call: call, Location: reader.location(ctx.BaseParserRuleContext)})
-	reader.PushCall(call)
+	reader.calls.Push(call)
 }
 
 func (reader *SourceReader) ExitExpr_call(ctx *parser.Expr_callContext) {
-	reader.PopCall()
+	reader.calls.Pop()
 }
