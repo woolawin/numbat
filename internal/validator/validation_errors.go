@@ -298,10 +298,30 @@ func NewIncompatibleElementType(location Location, actual, expected InOutType) V
 
 func (verr IncompatibleElementType) Message() string {
 	return fmt.Sprintf(
-		"(%d,%d) value with type `%s` can not be used for sequence of `%s`)",
+		"(%d,%d) value with type `%s` can not be used for sequence of `%s`",
 		verr.Location.Line,
 		verr.Location.Column,
-		verr.Expected.String(),
 		verr.Actual.String(),
+		verr.Expected.String(),
+	)
+}
+
+type IncompatibleParameterType struct {
+	Location Location
+	Expected InOutType
+	Actual   InOutType
+}
+
+func NewIncompatibleParameterType(location Location, expected, actual InOutType) ValidationError {
+	return IncompatibleParameterType{Location: location, Actual: actual, Expected: expected}
+}
+
+func (verr IncompatibleParameterType) Message() string {
+	return fmt.Sprintf(
+		"(%d, %d) value with type `%s` can not be used for paramter of `%s`",
+		verr.Location.Line,
+		verr.Location.Column,
+		verr.Actual.String(),
+		verr.Expected.String(),
 	)
 }

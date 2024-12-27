@@ -391,7 +391,7 @@ func (validation *Validation) procedureCall(call *read.Call, context *Context) (
 		if validateParamAgainstType {
 			typeToCheckAgainst = object.GetType().In[idx].Type
 		}
-		opts := NewExprOpts(ExprOpts{}, ExpectedTypeOpt(typeToCheckAgainst))
+		opts := NewExprOpts(ExprOpts{}, ExpectedTypeOpt(typeToCheckAgainst), ValidationErrOpt(NewIncompatibleParameterType))
 		e, ok := validation.expression(subexpr, opts, context, false)
 		if !ok && argumentsOk {
 			argumentsOk = false
