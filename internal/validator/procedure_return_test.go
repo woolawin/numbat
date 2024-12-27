@@ -117,8 +117,8 @@ end
 	validation := NewValidation()
 	validation.Validate(readsrc(code))
 
-	assertValidationError(t, validation, NewIncompatibleReturnValueType(loc(10, 9), NewBoolInOutType(), NewInt32InOutType()))
-	assertValidationError(t, validation, NewIncompatibleReturnValueType(loc(18, 9), NewInt32InOutType(), NewBoolInOutType()))
-	assertValidationError(t, validation, NewIncompatibleReturnValueType(loc(28, 9), NewBoolInOutType(), NewInt64InOutType()))
+	assertValidationError(t, validation, NewIncompatibleReturnValueType(loc(10, 9), NewInt32InOutType(), NewBoolInOutType()))
+	assertValidationError(t, validation, NewIncompatibleReturnValueType(loc(18, 9), NewBoolInOutType(), NewInt32InOutType()))
+	assertValidationError(t, validation, NewIncompatibleReturnValueType(loc(28, 9), NewInt64InOutType(), NewBoolInOutType()))
 	assertValidationErrorCount(t, validation, 3)
 }

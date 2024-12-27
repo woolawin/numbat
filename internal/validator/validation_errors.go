@@ -234,7 +234,7 @@ type IncompatibleReturnValueType struct {
 	Expected InOutType
 }
 
-func NewIncompatibleReturnValueType(location Location, actual, expected InOutType) IncompatibleReturnValueType {
+func NewIncompatibleReturnValueType(location Location, expected, actual InOutType) ValidationError {
 	return IncompatibleReturnValueType{Location: location, Actual: actual, Expected: expected}
 }
 
@@ -283,5 +283,25 @@ func (verr IncorrectSequenceSize) Message() string {
 		verr.Location.Column,
 		verr.Expected,
 		verr.Actual,
+	)
+}
+
+type IncompatibleElementType struct {
+	Location Location
+	Expected InOutType
+	Actual   InOutType
+}
+
+func NewIncompatibleElementType(location Location, actual, expected InOutType) ValidationError {
+	return IncompatibleElementType{Location: location, Actual: actual, Expected: expected}
+}
+
+func (verr IncompatibleElementType) Message() string {
+	return fmt.Sprintf(
+		"(%d,%d) value with type `%s` can not be used for sequence of `%s`)",
+		verr.Location.Line,
+		verr.Location.Column,
+		verr.Expected.String(),
+		verr.Actual.String(),
 	)
 }

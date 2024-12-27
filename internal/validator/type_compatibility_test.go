@@ -21,8 +21,8 @@ end
 
 	assertValidationError(t, validation, NewIncorrectSequenceSize(loc(4, 19), 3, 5))
 	assertValidationError(t, validation, NewIncorrectSequenceSize(loc(5, 19), 5, 3))
-	assertValidationError(t, validation, NewIncompatibleType(NewBoolInOutType(), NewInt32InOutType(), loc(6, 20)))
-	assertValidationError(t, validation, NewIncompatibleType(NewBoolInOutType(), NewInt32InOutType(), loc(6, 25)))
+	assertValidationError(t, validation, NewIncompatibleElementType(loc(6, 20), NewInt32InOutType(), NewBoolInOutType()))
+	assertValidationError(t, validation, NewIncompatibleElementType(loc(6, 25), NewInt32InOutType(), NewBoolInOutType()))
 
 	assertValidationErrorCount(t, validation, 4)
 }

@@ -154,9 +154,7 @@ func (validation *Validation) validateType(t *read.Type, context *Context, repor
 		out.IsSequence = true
 		if t.Out.SequenceSize != "" {
 			size, err := strconv.Atoi(t.Out.SequenceSize)
-			if err != nil {
-				validation.addError(NewInvalidSequenceSize(t.Out.SequenceLocation, t.Out.SequenceSize))
-			} else if size < 1 {
+			if err != nil || size < 1 {
 				validation.addError(NewInvalidSequenceSize(t.Out.SequenceLocation, t.Out.SequenceSize))
 			} else {
 				out.SequenceSize = size
@@ -174,7 +172,8 @@ func (validation *Validation) validateType(t *read.Type, context *Context, repor
 		var defaultValue Expression
 		if param.Value.IsNotEmpty() {
 			// There is a default value to this in type so check that it is valid
-			e, ok := validation.expression(param.Value.First(), nil, context, false)
+			opts := NewExprOpts(ExprOpts{})
+			e, ok := validation.expression(param.Value.First(), opts, context, false)
 			if ok {
 				defaultValue = e
 			} else {
@@ -197,7 +196,8 @@ func (validation *Validation) variable(stmt *read.Var, context *Context) (Variab
 		// move on to the next statement
 		validation.addError(NewNameConflict(stmt.Name.ToName(), object.GetName().Location))
 		if stmt.Value.IsNotEmpty() {
-			validation.expression(stmt.Value.First(), nil, context, stmt.VarType == nil)
+			opts := NewExprOpts(ExprOpts{})
+			validation.expression(stmt.Value.First(), opts, context, stmt.VarType == nil)
 		}
 		return VariableDeclaration{}, false
 	}
@@ -218,7 +218,8 @@ func (validation *Validation) variable(stmt *read.Var, context *Context) (Variab
 			validation.addError(NewNoExprToInferVariableType(stmt.Name.ToName()))
 		}
 	} else {
-		expr, ok := validation.expression(stmt.Value.First(), variableType, context, variableType == nil)
+		opts := NewExprOpts(ExprOpts{}, ExpectedTypeOpt(variableType))
+		expr, ok := validation.expression(stmt.Value.First(), opts, context, variableType == nil)
 		if ok {
 			variableValue = expr
 			if variableType == nil {
@@ -239,7 +240,7 @@ func (validation *Validation) variable(stmt *read.Var, context *Context) (Variab
 	return variableDeclaration, true
 }
 
-func (validation *Validation) expression(expr *read.Expr, expectedType *InOutType, context *Context, forInference bool) (Expression, bool) {
+func (validation *Validation) expression(expr *read.Expr, opts ExprOpts, context *Context, forInference bool) (Expression, bool) {
 
 	var expression Expression
 	if expr.Type != nil {
@@ -309,10 +310,11 @@ func (validation *Validation) expression(expr *read.Expr, expectedType *InOutTyp
 
 	if expr.Seq != nil {
 		var values []Expression
-		var elemType = sequenceElementType(expectedType)
+		var elemType = sequenceElementType(opts.ExpectedType)
 		for _, val := range expr.Seq.Exprs {
 			// Validate every expression in the sequence
-			value, ok := validation.expression(&val, elemType, context, false)
+			newOpts := NewExprOpts(opts, ExpectedTypeOpt(elemType), ValidationErrOpt(NewIncompatibleElementType))
+			value, ok := validation.expression(&val, newOpts, context, false)
 			if !ok {
 				continue
 			}
@@ -330,8 +332,8 @@ func (validation *Validation) expression(expr *read.Expr, expectedType *InOutTyp
 			elemType = e
 
 		}
-		if expectedType != nil && expectedType.Out.IsSequence {
-			expected := expectedType.Out.SequenceSize
+		if opts.ExpectedType != nil && opts.ExpectedType.Out.IsSequence {
+			expected := opts.ExpectedType.Out.SequenceSize
 			if expected != len(values) {
 				validation.addError(NewIncorrectSequenceSize(expr.Location, expected, len(values)))
 			}
@@ -348,12 +350,12 @@ func (validation *Validation) expression(expr *read.Expr, expectedType *InOutTyp
 		return expression, false
 	}
 
-	if expectedType == nil {
+	if opts.ExpectedType == nil {
 		return expression, true
 	}
 	et := expression.GetType()
-	if areTypesIncompatible(*expectedType, et) {
-		validation.addError(NewIncompatibleType(et, *expectedType, expr.Location))
+	if areTypesIncompatible(*opts.ExpectedType, et) {
+		validation.addError(opts.ErrorBuilder(expr.Location, *opts.ExpectedType, et))
 	}
 	return expression, true
 }
@@ -389,7 +391,8 @@ func (validation *Validation) procedureCall(call *read.Call, context *Context) (
 		if validateParamAgainstType {
 			typeToCheckAgainst = object.GetType().In[idx].Type
 		}
-		e, ok := validation.expression(subexpr, typeToCheckAgainst, context, false)
+		opts := NewExprOpts(ExprOpts{}, ExpectedTypeOpt(typeToCheckAgainst))
+		e, ok := validation.expression(subexpr, opts, context, false)
 		if !ok && argumentsOk {
 			argumentsOk = false
 		}
@@ -417,15 +420,13 @@ func (validation *Validation) returnStatement(ret *read.Return, location Locatio
 		return NewReturnStatement(context, nil)
 	}
 
-	expr, ok := validation.expression(ret.Value.First(), nil, context, false)
+	returnType := NewInOutType(nil, context.ReturnType)
+	opts := NewExprOpts(ExprOpts{}, ExpectedTypeOpt(&returnType), ValidationErrOpt(NewIncompatibleReturnValueType))
+	expr, ok := validation.expression(ret.Value.First(), opts, context, false)
 	if !ok {
 		return NewReturnStatement(context, nil)
 	}
 
-	returnType := NewInOutType(nil, context.ReturnType)
-	if areTypesIncompatible(returnType, expr.GetType()) {
-		validation.addError(NewIncompatibleReturnValueType(ret.Value.First().Location, expr.GetType(), returnType))
-	}
 	return NewReturnStatement(context, expr)
 }
 
@@ -511,4 +512,34 @@ func sequenceElementType(seqType *InOutType) *InOutType {
 type ExprOpts struct {
 	ExpectedType *InOutType
 	ErrorBuilder func(location Location, expected InOutType, actual InOutType) ValidationError
+}
+
+type ExprOpt func(opts *ExprOpts)
+
+func NewExprOpts(base ExprOpts, opts ...ExprOpt) ExprOpts {
+	exprOpts := ExprOpts{
+		ExpectedType: base.ExpectedType,
+		ErrorBuilder: base.ErrorBuilder,
+	}
+	for _, opt := range opts {
+		opt(&exprOpts)
+	}
+	if exprOpts.ErrorBuilder == nil {
+		exprOpts.ErrorBuilder = func(location Location, expected InOutType, actual InOutType) ValidationError {
+			return NewIncompatibleType(actual, expected, location)
+		}
+	}
+	return exprOpts
+}
+
+func ExpectedTypeOpt(expectedType *InOutType) ExprOpt {
+	return func(opts *ExprOpts) {
+		opts.ExpectedType = expectedType
+	}
+}
+
+func ValidationErrOpt(f func(location Location, expected InOutType, actual InOutType) ValidationError) ExprOpt {
+	return func(opts *ExprOpts) {
+		opts.ErrorBuilder = f
+	}
 }
