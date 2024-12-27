@@ -22,15 +22,18 @@ type AtomicType interface {
 	IsNoType() bool
 	IsCompileError() bool
 	IsNeverCompatible() bool
+
+	GetTypesCanCastTo() []AtomicType
 }
 
 type SuperAtomicType struct {
-	Type          AtomicType
+	Type         AtomicType
 	IsSequence   bool
 	SequenceSize int
 	IsOptional   bool
-	IsError       bool
+	IsError      bool
 }
+
 
 func (s *SuperAtomicType) IsNoType() bool {
 	return s.Type.IsNoType()
@@ -132,16 +135,27 @@ func NewBoolInOutType() InOutType {
 	return NewAtomicInOutType(NewBoolType())
 }
 
+func NewBoolSuperType() SuperAtomicType {
+	return NewSuperAtomicType(NewBoolType())
+}
+
 // Int32Type --------------------------------------------------
 //
 // ------------------------------------------------------------
 
 func NewInt32Type() StandardType {
-	return StandardType{Out: Name{Value: TypeInt32}}
+	return StandardType{
+		Out:         Name{Value: TypeInt32},
+		CastToTypes: []AtomicType{NewInt64Type(), NewFloat64Type()},
+	}
 }
 
 func NewInt32InOutType() InOutType {
 	return NewAtomicInOutType(NewInt32Type())
+}
+
+func NewInt32SuperType() SuperAtomicType {
+	return NewSuperAtomicType(NewInt32Type())
 }
 
 // Int64Type --------------------------------------------------
@@ -156,16 +170,27 @@ func NewInt64InOutType() InOutType {
 	return NewAtomicInOutType(NewInt64Type())
 }
 
+func NewInt64SuperType() SuperAtomicType {
+	return NewSuperAtomicType(NewInt64Type())
+}
+
 // Float32Type ------------------------------------------------
 //
 // ------------------------------------------------------------
 
 func NewFloat32Type() StandardType {
-	return StandardType{Out: Name{Value: TypeFloat32}}
+	return StandardType{
+		Out:         Name{Value: TypeFloat32},
+		CastToTypes: []AtomicType{NewInt64Type(), NewFloat64Type()},
+	}
 }
 
 func NewFloat32InOutType() InOutType {
 	return NewAtomicInOutType(NewFloat32Type())
+}
+
+func NewFloat32SuperType() SuperAtomicType {
+	return NewSuperAtomicType(NewFloat32Type())
 }
 
 // Float64Type ------------------------------------------------
@@ -173,11 +198,18 @@ func NewFloat32InOutType() InOutType {
 // ------------------------------------------------------------
 
 func NewFloat64Type() StandardType {
-	return StandardType{Out: Name{Value: TypeFloat64}}
+	return StandardType{
+		Out:         Name{Value: TypeFloat64},
+		CastToTypes: []AtomicType{NewInt64Type()},
+	}
 }
 
 func NewFloat64InOutType() InOutType {
 	return NewAtomicInOutType(NewFloat64Type())
+}
+
+func NewFloat64SuperType() SuperAtomicType {
+	return NewSuperAtomicType(NewFloat64Type())
 }
 
 // ByteType ---------------------------------------------------
@@ -227,6 +259,10 @@ func (t NullType) IsNoType() bool {
 	return false
 }
 
+func (t NullType) GetTypesCanCastTo() []AtomicType {
+	return nil
+}
+
 // StringType -------------------------------------------------
 //
 // ------------------------------------------------------------
@@ -244,7 +280,12 @@ func NewStringInOutType() InOutType {
 // ------------------------------------------------------------
 
 type StandardType struct {
-	Out Name
+	Out         Name
+	CastToTypes []AtomicType
+}
+
+func (t StandardType) GetTypesCanCastTo() []AtomicType {
+	return t.CastToTypes
 }
 
 func (t StandardType) GetName() string {
@@ -290,6 +331,10 @@ func (t NoType) IsNoType() bool {
 	return true
 }
 
+func (t NoType) GetTypesCanCastTo() []AtomicType {
+	return nil
+}
+
 // CompileErrorType -------------------------------------------
 //
 // ------------------------------------------------------------
@@ -315,4 +360,8 @@ func (e CompileErrorType) IsNeverCompatible() bool {
 
 func (e CompileErrorType) IsNoType() bool {
 	return false
+}
+
+func (e CompileErrorType) GetTypesCanCastTo() []AtomicType {
+	return nil
 }

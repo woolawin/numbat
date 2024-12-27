@@ -5,6 +5,28 @@ import (
 	"testing"
 )
 
+func TestSequenceCompatability(t *testing.T) {
+	code := `
+program do
+	var a Int32[3] = [1 2 3] 		// OK
+	var b Int32[3] = [1 2 3 4 5] 	// ERROR: Too Many
+	var c Int32[5] = [1 2 3]		// ERROR: Too Few
+	var d Int32[2] = [true false]	// ERROR: Wrong Type
+end
+`
+
+	src := readsrc(code)
+	validation := NewValidation()
+	validation.Validate(src)
+
+	assertValidationError(t, validation, NewIncorrectSequenceSize(loc(4, 19), 3, 5))
+	assertValidationError(t, validation, NewIncorrectSequenceSize(loc(5, 19), 5, 3))
+	assertValidationError(t, validation, NewIncompatibleType(NewBoolInOutType(), NewInt32InOutType(), loc(6, 20)))
+	assertValidationError(t, validation, NewIncompatibleType(NewBoolInOutType(), NewInt32InOutType(), loc(6, 25)))
+
+	assertValidationErrorCount(t, validation, 4)
+}
+
 func TestIncompatibleLiteralTypes(t *testing.T) {
 	code := `
 program do

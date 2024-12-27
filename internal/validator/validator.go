@@ -307,6 +307,42 @@ func (validation *Validation) expression(expr *read.Expr, expectedType *InOutTyp
 		expression = &e
 	}
 
+	if expr.Seq != nil {
+		var values []Expression
+		var elemType = sequenceElementType(expectedType)
+		for _, val := range expr.Seq.Exprs {
+			// Validate every expression in the sequence
+			value, ok := validation.expression(&val, elemType, context, false)
+			if !ok {
+				continue
+			}
+			values = append(values, value)
+			valueType := value.GetType()
+			if elemType == nil {
+				// If this is the first type en-counted, use it as the sequence type for now
+				elemType = &valueType
+				continue
+			}
+			e := commonType(*elemType, valueType)
+			if e == nil {
+				continue
+			}
+			elemType = e
+
+		}
+		if expectedType != nil && expectedType.Out.IsSequence {
+			expected := expectedType.Out.SequenceSize
+			if expected != len(values) {
+				validation.addError(NewIncorrectSequenceSize(expr.Location, expected, len(values)))
+			}
+		}
+		if elemType == nil {
+			return expression, false
+		}
+		e := NewSequenceExpression(expr.Seq.Count(), values, *elemType)
+		expression = &e
+	}
+
 	if expression == nil {
 		// TODO return error
 		return expression, false
@@ -434,4 +470,45 @@ func areTypesIncompatible(left, right InOutType) bool {
 
 func (validation *Validation) addError(verr ValidationError) {
 	validation.errors = append(validation.errors, verr)
+}
+
+func commonType(a, b InOutType) *InOutType {
+	if a.Out.IsNeverCompatible() || b.Out.IsNeverCompatible() {
+		return nil
+	}
+	isSameType := a.Out.Type.GetName() == b.Out.Type.GetName()
+	isError := a.Out.IsError || b.Out.IsError
+	isOptional := !isError && (a.Out.IsOptional || b.Out.IsOptional)
+
+	if isSameType {
+		return &InOutType{In: nil, Out: SuperAtomicType{Type: a.Out.Type, IsError: isError, IsOptional: isOptional}}
+	}
+
+	for _, other := range a.Out.Type.GetTypesCanCastTo() {
+		if other.GetName() == b.Out.Type.GetName() {
+			return &InOutType{In: nil, Out: SuperAtomicType{Type: other, IsError: isError, IsOptional: isOptional}}
+		}
+	}
+
+	for _, other := range b.Out.Type.GetTypesCanCastTo() {
+		if other.GetName() == a.Out.Type.GetName() {
+			return &InOutType{In: nil, Out: SuperAtomicType{Type: other, IsError: isError, IsOptional: isOptional}}
+		}
+	}
+
+	return nil
+}
+
+func sequenceElementType(seqType *InOutType) *InOutType {
+	if seqType == nil {
+		return nil
+	}
+	return &InOutType{In: nil, Out: SuperAtomicType{
+		Type: seqType.Out.Type,
+	}}
+}
+
+type ExprOpts struct {
+	ExpectedType *InOutType
+	ErrorBuilder func(location Location, expected InOutType, actual InOutType) ValidationError
 }

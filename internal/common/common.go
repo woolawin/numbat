@@ -54,9 +54,6 @@ func (p *Procedure) AddParameter(param Parameter) {
 	p.Parameters = append(p.Parameters, param)
 }
 
-type Expression interface {
-	GetType() InOutType
-}
 
 type Source struct {
 	Context    Context

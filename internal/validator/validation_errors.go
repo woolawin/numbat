@@ -265,3 +265,23 @@ func (verr InvalidSequenceSize) Message() string {
 		verr.Value,
 	)
 }
+
+type IncorrectSequenceSize struct {
+	Location Location
+	Expected int
+	Actual   int
+}
+
+func NewIncorrectSequenceSize(location Location, expected int, actual int) IncorrectSequenceSize {
+	return IncorrectSequenceSize{Location: location, Expected: expected, Actual: actual}
+}
+
+func (verr IncorrectSequenceSize) Message() string {
+	return fmt.Sprintf(
+		"(%d,%d) expected sequence size of `%d` but found `%d`",
+		verr.Location.Line,
+		verr.Location.Column,
+		verr.Expected,
+		verr.Actual,
+	)
+}

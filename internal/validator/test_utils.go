@@ -8,9 +8,26 @@ import (
 )
 
 func typesAreNotEqual(a, b InOutType) bool {
-	if a.Out != b.Out {
+	if a.Out.Type.GetName() != b.Out.Type.GetName() {
 		return true
 	}
+
+	if a.Out.IsSequence != b.Out.IsSequence {
+		return true
+	}
+
+	if a.Out.SequenceSize != b.Out.SequenceSize {
+		return true
+	}
+
+	if a.Out.IsOptional != b.Out.IsOptional {
+		return true
+	}
+
+	if a.Out.IsError != b.Out.IsError {
+		return true
+	}
+
 	if len(a.In) != len(b.In) {
 		return true
 	}

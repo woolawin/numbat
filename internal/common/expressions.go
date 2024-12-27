@@ -1,5 +1,9 @@
 package common
 
+type Expression interface {
+	GetType() InOutType
+}
+
 type VariableExpression struct {
 	Name Name
 	Type InOutType
@@ -39,4 +43,22 @@ func NewProcedureExpression(call ProcedureCall) ProceduresExpression {
 
 func (pe *ProceduresExpression) GetType() InOutType {
 	return pe.ReturnType
+}
+
+type SequenceExpression struct {
+	Size   int
+	Values []Expression
+	Type   InOutType
+}
+
+func NewSequenceExpression(size int, values []Expression, typ InOutType) SequenceExpression {
+	return SequenceExpression{
+		Size:   size,
+		Values: values,
+		Type:   typ,
+	}
+}
+
+func (se SequenceExpression) GetType() InOutType {
+	return se.Type
 }
